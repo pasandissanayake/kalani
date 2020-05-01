@@ -133,7 +133,7 @@ class Filter_V1():
                 break
 
         if index == 'nan':
-            print('measurement is too old', time, self.get_filter_time(0), self.get_filter_time(-1), len(self.state_buffer))
+            print('measurement is too old. measurement time:', time, self.get_filter_time(0), 'oldest filter time:',self.get_filter_time(-1))
             return
 
         self.load_state_from_buffer(index)
