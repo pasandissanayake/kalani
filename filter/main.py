@@ -7,7 +7,7 @@ from filter_v1 import Filter_V1
 from rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
 
 # Data directory
-data_dir = "2012-04-29"
+data_dir = "../data/2012-04-29"
 
 # Rotation matrix from NED to ENU
 R_ned_enu = np.array([[0,1,0],[1,0,0],[0,0,-1]])
