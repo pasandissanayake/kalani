@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import interp1d
-from rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
+from .rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
 
 # Data directory
 data_dir = "2012-04-29"

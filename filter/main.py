@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import pickle
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import interp1d
-from filter_v1 import Filter_V1
-from rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
+from .filter_v1 import Filter_V1
+from .rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
 
 # Data directory
 data_dir = "../data/2012-04-29"
@@ -77,43 +77,20 @@ imu = np.loadtxt(data_dir + "/" + "ms25.csv", delimiter=",")
 
 
 
-#
-# with open('data/pt3_data.pkl', 'rb') as file:
-#     data = pickle.load(file)
-#
-# gt_raw = data['gt']
-# imu_f_raw = data['imu_f']
-# imu_w_raw = data['imu_w']
-# gnss_raw = data['gnss']
-# lidar_raw = data['lidar']
-#
-# gt = np.zeros([gt_raw.p.shape[0],7])
-# gt[:,1:4] = gt_raw.p
-# gt[:,4:7] = gt_raw.r
-# gt[:,0] = gt_raw._t[0:gt_raw.p.shape[0]]
-#
-# gnss = np.zeros([gnss_raw.data.shape[0],4])
-# gnss[:,0] = gnss_raw.t
-# gnss[:,1:4] = gnss_raw.data
-#
-# imu = np.zeros([imu_f_raw.data.shape[0],10])
-# imu[:,0] = imu_f_raw.t[0:imu_f_raw.data.shape[0]]
-# imu[:,4:7] = imu_f_raw.data
-# imu[:,7:10] = imu_w_raw.data
-
 time_multiplication_factor = 10**(-6)
-
-
 
 kf = Filter_V1()
 p0 = gnss[0,1:4]
 v0 = np.zeros(3)
-q0 = Quaternion(euler=gt[0,4:7]).to_numpy()
+q0 = Quaternion(euler=gt[3,4:7]).to_numpy()
 g0 = [0, 0, -9.8]
 ab0 = np.zeros(3)
 wb0 = np.zeros(3)
 x0 = np.array([*p0,*v0,*q0,*g0,*ab0,*wb0])
 P0 = np.zeros([15,15])
+P0[0:2, 0:2] = 10 * np.eye(2)
+P0[2,2] = 150
+P0[6:9,6:9] = 0.5 * np.eye(3)
 t0 = imu[0,0]*time_multiplication_factor
 kf.initialize_state(x0,P0,t0)
 print([*p0,*v0,*q0,*ab0,*wb0])
@@ -127,7 +104,7 @@ cov_est = []
 bias_est = []
 
 length = imu.shape[0]
-length = 26000
+# length = 26000
 for k in range(1,length):
 
     kf.predict(imu[k,4:7],imu[k,7:10],imu[k,0]*time_multiplication_factor)
@@ -135,12 +112,12 @@ for k in range(1,length):
     # GNSS correction
 
     # GNSS with altitude correction
-    # if gnss_k < len(gnss[:, 0]) and gnss[gnss_k, 0] >= imu[k - 1, 0] and gnss[gnss_k, 0] <= imu[k, 0] and gnss[gnss_k,4] == 3:
-    #     kf.correct(gnss[gnss_k,1:4],gnss[gnss_k,0]*time_multiplication_factor,Filter_V1.GNSS_WITH_ALT)
-    #     gnss_k += 1
+    if gnss_k < len(gnss[:, 0]) and gnss[gnss_k, 0] >= imu[k - 1, 0] and gnss[gnss_k, 0] <= imu[k, 0] and gnss[gnss_k,4] == 3:
+        kf.correct(gnss[gnss_k,1:4],gnss[gnss_k,0]*time_multiplication_factor,Filter_V1.GNSS_WITH_ALT)
+        gnss_k += 1
 
     # GNSS without altitude correction
-    if gnss_k < len(gnss[:, 0]) and gnss[gnss_k, 0] >= imu[k - 1, 0] and gnss[gnss_k, 0] <= imu[k, 0] and gnss[gnss_k,4] >= 2:
+    if gnss_k < len(gnss[:, 0]) and gnss[gnss_k, 0] >= imu[k - 1, 0] and gnss[gnss_k, 0] <= imu[k, 0] and gnss[gnss_k,4] == 2:
         kf.correct(gnss[gnss_k,1:3],gnss[gnss_k,0]*time_multiplication_factor,Filter_V1.GNSS_NO_ALT)
         gnss_k += 1
 
@@ -150,14 +127,14 @@ for k in range(1,length):
 
     # Odometry correction
 
-    # Odometry with altitude
-    if odom_k < len(odom[:, 0]) and odom[odom_k, 0] >= imu[k - 1, 0] and odom[odom_k, 0] <= imu[k, 0]:
-        kf.correct(odom[odom_k,1:4],odom[odom_k,0]*time_multiplication_factor,Filter_V1.ODOM_WITH_ALT)
-        odom_k += 1
-
-    # Neglect odometry readings if not within the time span of IMU readings
-    while odom[odom_k, 0]<imu[k, 0]:
-        odom_k += 1
+    # # Odometry with altitude
+    # if odom_k < len(odom[:, 0]) and odom[odom_k, 0] >= imu[k - 1, 0] and odom[odom_k, 0] <= imu[k, 0]:
+    #     kf.correct(odom[odom_k,1:4],odom[odom_k,0]*time_multiplication_factor,Filter_V1.ODOM_WITH_ALT)
+    #     odom_k += 1
+    #
+    # # Neglect odometry readings if not within the time span of IMU readings
+    # while odom[odom_k, 0]<imu[k, 0]:
+    #     odom_k += 1
 
     p,v,q,ab,wb,P = kf.get_state()
 

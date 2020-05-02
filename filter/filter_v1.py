@@ -1,5 +1,5 @@
 import numpy as np
-from rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
+from .rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
 
 
 class Filter_V1():
@@ -40,10 +40,10 @@ class Filter_V1():
         self.Fi[3:15, :] = np.eye(12)
 
         # Prediction variances
-        self.var_imu_an = 0.001
-        self.var_imu_wn = 0.001
-        self.var_imu_aw = 0.00001
-        self.var_imu_ww = 0.00001
+        self.var_imu_an = 0.01
+        self.var_imu_wn = 0.05
+        self.var_imu_aw = 0.0000
+        self.var_imu_ww = 0.0000
 
         #############################################################
         ################# Correction step variables #################
@@ -60,7 +60,7 @@ class Filter_V1():
         self.Hx_gnss_no_alt = np.zeros([2, 16])
         self.Hx_gnss_no_alt[:, 0:2] = np.eye(2)
 
-        # Variables for odometry with altitude
+        # Variables for velocity from odometry with altitude
         self.var_odom_with_alt = 10.0
         self.Hx_odom_with_alt = np.zeros([3,16])
         self.Hx_odom_with_alt[:, 3:6] = np.eye(3)
@@ -172,7 +172,6 @@ class Filter_V1():
             K = self.P @ H.T @ np.linalg.inv(H @ self.P @ H.T + V)
             self.P = (np.eye(15) - K @ H) @ self.P
             dx = K @ (y - self.v)
-
 
         self.p = self.p + dx[0:3]
         self.v = self.v + dx[3:6]
