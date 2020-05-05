@@ -2,10 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import interp1d
-from .rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
+from rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
+from scipy.signal import butter,filtfilt
+import numpy.fft as fft
 
 # Data directory
-data_dir = "2012-04-29"
+data_dir = "../data/2012-04-29"
 
 
 
@@ -63,9 +65,44 @@ gnss[:,3] = dAlt
 # GNSS data in ENU
 gnss[:,1:4] = (R_ned_enu @ gnss[:,1:4].T).T
 
-gt_function = interp1d(gt[:,0],gt[:,1:4], axis=0, bounds_error=False, kind='linear', fill_value='extrapolate')
-gt_interpol = gt_function(gnss[:,0])
-dif = (gnss[:,1:4]-gt_interpol[:,0:3])**2
-print(dif)
-var = np.sum(dif, axis=0) / gnss.shape[0]
-print(var)
+
+# Load IMU data
+imu = np.loadtxt(data_dir + "/" + "ms25.csv", delimiter=",")
+
+
+
+
+
+
+# Variance of GNSS data
+# gt_function = interp1d(gt[:,0],gt[:,1:4], axis=0, bounds_error=False, kind='linear', fill_value='extrapolate')
+# gt_interpol = gt_function(gnss[:,0])
+# dif = (gnss[:,1:4]-gt_interpol[:,0:3])**2
+# print(dif)
+# var = np.sum(dif, axis=0) / gnss.shape[0]
+# print(var)
+
+sample_freq = np.average(10**6/np.diff(imu[:,0]))
+cutoff_freq = 1
+print(sample_freq)
+order = 2
+normal_cutoff = cutoff_freq / sample_freq
+
+b, a = butter(order, normal_cutoff, btype='low', analog=False)
+y = filtfilt(b, a, imu[:,4])
+
+fig_imu,ax = plt.subplots(1, 1)
+ax.plot(imu[:,0], imu[:,4], label='raw imu')
+ax.plot(imu[:,0], y[:], label='filtered imu')
+# ax.plot(gt[:,1], gt[:,2], gt[:,3], label='Ground Truth')
+ax.legend()
+
+
+raw_spectrum = fft.fft(imu[:, 4])
+fil_spectrum = fft.fft(y[:])
+freq = fft.fftfreq(len(raw_spectrum))
+fig_fft,ax = plt.subplots(1,1)
+ax.plot(freq, abs(raw_spectrum), label='raw spectrum')
+ax.plot(freq, abs(fil_spectrum), label='filtered spectrum')
+ax.legend()
+plt.show()

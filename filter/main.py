@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import pickle
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import interp1d
-from .filter_v1 import Filter_V1
-from .rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
+from filter_v1 import Filter_V1
+from rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
 
 # Data directory
 data_dir = "../data/2012-04-29"
@@ -38,7 +38,7 @@ lng = gnss[:,2]
 alt = gnss[:,3]
 dLat = lat - lat0
 dLng = lng - lng0
-dAlt = alt0 - alt
+dAlt = alt - alt0
 # GNSS data in NED
 r = 6400000
 gnss[:,1] = r * np.sin(dLat)
@@ -80,7 +80,7 @@ imu = np.loadtxt(data_dir + "/" + "ms25.csv", delimiter=",")
 time_multiplication_factor = 10**(-6)
 
 kf = Filter_V1()
-p0 = gnss[0,1:4]
+p0 = gt[0,1:4]
 v0 = np.zeros(3)
 q0 = Quaternion(euler=gt[3,4:7]).to_numpy()
 g0 = [0, 0, -9.8]
@@ -88,8 +88,8 @@ ab0 = np.zeros(3)
 wb0 = np.zeros(3)
 x0 = np.array([*p0,*v0,*q0,*g0,*ab0,*wb0])
 P0 = np.zeros([15,15])
-P0[0:2, 0:2] = 10 * np.eye(2)
-P0[2,2] = 150
+P0[0:2, 0:2] = 50 * np.eye(2)
+P0[2,2] = 200
 P0[6:9,6:9] = 0.5 * np.eye(3)
 t0 = imu[0,0]*time_multiplication_factor
 kf.initialize_state(x0,P0,t0)
@@ -137,6 +137,9 @@ for k in range(1,length):
     #     odom_k += 1
 
     p,v,q,ab,wb,P = kf.get_state()
+
+    if not np.all(np.linalg.eigvals(P) >= 0):
+        print(k, 'no! it is not!!')
 
     pose_est.append([imu[k,0],*p,*q])
     cov_est.append([imu[k,0],P])
@@ -216,7 +219,7 @@ fig_1d, ax = plt.subplots(1, 3)
 fig_1d.suptitle('1D Plots')
 for i in range(0,3):
     ax[i].plot(gt[:,0], gt[:,i+1], label='Ground truth')
-    ax[i].plot(gnss[:, 0], gnss[:, i + 1], label='GNSS')
+    ax[i].plot(gnss[:, 0], gnss[:, i + 1], '.', label='GNSS')
     # ax[i].plot(odom[:, 0], odom[:, i + 1], label='Odometry')
     ax[i].plot(pose_est[:,0], pose_est[:,i+1], label='Estimate')
     ax[i].set_title(titles[i])

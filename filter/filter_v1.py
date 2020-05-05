@@ -1,5 +1,5 @@
 import numpy as np
-from .rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
+from rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
 
 
 class Filter_V1():
@@ -40,8 +40,8 @@ class Filter_V1():
         self.Fi[3:15, :] = np.eye(12)
 
         # Prediction variances
-        self.var_imu_an = 0.01
-        self.var_imu_wn = 0.05
+        self.var_imu_an = 0.0001
+        self.var_imu_wn = 0.0005
         self.var_imu_aw = 0.0000
         self.var_imu_ww = 0.0000
 
@@ -51,7 +51,7 @@ class Filter_V1():
 
         # Variables for GNSS with altitude
         self.var_gnss_with_alt_horizontal = 10.0
-        self.var_gnss_with_alt_vertical = 150.0
+        self.var_gnss_with_alt_vertical = 200.0
         self.Hx_gnss_with_alt = np.zeros([3, 16])
         self.Hx_gnss_with_alt[:, 0:3] = np.eye(3)
 
