@@ -1,2 +1,0 @@
-filter_v1
--DCATKIN_DEVEL_PREFIX=/home/pasan/kalani/ros-packages/devel -DCMAKE_INSTALL_PREFIX=/home/pasan/kalani/ros-packages/install -G Unix Makefiles
