@@ -12,7 +12,7 @@ def log(message):
 
 
 def callback(data):
-    log('received gnss: %s' + str(data.data))
+    log('received gnss: ' + str(data.data))
 
 
 if __name__ == '__main__':
