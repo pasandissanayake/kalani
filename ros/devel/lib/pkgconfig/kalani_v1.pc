@@ -1,0 +1,8 @@
+prefix=/home/pasan/kalani/ros/devel
+
+Name: kalani_v1
+Description: Description of kalani_v1
+Version: 1.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
