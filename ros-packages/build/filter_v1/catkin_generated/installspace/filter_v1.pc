@@ -1,0 +1,8 @@
+prefix=/home/pasan/kalani/ros-packages/install
+
+Name: filter_v1
+Description: Description of filter_v1
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
