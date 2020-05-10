@@ -1,3 +1,5 @@
+''' modified to be compatible with python 2 '''
+
 import numpy as np
 from rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
 
@@ -65,13 +67,13 @@ class Filter_V1():
         self.Hx_odom_with_alt = np.zeros([3,16])
         self.Hx_odom_with_alt[:, 3:6] = np.eye(3)
 
-    def initialize_state(self, state, P, startTime):
-        self.p = state[0:3]
-        self.v = state[3:6]
-        self.q = state[6:10]
-        self.g = state[10:13]
-        self.ab = state[13:16]
-        self.wb = state[16:19]
+    def initialize_state(self, p, v, q, g, ab, wb, P, startTime):
+        self.p = p
+        self.v = v
+        self.q = q
+        self.g = g
+        self.ab = ab
+        self.wb = wb
 
         self.P = P
 
@@ -93,11 +95,11 @@ class Filter_V1():
 
         else:
             dt = time - self.filter_time
-            R_inert_body = Quaternion(*self.q).to_mat()
+            R_inert_body = Quaternion(self.q[0],self.q[1],self.q[2],self.q[3]).to_mat()
 
             Fx = np.eye(15)
             Fx[0:3, 3:6] = dt * np.eye(3)
-            Fx[3:6, 6:9] = - skew_symmetric(R_inert_body @ (am - self.ab)) * dt
+            Fx[3:6, 6:9] = - skew_symmetric(R_inert_body.dot(am - self.ab)) * dt
             Fx[3:6, 9:12] = -dt * R_inert_body
             Fx[6:9, 12:15] = -dt * R_inert_body
 
@@ -107,11 +109,11 @@ class Filter_V1():
             Qi[6:9, 6:9] = self.var_imu_aw * dt * Qi[6:9, 6:9]
             Qi[9:12, 9:12] = self.var_imu_ww * dt * Qi[9:12, 9:12]
 
-            self.P = Fx @ self.P @ Fx.T + self.Fi @ Qi @ self.Fi.T
+            self.P = Fx.dot(self.P).dot(Fx.T) + self.Fi.dot(Qi).dot(self.Fi.T)
 
-            self.p = self.p + self.v * dt + 0.5 * (R_inert_body @ (am - self.ab) + self.g) * dt ** 2
-            self.v = self.v + (R_inert_body @ (am - self.ab) + self.g) * dt
-            self.q = Quaternion(*self.q).quat_mult_left(Quaternion(axis_angle=(wm - self.wb) * dt))
+            self.p = self.p + self.v * dt + 0.5 * (R_inert_body.dot(am - self.ab) + self.g) * dt ** 2
+            self.v = self.v + (R_inert_body.dot(am - self.ab) + self.g) * dt
+            self.q = Quaternion(self.q[0],self.q[1],self.q[2],self.q[3]).quat_mult_left(Quaternion(axis_angle=(wm - self.wb) * dt))
             self.ab = self.ab
             self.wb = self.wb
 
@@ -154,24 +156,24 @@ class Filter_V1():
 
         if sensor == Filter_V1.GNSS_WITH_ALT:
             V = np.diag([self.var_gnss_with_alt_horizontal, self.var_gnss_with_alt_horizontal, self.var_gnss_with_alt_vertical])
-            H = self.Hx_gnss_with_alt @ X_dtheta
-            K = self.P @ H.T @ np.linalg.inv(H @ self.P @ H.T + V)
-            self.P = (np.eye(15) - K @ H) @ self.P
-            dx = K @ (y - self.p)
+            H = self.Hx_gnss_with_alt.dot(X_dtheta)
+            K = self.P.dot(H.T).dot(np.linalg.inv(H.dot(self.P).dot(H.T + V)))
+            self.P = (np.eye(15) - K.dot(H)).dot(self.P)
+            dx = K.dot(y - self.p)
 
         elif sensor == Filter_V1.GNSS_NO_ALT:
             V = np.diag([self.var_gnss_no_alt_horizontal,self.var_gnss_no_alt_horizontal])
-            H = self.Hx_gnss_no_alt @ X_dtheta
-            K = self.P @ H.T @ np.linalg.inv(H @ self.P @ H.T + V)
-            self.P = (np.eye(15) - K @ H) @ self.P
-            dx = K @ (y - np.array([self.p[0],self.p[1]]))
+            H = self.Hx_gnss_no_alt.dot(X_dtheta)
+            K = self.P.dot(H.T).dot(np.linalg.inv(H.dot(self.P).dot(H.T + V)))
+            self.P = (np.eye(15) - K.dot(H)).dot(self.P)
+            dx = K.dot(y - np.array([self.p[0],self.p[1]]))
 
         elif sensor == Filter_V1.ODOM_WITH_ALT:
             V = np.diag([self.var_odom_with_alt, self.var_odom_with_alt, self.var_odom_with_alt])
-            H = self.Hx_odom_with_alt @ X_dtheta
-            K = self.P @ H.T @ np.linalg.inv(H @ self.P @ H.T + V)
-            self.P = (np.eye(15) - K @ H) @ self.P
-            dx = K @ (y - self.v)
+            H = self.Hx_odom_with_alt.dot(X_dtheta)
+            K = self.P.dot(H.T).dot(np.linalg.inv(H.dot(self.P).dot(H.T + V)))
+            self.P = (np.eye(15) - K.dot(H)).dot(self.P)
+            dx = K.dot(y - self.v)
 
         self.p = self.p + dx[0:3]
         self.v = self.v + dx[3:6]
@@ -182,13 +184,14 @@ class Filter_V1():
         self.store_state_in_buffer(index)
 
         for i in range(index+1, len(self.state_buffer)):
-            self.predict(*self.get_inputs_from_buffer(i),self.get_filter_time(i),i-1)
+            inputs = self.get_inputs_from_buffer(i)
+            self.predict(inputs[0],inputs[1],self.get_filter_time(i),i-1)
 
     def get_state(self):
         return self.p, self.v, self.q, self.ab, self.wb, self.P
 
     def get_state_as_numpy(self):
-        return np.array([*self.p,*self.v,*self.q,*self.ab,*self.wb])
+        return np.array([self.p,self.v,self.q,self.ab,self.wb]).flatten()
 
     def load_state_from_buffer(self, index=-1):
         self.p = self.state_buffer[index][0]

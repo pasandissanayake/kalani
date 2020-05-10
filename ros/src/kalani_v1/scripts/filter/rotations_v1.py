@@ -23,9 +23,9 @@ def rpy_jacobian_axis_angle(a):
     if not (type(a) == np.ndarray and len(a) == 3):
         raise ValueError("'a' must be a np.ndarray with length 3.")
     # From three-parameter representation, compute u and theta.
-    na  = np.sqrt(a @ a)
+    na  = np.sqrt(a.dot(a))
     na3 = na**3
-    t = np.sqrt(a @ a)
+    t = np.sqrt(a.dot(a))
     u = a/t
 
     # First-order approximation of Jacobian wrt u, t.
@@ -39,7 +39,7 @@ def rpy_jacobian_axis_angle(a):
                    [       -(a[0]*a[2])/na3,        -(a[1]*a[2])/na3, (a[0]**2 + a[1]**2)/na3],    
                    [                a[0]/na,                 a[1]/na,                 a[2]/na]])
 
-    return Jr @ Ja
+    return Jr.dot(Ja)
 
 class Quaternion():
     def __init__(self, w=1., x=0., y=0., z=0., axis_angle=None, euler=None):
