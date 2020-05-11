@@ -1,4 +1,4 @@
-''' modified to be compatible with python 2 '''
+''' version 1.0.0 - modified to be compatible with python 2 '''
 
 import numpy as np
 from rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
@@ -113,7 +113,7 @@ class Filter_V1():
 
             self.p = self.p + self.v * dt + 0.5 * (R_inert_body.dot(am - self.ab) + self.g) * dt ** 2
             self.v = self.v + (R_inert_body.dot(am - self.ab) + self.g) * dt
-            self.q = Quaternion(self.q[0],self.q[1],self.q[2],self.q[3]).quat_mult_left(Quaternion(axis_angle=(wm - self.wb) * dt))
+            self.q = Quaternion(self.q[0],self.q[1],self.q[2],self.q[3]).quat_mult_left(Quaternion(axis_angle=dt * (wm - self.wb)))
             self.ab = self.ab
             self.wb = self.wb
 
@@ -157,21 +157,21 @@ class Filter_V1():
         if sensor == Filter_V1.GNSS_WITH_ALT:
             V = np.diag([self.var_gnss_with_alt_horizontal, self.var_gnss_with_alt_horizontal, self.var_gnss_with_alt_vertical])
             H = self.Hx_gnss_with_alt.dot(X_dtheta)
-            K = self.P.dot(H.T).dot(np.linalg.inv(H.dot(self.P).dot(H.T + V)))
+            K = self.P.dot(H.T).dot(np.linalg.inv(H.dot(self.P).dot(H.T) + V))
             self.P = (np.eye(15) - K.dot(H)).dot(self.P)
             dx = K.dot(y - self.p)
 
         elif sensor == Filter_V1.GNSS_NO_ALT:
             V = np.diag([self.var_gnss_no_alt_horizontal,self.var_gnss_no_alt_horizontal])
             H = self.Hx_gnss_no_alt.dot(X_dtheta)
-            K = self.P.dot(H.T).dot(np.linalg.inv(H.dot(self.P).dot(H.T + V)))
+            K = self.P.dot(H.T).dot(np.linalg.inv(H.dot(self.P).dot(H.T) + V))
             self.P = (np.eye(15) - K.dot(H)).dot(self.P)
             dx = K.dot(y - np.array([self.p[0],self.p[1]]))
 
         elif sensor == Filter_V1.ODOM_WITH_ALT:
             V = np.diag([self.var_odom_with_alt, self.var_odom_with_alt, self.var_odom_with_alt])
             H = self.Hx_odom_with_alt.dot(X_dtheta)
-            K = self.P.dot(H.T).dot(np.linalg.inv(H.dot(self.P).dot(H.T + V)))
+            K = self.P.dot(H.T).dot(np.linalg.inv(H.dot(self.P).dot(H.T) + V))
             self.P = (np.eye(15) - K.dot(H)).dot(self.P)
             dx = K.dot(y - self.v)
 

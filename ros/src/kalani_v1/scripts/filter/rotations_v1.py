@@ -144,7 +144,7 @@ class Quaternion():
         sum_term[1:, 1:] = -skew_symmetric(v)
         sigma = self.w * np.eye(4) + sum_term
 
-        if type(q).__name__ == "Quaternion":
+        if type(q).__name__ == "instance":
             quat_np = np.dot(sigma, q.to_numpy())
         else:
             quat_np = np.dot(sigma, q)
@@ -171,7 +171,7 @@ class Quaternion():
         sum_term[1:, 1:] = skew_symmetric(v)
         sigma = self.w * np.eye(4) + sum_term
 
-        if type(q).__name__ == "Quaternion":
+        if type(q).__name__ == "instance":
             quat_np = np.dot(sigma, q.to_numpy())
         else:
             quat_np = np.dot(sigma, q)
