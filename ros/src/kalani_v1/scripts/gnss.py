@@ -6,7 +6,6 @@ from rospy_tutorials.msg import Floats
 
 import numpy as np
 import pandas as pd
-import time
 
 from constants import Constants
 
@@ -34,7 +33,7 @@ if __name__ == '__main__':
             i_gps = i_gps + 1
             if i_gps < len(df) - 1:
                 t = df.loc[i_gps + 1][0] - df.loc[i_gps][0]
-                time.sleep(t * 10 ** (-6))
+                rospy.sleep(t * 10 ** (-6))
         log('End of data file. Stopping node gracefully.')
 
     except rospy.ROSInterruptException:

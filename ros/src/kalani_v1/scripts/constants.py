@@ -9,6 +9,7 @@ class Constants:
     # ros topics
     GNSS_DATA_TOPIC = 'gnss_data'
     IMU_DATA_TOPIC = 'imu_data'
+    STATE_TOPIC = 'state'
 
     # ros node names
     FILTER_NODE_NAME = 'filter'

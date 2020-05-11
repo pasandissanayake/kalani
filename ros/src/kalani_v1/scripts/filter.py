@@ -12,6 +12,7 @@ from filter.rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_s
 
 
 kf = Filter_V1()
+pub = rospy.Publisher(Constants.STATE_TOPIC, numpy_msg(Floats), queue_size=10)
 
 # Rotation matrix from NED to ENU
 R_ned_enu = np.array([[0,1,0],[1,0,0],[0,0,-1]])
@@ -25,6 +26,11 @@ def write_state_to_file():
     state = kf.get_state_as_numpy()
     log('state: ' + str(state))
     # np.savetxt('prediction.csv',state,delimiter=',')
+
+
+def publish_state():
+    state = kf.get_state_as_numpy()
+    pub.publish(state)
 
 
 def gnss_callback(data):
@@ -49,6 +55,7 @@ def gnss_callback(data):
             kf.correct(gnss[2:5],gnss[0],Filter_V1.GNSS_WITH_ALT)
         elif gnss[1] == 2:
             kf.correct(gnss[2:4],gnss[0],Filter_V1.GNSS_NO_ALT)
+        publish_state()
     else:
         if gnss[1] == 3:
             p = gnss[2:5]
@@ -77,6 +84,7 @@ def imu_callback(data):
         kf.predict(am,wm,t)
 
         log('state: ' + str(kf.get_state_as_numpy()))
+        publish_state()
 
 
 if __name__ == '__main__':
