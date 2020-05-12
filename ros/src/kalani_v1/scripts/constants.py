@@ -20,3 +20,4 @@ class Constants:
 
     # frame ids
     IMU_FRAME = 'imu_frame'
+    GNSS_FRAME = 'gnss_frame'

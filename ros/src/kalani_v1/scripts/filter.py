@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 import rospy
-from rospy.numpy_msg import numpy_msg
-from rospy_tutorials.msg import Floats
 from kalani_v1.msg import IMU
+from kalani_v1.msg import GNSS
 from kalani_v1.msg import State
 
 import numpy as np
@@ -26,7 +25,6 @@ def log(message):
 def write_state_to_file():
     state = kf.get_state_as_numpy()
     log('state: ' + str(state))
-    # np.savetxt('prediction.csv',state,delimiter=',')
 
 
 def publish_state():
@@ -36,16 +34,17 @@ def publish_state():
     msg.header.stamp = rospy.Time.from_sec(state[0])
     msg.position.x, msg.position.y, msg.position.z = list(state[1:4])
     msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(state[7:11])
+    msg.is_initialized = kf.state_initialized
     pub.publish(msg)
 
 
 def gnss_callback(data):
-    # log('received gnss: ' + str(data.data))
-
     # time, fix(2=w/o alt, 3=with alt), lat, long, alt
-    gnss = np.array(np.concatenate((data.data[0:2],data.data[3:6]))).flatten()
+    gnss = np.array([data.header.stamp.to_sec(),data.fix_mode,data.latitude,data.longitude,data.altitude])
     origin = np.array([42.293227 * np.pi / 180, -83.709657 * np.pi / 180, 270])
     dif = gnss[2:5] - origin
+
+    log('received gnss: ' + str(gnss))
 
     # GNSS data in NED
     r = 6400000
@@ -81,21 +80,17 @@ def gnss_callback(data):
 
 
 def imu_callback(data):
-    # log('received imu: ' + str(data.data))
     if kf.state_initialized:
         am = np.array([data.linear_acceleration.x,data.linear_acceleration.y,data.linear_acceleration.z])
         wm = np.array([data.angular_velocity.x,data.angular_velocity.y,data.angular_velocity.z])
         t = data.header.stamp.to_sec()
-
         kf.predict(am,wm,t)
-
-        log('state: ' + str(kf.get_state_as_numpy()))
         publish_state()
 
 
 if __name__ == '__main__':
     rospy.init_node(Constants.FILTER_NODE_NAME, anonymous=True)
     log('Node initialized.')
-    rospy.Subscriber(Constants.GNSS_DATA_TOPIC, numpy_msg(Floats), gnss_callback)
+    rospy.Subscriber(Constants.GNSS_DATA_TOPIC, GNSS, gnss_callback)
     rospy.Subscriber(Constants.IMU_DATA_TOPIC, IMU, imu_callback)
     rospy.spin()

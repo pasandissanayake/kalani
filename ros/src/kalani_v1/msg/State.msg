@@ -4,6 +4,8 @@ geometry_msgs/Vector3 position
 
 geometry_msgs/Quaternion orientation
 
+bool is_initialized
+
 
 
 

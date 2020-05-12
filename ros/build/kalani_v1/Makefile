@@ -271,6 +271,21 @@ kalani_v1_generate_messages_cpp/fast:
 .PHONY : kalani_v1_generate_messages_cpp/fast
 
 # Convenience name for target.
+kalani_v1/CMakeFiles/_kalani_v1_generate_messages_check_deps_GNSS.dir/rule:
+	cd /home/pasan/kalani/ros/build && $(MAKE) -f CMakeFiles/Makefile2 kalani_v1/CMakeFiles/_kalani_v1_generate_messages_check_deps_GNSS.dir/rule
+.PHONY : kalani_v1/CMakeFiles/_kalani_v1_generate_messages_check_deps_GNSS.dir/rule
+
+# Convenience name for target.
+_kalani_v1_generate_messages_check_deps_GNSS: kalani_v1/CMakeFiles/_kalani_v1_generate_messages_check_deps_GNSS.dir/rule
+
+.PHONY : _kalani_v1_generate_messages_check_deps_GNSS
+
+# fast build rule for target.
+_kalani_v1_generate_messages_check_deps_GNSS/fast:
+	cd /home/pasan/kalani/ros/build && $(MAKE) -f kalani_v1/CMakeFiles/_kalani_v1_generate_messages_check_deps_GNSS.dir/build.make kalani_v1/CMakeFiles/_kalani_v1_generate_messages_check_deps_GNSS.dir/build
+.PHONY : _kalani_v1_generate_messages_check_deps_GNSS/fast
+
+# Convenience name for target.
 kalani_v1/CMakeFiles/kalani_v1_geneus.dir/rule:
 	cd /home/pasan/kalani/ros/build && $(MAKE) -f CMakeFiles/Makefile2 kalani_v1/CMakeFiles/kalani_v1_geneus.dir/rule
 .PHONY : kalani_v1/CMakeFiles/kalani_v1_geneus.dir/rule
@@ -753,6 +768,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... kalani_v1_gencpp"
 	@echo "... kalani_v1_generate_messages_cpp"
+	@echo "... _kalani_v1_generate_messages_check_deps_GNSS"
 	@echo "... list_install_components"
 	@echo "... kalani_v1_geneus"
 	@echo "... _kalani_v1_generate_messages_check_deps_State"

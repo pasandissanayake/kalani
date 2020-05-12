@@ -374,6 +374,19 @@ kalani_v1_generate_messages_cpp/fast:
 .PHONY : kalani_v1_generate_messages_cpp/fast
 
 #=============================================================================
+# Target rules for targets named _kalani_v1_generate_messages_check_deps_GNSS
+
+# Build rule for target.
+_kalani_v1_generate_messages_check_deps_GNSS: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 _kalani_v1_generate_messages_check_deps_GNSS
+.PHONY : _kalani_v1_generate_messages_check_deps_GNSS
+
+# fast build rule for target.
+_kalani_v1_generate_messages_check_deps_GNSS/fast:
+	$(MAKE) -f kalani_v1/CMakeFiles/_kalani_v1_generate_messages_check_deps_GNSS.dir/build.make kalani_v1/CMakeFiles/_kalani_v1_generate_messages_check_deps_GNSS.dir/build
+.PHONY : _kalani_v1_generate_messages_check_deps_GNSS/fast
+
+#=============================================================================
 # Target rules for targets named kalani_v1_geneus
 
 # Build rule for target.
@@ -805,6 +818,7 @@ help:
 	@echo "... kalani_v1_genlisp"
 	@echo "... kalani_v1_gencpp"
 	@echo "... kalani_v1_generate_messages_cpp"
+	@echo "... _kalani_v1_generate_messages_check_deps_GNSS"
 	@echo "... kalani_v1_geneus"
 	@echo "... _kalani_v1_generate_messages_check_deps_State"
 	@echo "... _kalani_v1_generate_messages_check_deps_IMU"
