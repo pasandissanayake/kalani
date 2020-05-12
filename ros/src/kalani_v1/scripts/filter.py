@@ -3,6 +3,8 @@
 import rospy
 from rospy.numpy_msg import numpy_msg
 from rospy_tutorials.msg import Floats
+from kalani_v1.msg import IMU
+from kalani_v1.msg import State
 
 import numpy as np
 
@@ -12,7 +14,6 @@ from filter.rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_s
 
 
 kf = Filter_V1()
-pub = rospy.Publisher(Constants.STATE_TOPIC, numpy_msg(Floats), queue_size=10)
 
 # Rotation matrix from NED to ENU
 R_ned_enu = np.array([[0,1,0],[1,0,0],[0,0,-1]])
@@ -30,7 +31,12 @@ def write_state_to_file():
 
 def publish_state():
     state = kf.get_state_as_numpy()
-    pub.publish(state)
+    pub = rospy.Publisher(Constants.STATE_TOPIC, State, queue_size=10)
+    msg = State()
+    msg.header.stamp = rospy.Time.from_sec(state[0])
+    msg.position.x, msg.position.y, msg.position.z = list(state[1:4])
+    msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(state[7:11])
+    pub.publish(msg)
 
 
 def gnss_callback(data):
@@ -77,9 +83,9 @@ def gnss_callback(data):
 def imu_callback(data):
     # log('received imu: ' + str(data.data))
     if kf.state_initialized:
-        am = np.array(data.data[4:7])
-        wm = np.array(data.data[7:10])
-        t = data.data[0]
+        am = np.array([data.linear_acceleration.x,data.linear_acceleration.y,data.linear_acceleration.z])
+        wm = np.array([data.angular_velocity.x,data.angular_velocity.y,data.angular_velocity.z])
+        t = data.header.stamp.to_sec()
 
         kf.predict(am,wm,t)
 
@@ -91,5 +97,5 @@ if __name__ == '__main__':
     rospy.init_node(Constants.FILTER_NODE_NAME, anonymous=True)
     log('Node initialized.')
     rospy.Subscriber(Constants.GNSS_DATA_TOPIC, numpy_msg(Floats), gnss_callback)
-    rospy.Subscriber(Constants.IMU_DATA_TOPIC, numpy_msg(Floats), imu_callback)
+    rospy.Subscriber(Constants.IMU_DATA_TOPIC, IMU, imu_callback)
     rospy.spin()

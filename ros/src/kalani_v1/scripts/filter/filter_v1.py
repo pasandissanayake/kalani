@@ -191,7 +191,7 @@ class Filter_V1():
         return self.p, self.v, self.q, self.ab, self.wb, self.P
 
     def get_state_as_numpy(self):
-        return np.array(np.concatenate(([self.filter_time],self.p,self.v,self.q,self.ab,self.wb)),dtype=np.float32).flatten()
+        return np.array(np.concatenate(([self.filter_time],self.p,self.v,self.q,self.ab,self.wb))).flatten()
 
     def load_state_from_buffer(self, index=-1):
         self.p = self.state_buffer[index][0]
