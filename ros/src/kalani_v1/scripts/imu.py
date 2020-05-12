@@ -3,6 +3,7 @@
 import rospy
 from rospy.numpy_msg import numpy_msg
 from rospy_tutorials.msg import Floats
+from kalani_v1.msg import IMU
 
 import numpy as np
 import pandas as pd
@@ -20,16 +21,21 @@ def log(message):
 if __name__ == '__main__':
     try:
         rospy.init_node(Constants.IMU_NODE_NAME, anonymous=True)
-        pub = rospy.Publisher(Constants.IMU_DATA_TOPIC, numpy_msg(Floats), queue_size=10)
+        pub = rospy.Publisher(Constants.IMU_DATA_TOPIC, IMU, queue_size=10)
+        msg = IMU()
+
         i_imu = 0
         log('Node initialized. Sending data.')
         while not rospy.is_shutdown() and len(df) > i_imu:
             imu_input = list(df.loc[i_imu])
-            imu_input[0] = imu_input[0] * 10 ** (-6)
-            imu_input = np.array(imu_input, dtype=np.float32)
-            pub.publish(imu_input)
-            # log(imu_input)
-            # print ('time_imu %s' % rospy.get_time())
+
+            msg.header.stamp = rospy.Time.from_sec(imu_input[0] * 10 ** (-6))
+            msg.header.frame_id = Constants.IMU_FRAME
+            msg.magnetic_field.x, msg.magnetic_field.y, msg.magnetic_field.z = imu_input[1:4]
+            msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z = imu_input[4:7]
+            msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z = imu_input[7:10]
+            pub.publish(msg)
+
             i_imu = i_imu + 1
             if i_imu < len(df) - 1:
                 t = df.loc[i_imu + 1][0] - df.loc[i_imu][0]

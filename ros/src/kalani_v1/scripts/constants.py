@@ -17,3 +17,6 @@ class Constants:
     GNSS_LISTENER_NODE_NAME = 'gnss_listener'
     IMU_NODE_NAME = 'imu'
     IMU_LISTENER_NODE_NAME = 'imu_listener'
+
+    # frame ids
+    IMU_FRAME = 'imu_frame'

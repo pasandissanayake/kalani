@@ -3,6 +3,6 @@ prefix=/home/pasan/kalani/ros/devel
 Name: kalani_v1
 Description: Description of kalani_v1
 Version: 1.0.0
-Cflags: 
+Cflags: -I/home/pasan/kalani/ros/devel/include
 Libs: -L${prefix}/lib 
-Requires: 
+Requires: roscpp rospy message_runtime std_msgs
