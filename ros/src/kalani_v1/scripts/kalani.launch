@@ -1,5 +1,5 @@
 <launch>
   <!--<node name="filter" pkg="kalani_v1" type="filter.py" />-->
-  <node name="imu" pkg="kalani_v1" type="imu.py" />
-  <node name="gnss" pkg="kalani_v1" type="gnss.py" />
+  <node name="imu" pkg="kalani_v1" type="nclt_imu_publisher.py" />
+  <node name="gnss" pkg="kalani_v1" type="nclt_gnss_publisher.py" />
 </launch>

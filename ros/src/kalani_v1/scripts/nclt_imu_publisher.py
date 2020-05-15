@@ -15,7 +15,7 @@ state_initialized = False
 
 
 def log(message):
-    rospy.loginfo(Constants.IMU_NODE_NAME + ' := ' + str(message))
+    rospy.loginfo(Constants.NCLT_IMU_NODE_NAME + ' := ' + str(message))
 
 
 def state_callback(data):
@@ -25,7 +25,7 @@ def state_callback(data):
 
 if __name__ == '__main__':
     try:
-        rospy.init_node(Constants.IMU_NODE_NAME, anonymous=True)
+        rospy.init_node(Constants.NCLT_IMU_NODE_NAME, anonymous=True)
         rospy.Subscriber(Constants.STATE_TOPIC, State, state_callback)
         pub = rospy.Publisher(Constants.IMU_DATA_TOPIC, IMU, queue_size=10)
         msg = IMU()

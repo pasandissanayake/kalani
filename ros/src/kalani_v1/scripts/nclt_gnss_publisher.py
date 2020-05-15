@@ -17,7 +17,7 @@ imu_time = 0.0
 
 
 def log(message):
-    rospy.loginfo(Constants.GNSS_NODE_NAME + ' := ' + str(message))
+    rospy.loginfo(Constants.NCLT_GNSS_NODE_NAME + ' := ' + str(message))
 
 
 def state_callback(data):
@@ -32,7 +32,7 @@ def imu_callback(data):
 
 if __name__ == '__main__':
     try:
-        rospy.init_node(Constants.GNSS_NODE_NAME, anonymous=True)
+        rospy.init_node(Constants.NCLT_GNSS_NODE_NAME, anonymous=True)
         rospy.Subscriber(Constants.STATE_TOPIC, State, state_callback)
         rospy.Subscriber(Constants.IMU_DATA_TOPIC, IMU, imu_callback)
         pub = rospy.Publisher(Constants.GNSS_DATA_TOPIC, GNSS, queue_size=10)
