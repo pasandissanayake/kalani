@@ -5,7 +5,6 @@ from kalani_v1.msg import GNSS
 from kalani_v1.msg import IMU
 from kalani_v1.msg import State
 
-import numpy as np
 import pandas as pd
 
 from constants import Constants
