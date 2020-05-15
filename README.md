@@ -1,2 +1,2 @@
 # kalani
-localization module implementation for self driving car
+localization module for self driving car
