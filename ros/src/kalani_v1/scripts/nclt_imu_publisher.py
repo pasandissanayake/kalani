@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
             msg.header.stamp = rospy.Time.from_sec(imu_input[0] * 10 ** (-6))
             msg.header.frame_id = Constants.IMU_FRAME
-            msg.magnetic_field.x, msg.magnetic_field.y, msg.magnetic_field.z = imu_input[1:4] * 10 ** (-4)
+            msg.magnetic_field.x, msg.magnetic_field.y, msg.magnetic_field.z = [x * 10 ** (-4) for x in imu_input[1:4]]
             msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z = imu_input[4:7]
             msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z = imu_input[7:10]
             pub.publish(msg)

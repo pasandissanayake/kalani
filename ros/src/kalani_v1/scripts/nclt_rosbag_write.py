@@ -36,6 +36,10 @@ i_max=len(gps)
 j_max=len(ms25)
 
 
+def log(message):
+    rospy.loginfo(Constants.NCLT_SENSOR_DATA_ROSBAG_NODE_NAME + ' := ' + str(message))
+
+
 def rosbag():
     i=0
     j=0
@@ -66,7 +70,7 @@ def rosbag():
             ms25=IMU()
             ms25.header.stamp =timestamp
             ms25.header.frame_id = Constants.IMU_FRAME
-            ms25.magnetic_field.x, ms25.magnetic_field.y, ms25.magnetic_field.z = [mag_xs[j],mag_ys[j],mag_zs[j]] * 10 ** (-4)
+            ms25.magnetic_field.x, ms25.magnetic_field.y, ms25.magnetic_field.z = [ x * 10 ** (-4) for x in [mag_xs[j],mag_ys[j],mag_zs[j]] ]
             ms25.linear_acceleration.x, ms25.linear_acceleration.y, ms25.linear_acceleration.z = [accel_xs[j],accel_ys[j],accel_zs[j]]
             ms25.angular_velocity.x, ms25.angular_velocity.y, ms25.angular_velocity.z = [rot_rs[j],rot_ps[j],rot_hs[j]]
             bag.write(Constants.IMU_DATA_TOPIC,ms25, t=timestamp)
@@ -75,8 +79,10 @@ def rosbag():
 
 if __name__ == '__main__':
     try:
-       rosbag()
+        log('Started writing rosbag.')
+        rosbag()
+        log('Finished writing rosbag.')
     except rospy.ROSInterruptException:
-        pass
+        log('Script stopped ungracefully.')
     finally:
-       bag.close()
+        bag.close()

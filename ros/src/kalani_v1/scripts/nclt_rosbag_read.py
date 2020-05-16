@@ -6,10 +6,16 @@ import time
 from kalani_v1.msg import GNSS,IMU
 from constants import Constants
 
+
 bag=rosbag.Bag(Constants.NCLT_SENSOR_DATA_ROSBAG)
 rospy.init_node(Constants.NCLT_SENSOR_DATA_ROSBAG_NODE_NAME, anonymous=True)
 pub_gnss = rospy.Publisher(Constants.GNSS_DATA_TOPIC, GNSS, queue_size=10)
 pub_ms25 = rospy.Publisher(Constants.IMU_DATA_TOPIC, IMU, queue_size=10)
+
+
+def log(message):
+    rospy.loginfo(Constants.NCLT_SENSOR_DATA_ROSBAG_NODE_NAME + ' := ' + str(message))
+
 
 def ros_read():
     dt=0
@@ -29,9 +35,11 @@ def ros_read():
 
 if __name__ == '__main__':
     try:
+        log('Started sending data.')
         ros_read()
+        log('Finished sending data.')
     except rospy.ROSInterruptException:
-        pass
+        log('Node stopped ungracefully.')
     finally:
        bag.close()
 
