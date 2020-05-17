@@ -128,19 +128,9 @@ class Filter_V1():
 
     def correct(self, y, time, sensor):
         index = min(range(len(self.state_buffer)), key=lambda i: abs(self.get_filter_time(i)-time))
-        # for i in range(len(self.state_buffer)):
-        #     filter_time = self.get_filter_time(i)
-        #     if (time - filter_time) <= 0:
-        #         index = i
-        #         break
-
-        # if index == 'nan':
-        #     print('measurement is too old. measurement time:', time, 'filter time range:',self.get_filter_time(-1), ' to ', self.get_filter_time(0),)
-        #     return
 
         if time < self.get_filter_time(0):
-            print(
-            'measurement is too old. measurement time:', time, 'filter time range:', self.get_filter_time(-1), ' to ', self.get_filter_time(0),)
+            print('measurement is too old. measurement time:', time, 'filter time range:', self.get_filter_time(-1), ' to ', self.get_filter_time(0),)
             return
 
         self.load_state_from_buffer(index)

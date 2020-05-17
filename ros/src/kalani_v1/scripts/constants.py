@@ -12,6 +12,7 @@ class Constants:
 
     # ros topics
     GNSS_DATA_TOPIC = 'gnss_data'
+    GROUNDTRUTH_DATA_TOPIC = 'groundtruth_data'
     IMU_DATA_TOPIC = 'imu_data'
     STATE_TOPIC = 'state'
 
@@ -35,5 +36,6 @@ class Constants:
 
     # ros node names
     NCLT_GNSS_NODE_NAME = 'nclt_gnss'
+    NCLT_GROUNDTRUTH_NODE_NAME = 'nclt_groundtruth'
     NCLT_IMU_NODE_NAME = 'nclt_imu'
     NCLT_SENSOR_DATA_ROSBAG_NODE_NAME = 'nclt_rosbag'
