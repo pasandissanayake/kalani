@@ -34,6 +34,7 @@ def publish_state():
     msg.header.stamp = rospy.Time.from_sec(state[0])
     msg.position.x, msg.position.y, msg.position.z = list(state[1:4])
     msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(state[7:11])
+    msg.covariance = kf.get_covariance_as_numpy().tolist()
     msg.is_initialized = kf.state_initialized
     pub.publish(msg)
 

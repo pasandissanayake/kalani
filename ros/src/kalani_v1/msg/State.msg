@@ -4,6 +4,8 @@ geometry_msgs/Vector3 position
 
 geometry_msgs/Quaternion orientation
 
+float64[] covariance
+
 bool is_initialized
 
 

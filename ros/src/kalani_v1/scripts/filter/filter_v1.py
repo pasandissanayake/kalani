@@ -188,6 +188,9 @@ class Filter_V1():
     def get_state_as_numpy(self):
         return np.array(np.concatenate(([self.filter_time],self.p,self.v,self.q,self.ab,self.wb))).flatten()
 
+    def get_covariance_as_numpy(self):
+        return self.P.flatten()
+
     def load_state_from_buffer(self, index=-1):
         self.p = self.state_buffer[index][0]
         self.v = self.state_buffer[index][1]
