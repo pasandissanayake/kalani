@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
             msg = State()
             msg.header.stamp = rospy.Time.from_sec(gt_input[0] / 1e6)
+            msg.header.frame_id = Constants.STATE_FRAME
             msg.position.x, msg.position.y, msg.position.z = list(gt_input[1:4])
             msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = Quaternion(euler=gt_input[4:7]).to_numpy().tolist()
             pub.publish(msg)

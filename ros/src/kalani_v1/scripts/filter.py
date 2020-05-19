@@ -32,6 +32,7 @@ def publish_state():
     pub = rospy.Publisher(Constants.STATE_TOPIC, State, queue_size=10)
     msg = State()
     msg.header.stamp = rospy.Time.from_sec(state[0])
+    msg.header.frame_id = Constants.STATE_FRAME
     msg.position.x, msg.position.y, msg.position.z = list(state[1:4])
     msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(state[7:11])
     msg.covariance = kf.get_covariance_as_numpy().tolist()
