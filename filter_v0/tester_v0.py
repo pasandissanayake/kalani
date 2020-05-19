@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import pickle
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import interp1d
-from filter_v1 import Filter_V1
-from rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
+from filter_v0 import Filter_V1
+from rotations_v0 import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
 
 # Data directory
 data_dir = "../data/2012-04-29"

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import interp1d
-from rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
+from rotations_v0 import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
 from scipy.signal import butter,filtfilt
 import numpy.fft as fft
 
