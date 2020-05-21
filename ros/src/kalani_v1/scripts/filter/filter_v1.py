@@ -11,10 +11,14 @@ class Filter_V1():
     # Number of state variables excluding covariance matrix (P) and filter_time
     NO_STATE_VARIABLES = 5
 
+    # Allowed maximum gap between any two initial state variables (in seconds)
+    STATE_INIT_TIME_THRESHOLD = 1
+
     # Correction identification constants
     GNSS_WITH_ALT = 1
     GNSS_NO_ALT = 2
     ODOM_WITH_ALT = 3
+
 
     def __init__(self):
 
@@ -31,6 +35,7 @@ class Filter_V1():
         self.P = np.zeros([15, 15])
         self.filter_time = 0
         self.state_initialized = False
+        self.state_times = -1 * np.ones(Filter_V1.NO_STATE_VARIABLES)
         self.state_buffer = []
 
         #############################################################
@@ -67,20 +72,61 @@ class Filter_V1():
         self.Hx_odom_with_alt = np.zeros([3,16])
         self.Hx_odom_with_alt[:, 3:6] = np.eye(3)
 
-    def initialize_state(self, p, v, q, g, ab, wb, P, startTime):
-        self.p = p
-        self.v = v
-        self.q = q
-        self.g = g
-        self.ab = ab
-        self.wb = wb
 
-        self.P = P
+    def initialize_state(self, p=None, cov_p=None, v=None, cov_v=None, q=None, cov_q=None, ab=None, cov_ab=None, wb=None, cov_wb=None, g=None, time=-1):
+        if p is not None:
+            if cov_p is not None:
+                self.p = p
+                self.P[0:3,0:3] = np.diag(cov_p)
+                self.state_times[0] = time
+            else:
+                print('position covariances are not provided')
 
-        self.filter_time = startTime
-        self.state_initialized = True
+        if v is not None:
+            if cov_v is not None:
+                self.v = v
+                self.P[3:6,3:6] = np.diag(cov_v)
+                self.state_times[1] = time
+            else:
+                print('velocity covariances are not provided')
 
-        self.store_state_in_buffer()
+        if q is not None:
+            if cov_q is not None:
+                self.q = q
+                self.P[6:9,6:9] = np.diag(cov_q)
+                self.state_times[2] = time
+            else:
+                print('rotation covariances are not provided')
+
+        if ab is not None:
+            if cov_ab is not None:
+                self.ab = ab
+                self.P[9:12,9:12] = np.diag(cov_ab)
+                self.state_times[3] = time
+            else:
+                print('acceleration bias covariances are not provided')
+
+        if wb is not None:
+            if cov_wb is not None:
+                self.wb = wb
+                self.P[12:15,12:15] = np.diag(cov_wb)
+                self.state_times[4] = time
+            else:
+                print('angular velocity bias covariances are not provided')
+
+        if g is not None:
+            self.g = g
+
+        self.filter_time = time
+
+        initialized = all(st > 0 for st in self.state_times)
+        if max(self.state_times)-min(self.state_times) < Filter_V1.STATE_INIT_TIME_THRESHOLD and initialized:
+            self.state_initialized = True
+            self.store_state_in_buffer()
+            print('state initialized')
+        else:
+            print('initial state time stamps:', self.state_times)
+
 
     def predict(self, am, wm, time, loadindex=-1):
         if not self.state_initialized:
@@ -125,6 +171,7 @@ class Filter_V1():
             else:
                 self.store_state_in_buffer(loadindex + 1)
                 self.put_inputs_in_buffer(loadindex + 1, am, wm)
+
 
     def correct(self, y, time, sensor):
         index = min(range(len(self.state_buffer)), key=lambda i: abs(self.get_filter_time(i)-time))
@@ -176,17 +223,22 @@ class Filter_V1():
         self.ab = self.ab + dx[9:12]
         self.wb = self.wb + dx[12:15]
 
+        if index<0 or index>=len(self.state_buffer): print('index:', index, 'state buf:', self.state_buffer)
         self.store_state_in_buffer(index)
 
-        for i in range(index+1, len(self.state_buffer)):
-            inputs = self.get_inputs_from_buffer(i)
-            self.predict(inputs[0],inputs[1],self.get_filter_time(i),i-1)
+        if index+1 < len(self.state_buffer):
+            for i in range(index+1, len(self.state_buffer)):
+                inputs = self.get_inputs_from_buffer(i)
+                self.predict(inputs[0],inputs[1],self.get_filter_time(i),i-1)
+
 
     def get_state(self):
         return self.p, self.v, self.q, self.ab, self.wb, self.P
 
+
     def get_state_as_numpy(self):
         return np.array(np.concatenate(([self.filter_time],self.p,self.v,self.q,self.ab,self.wb))).flatten()
+
 
     def get_covariance_as_numpy(self):
         return self.P.flatten()
@@ -200,18 +252,22 @@ class Filter_V1():
         self.P = self.state_buffer[index][Filter_V1.NO_STATE_VARIABLES + 0]
         self.filter_time = self.state_buffer[index][Filter_V1.NO_STATE_VARIABLES + 1]
 
-    def store_state_in_buffer(self, index='append'):
-        if index == 'append':
+
+    def store_state_in_buffer(self, index=None):
+        if index is None:
             self.state_buffer.append([self.p, self.v, self.q, self.ab, self.wb, self.P, self.filter_time, 'nan', 'nan'])
             if len(self.state_buffer) >= Filter_V1.STATE_BUFFER_LENGTH: self.state_buffer.pop(0)
         else:
             self.state_buffer[index][0:Filter_V1.NO_STATE_VARIABLES+2] = [self.p, self.v, self.q, self.ab, self.wb, self.P, self.filter_time]
 
+
     def get_filter_time(self, index):
         return self.state_buffer[index][Filter_V1.NO_STATE_VARIABLES+1]
 
+
     def get_inputs_from_buffer(self, index):
         return self.state_buffer[index][Filter_V1.NO_STATE_VARIABLES+2:Filter_V1.NO_STATE_VARIABLES+4]
+
 
     def put_inputs_in_buffer(self, index, am, wm):
         self.state_buffer[index][Filter_V1.NO_STATE_VARIABLES+2:Filter_V1.NO_STATE_VARIABLES+4] = [am, wm]

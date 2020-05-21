@@ -6,6 +6,8 @@ from kalani_v1.msg import GNSS
 from kalani_v1.msg import State
 
 import numpy as np
+import scipy
+from scipy.optimize import leastsq
 
 from constants import Constants
 from filter.filter_v1 import Filter_V1
@@ -14,17 +16,9 @@ from filter.rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_s
 
 kf = Filter_V1()
 
-# Rotation matrix from NED to ENU
-R_ned_enu = np.array([[0,1,0],[1,0,0],[0,0,-1]])
-
 
 def log(message):
     rospy.loginfo(Constants.FILTER_NODE_NAME + ' := ' + str(message))
-
-
-def write_state_to_file():
-    state = kf.get_state_as_numpy()
-    log('state: ' + str(state))
 
 
 def publish_state():
@@ -40,13 +34,30 @@ def publish_state():
     pub.publish(msg)
 
 
+def get_orientation_from_magnetic_field(mm, am):
+    me = np.array([0, -1, 0])
+    ge = np.array([0, 0, -1])
+    def eqn(p):
+        w, x, y, z = p
+        R = Quaternion(w,x,y,z).normalize().to_mat()
+        M = R.dot(mm) + me
+        G = R.dot(am) + ge
+        E = np.concatenate((M,G,[w**2+x**2+y**2+z**2-1]))
+        return E
+
+    w, x, y, z = scipy.optimize.leastsq(eqn, Quaternion(euler=[0, 0, np.pi / 4]).to_numpy())[0]
+
+    return Quaternion(w,x,y,z).normalize().to_numpy()
+
+
 def gnss_callback(data):
+    # Rotation matrix from NED to ENU
+    R_ned_enu = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
+
     # time, fix(2=w/o alt, 3=with alt), lat, long, alt
     gnss = np.array([data.header.stamp.to_sec(),data.fix_mode,data.latitude,data.longitude,data.altitude])
     origin = np.array([42.293227 * np.pi / 180, -83.709657 * np.pi / 180, 270])
     dif = gnss[2:5] - origin
-
-    log('received gnss: ' + str(gnss))
 
     # GNSS data in NED
     r = 6400000
@@ -66,28 +77,55 @@ def gnss_callback(data):
     else:
         if gnss[1] == 3:
             p = gnss[2:5]
-            v = np.zeros(3)
-            q = Quaternion().to_numpy()
-            g = np.array([0,0,-9.8])
-            ab = np.zeros(3)
-            wb = np.zeros(3)
+            cov_p = [kf.var_gnss_with_alt_horizontal,kf.var_gnss_with_alt_horizontal,kf.var_gnss_with_alt_vertical]
 
-            P = np.eye(15)
+            v = np.zeros(3)
+            cov_v = [0,0,0]
+
+            ab = np.zeros(3)
+            cov_ab = [kf.var_imu_aw,kf.var_imu_aw,kf.var_imu_aw]
+
+            wb = np.zeros(3)
+            cov_wb = [kf.var_imu_ww,kf.var_imu_ww,kf.var_imu_ww]
+
+            g = np.array([0, 0, -9.8])
 
             t = gnss[0]
 
-            kf.initialize_state(p,v,q,g,ab,wb,P,t)
+            kf.initialize_state(p=p,cov_p=cov_p,v=v,cov_v=cov_v,ab=ab,cov_ab=cov_ab,wb=wb,cov_wb=cov_wb,g=g,time=t)
 
-            log('Filter initialized.')
+            if kf.state_initialized:
+                log('State initialized.')
 
 
 def imu_callback(data):
+    mm = np.array([data.magnetic_field.x,data.magnetic_field.y,data.magnetic_field.z])
+    am = np.array([data.linear_acceleration.x, data.linear_acceleration.y, data.linear_acceleration.z])
+    wm = np.array([data.angular_velocity.x, data.angular_velocity.y, data.angular_velocity.z])
+    t = data.header.stamp.to_sec()
+
     if kf.state_initialized:
-        am = np.array([data.linear_acceleration.x,data.linear_acceleration.y,data.linear_acceleration.z])
-        wm = np.array([data.angular_velocity.x,data.angular_velocity.y,data.angular_velocity.z])
-        t = data.header.stamp.to_sec()
         kf.predict(am,wm,t)
         publish_state()
+    else:
+        v = np.zeros(3)
+        cov_v = [0, 0, 0]
+
+        q = get_orientation_from_magnetic_field(mm,am)
+        cov_q = [0.04,0.04,0.04]
+
+        ab = np.zeros(3)
+        cov_ab = [kf.var_imu_aw, kf.var_imu_aw, kf.var_imu_aw]
+
+        wb = np.zeros(3)
+        cov_wb = [kf.var_imu_ww, kf.var_imu_ww, kf.var_imu_ww]
+
+        g = np.array([0, 0, -9.8])
+
+        kf.initialize_state(v=v,cov_v=cov_v,q=q,cov_q=cov_q,ab=ab,cov_ab=cov_ab,wb=wb,cov_wb=cov_wb,g=g,time=t)
+
+        if kf.state_initialized:
+            log('State initialized.')
 
 
 if __name__ == '__main__':
