@@ -4,10 +4,10 @@ import rosbag
 import rospy
 import time
 from kalani_v1.msg import GNSS,IMU
-from constants import Constants
+from ros.src.kalani_v1.scripts.constants import Constants
 
 
-bag=rosbag.Bag(Constants.NCLT_SENSOR_DATA_ROSBAG)
+bag=rosbag.Bag(Constants.NCLT_SENSOR_DATA_ROSBAG_PATH)
 rospy.init_node(Constants.NCLT_SENSOR_DATA_ROSBAG_NODE_NAME, anonymous=True)
 pub_gnss = rospy.Publisher(Constants.GNSS_DATA_TOPIC, GNSS, queue_size=10)
 pub_ms25 = rospy.Publisher(Constants.IMU_DATA_TOPIC, IMU, queue_size=10)

@@ -7,7 +7,7 @@ from kalani_v1.msg import State
 import numpy as np
 import pandas as pd
 
-from constants import Constants
+from ros.src.kalani_v1.scripts.constants import Constants
 
 
 df=pd.read_csv(Constants.IMU_DATA_PATH, header=None)
