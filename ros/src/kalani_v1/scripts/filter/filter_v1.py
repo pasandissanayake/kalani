@@ -49,8 +49,8 @@ class Filter_V1():
         # Prediction variances
         self.var_imu_an = 0.0001
         self.var_imu_wn = 0.0005
-        self.var_imu_aw = 0.0000
-        self.var_imu_ww = 0.0000
+        self.var_imu_aw = 0.0001
+        self.var_imu_ww = 0.0001
 
         #############################################################
         ################# Correction step variables #################

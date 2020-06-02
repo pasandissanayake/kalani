@@ -23,7 +23,7 @@ def rpy_jacobian_axis_angle(a):
     if not (type(a) == np.ndarray and len(a) == 3):
         raise ValueError("'a' must be a np.ndarray with length 3.")
     # From three-parameter representation, compute u and theta.
-    na  = np.sqrt(a.dot(a))
+    na = np.sqrt(a.dot(a))
     na3 = na**3
     t = np.sqrt(a.dot(a))
     u = a/t
@@ -100,6 +100,7 @@ class Quaternion():
             # self.y = cr * sp * cy - sr * cp * sy
             # self.z = cr * cp * sy + sr * sp * cy
 
+
     def __repr__(self):
         return "Quaternion (wxyz): [%2.5f, %2.5f, %2.5f, %2.5f]" % (self.w, self.x, self.y, self.z)
 
@@ -118,6 +119,7 @@ class Quaternion():
         pitch = np.arcsin(2 * (self.w * self.y - self.z * self.x))
         yaw = np.arctan2(2 * (self.w * self.z + self.x * self.y), 1 - 2 * (self.y**2 + self.z**2))
         return np.array([roll, pitch, yaw])
+
 
     def to_numpy(self):
         """Return numpy wxyz representation."""

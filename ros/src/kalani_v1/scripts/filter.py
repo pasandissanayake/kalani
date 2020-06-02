@@ -111,8 +111,9 @@ def imu_callback(data):
         v = np.zeros(3)
         cov_v = [0, 0, 0]
 
-        q = get_orientation_from_magnetic_field(mm,am)
-        cov_q = [0.04,0.04,0.04]
+        # q = get_orientation_from_magnetic_field(mm,am)
+        q = np.array([1,0,0,0])
+        cov_q = [1,1,1]
 
         ab = np.zeros(3)
         cov_ab = [kf.var_imu_aw, kf.var_imu_aw, kf.var_imu_aw]

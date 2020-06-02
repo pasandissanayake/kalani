@@ -11,13 +11,15 @@ class Constants:
     GROUNDTRUTH_DATA_PATH = DATASET_DIRECTORY + '/' + 'groundtruth.csv'
 
     # ros topics
+    ERROR_TOPIC = 'error'
     GNSS_DATA_TOPIC = 'gnss_data'
     GROUNDTRUTH_DATA_TOPIC = 'groundtruth_data'
     IMU_DATA_TOPIC = 'imu_data'
     STATE_TOPIC = 'state'
 
-    # ros nodes
+    # ros node names
     FILTER_NODE_NAME = 'filter'
+    ERROR_CAL_NODE_NAME = 'errorcal'
 
     # frame ids
     GNSS_FRAME = 'gnss_frame'

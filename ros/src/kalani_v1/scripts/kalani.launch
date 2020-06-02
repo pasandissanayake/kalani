@@ -2,5 +2,6 @@
   <!--<node name="filter" pkg="kalani_v1" type="filter.py" />-->
   <!--<node name="rosbag" pkg="kalani_v1" type="nclt_rosbag_read.py" />-->
   <!--<node name="groundtruth" pkg="kalani_v1" type="nclt_groundtruth_publisher.py" />-->
+  <!--<node name="error" pkg="kalani_v1" type="error.py" />-->
   <node pkg="rosbag" type="play" name="player" output="screen" args="--clock /home/pasan/kalani/data/2012-04-29/sensor_data.bag"/>
 </launch>

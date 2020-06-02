@@ -34,6 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/kalani_v1/msg" TYPE FILE FILES
+    "/home/pasan/kalani/ros/src/kalani_v1/msg/Error.msg"
     "/home/pasan/kalani/ros/src/kalani_v1/msg/GNSS.msg"
     "/home/pasan/kalani/ros/src/kalani_v1/msg/IMU.msg"
     "/home/pasan/kalani/ros/src/kalani_v1/msg/State.msg"
