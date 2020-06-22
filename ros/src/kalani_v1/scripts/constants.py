@@ -36,6 +36,18 @@ class Constants:
     # file locations
     NCLT_SENSOR_DATA_ROSBAG_PATH = DATASET_DIRECTORY + '/' + 'sensor_data.bag'
 
+    # raw data topics
+    NCLT_RAW_DATA_GNSS_FIX_TOPIC = 'raw_data/gnss_fix'
+    NCLT_RAW_DATA_GNSS_SPEED_TOPIC = 'raw_data/gnss_speed'
+    NCLT_RAW_DATA_GNSS_TRACK_TOPIC = 'raw_data/gnss_track'
+
+    NCLT_RAW_DATA_RTK_GNSS_FIX_TOPIC = 'raw_data/rtk_gnss_fix'
+    NCLT_RAW_DATA_RTK_GNSS_SPEED_TOPIC = 'raw_data/rtk_gnss_speed'
+    NCLT_RAW_DATA_RTK_GNSS_TRACK_TOPIC = 'raw_data/rtk_gnss_track'
+
+    NCLT_RAW_DATA_IMU_TOPIC = 'raw_data/imu'
+    NCLT_RAW_DATA_MAGNETOMETER_TOPIC = 'raw_data/magnetometer'
+
     # ros node names
     NCLT_GNSS_NODE_NAME = 'nclt_gnss'
     NCLT_GROUNDTRUTH_NODE_NAME = 'nclt_groundtruth'
