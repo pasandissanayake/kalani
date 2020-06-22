@@ -5,7 +5,7 @@ class Constants:
     #####################################################
 
     # file locations
-    DATASET_DIRECTORY = '/home/pasan/kalani/data/2012-04-29'
+    DATASET_DIRECTORY = '/home/entc/kalani/data/2012-04-29'
     GNSS_DATA_PATH = DATASET_DIRECTORY + '/' + 'gps.csv'
     IMU_DATA_PATH = DATASET_DIRECTORY + '/' + 'ms25.csv'
     GROUNDTRUTH_DATA_PATH = DATASET_DIRECTORY + '/' + 'groundtruth.csv'
