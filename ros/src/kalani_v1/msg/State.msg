@@ -6,6 +6,8 @@ geometry_msgs/Vector3 velocity
 
 geometry_msgs/Quaternion orientation
 
+geometry_msgs/Vector3 euler
+
 geometry_msgs/Vector3 accleration_bias
 
 geometry_msgs/Vector3 angularvelocity_bias

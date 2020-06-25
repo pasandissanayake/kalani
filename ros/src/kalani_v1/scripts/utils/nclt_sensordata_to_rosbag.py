@@ -73,7 +73,7 @@ def write_gps_rtk(gps, i, bag):
 
     status = NavSatStatus()
 
-    if mode==0 or mode==1:
+    if mode==0 or mode==1 or mode==2:
         status.status = NavSatStatus.STATUS_NO_FIX
     else:
         status.status = NavSatStatus.STATUS_FIX
