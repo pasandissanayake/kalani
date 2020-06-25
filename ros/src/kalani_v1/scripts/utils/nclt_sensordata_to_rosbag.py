@@ -340,20 +340,12 @@ def write_hokuyo_4m_packet(hok_4m, utime, bag):
 
 def main(args):
 
-    if len(sys.argv) < 2:
-        print 'Please specify sensor data directory file'
-        return 1
+    bag = rosbag.Bag(Constants.NCLT_SENSOR_DATA_ROSBAG_PATH, 'w')
 
-    if len(sys.argv) < 3:
-        print 'Please specify output rosbag file'
-        return 1
-
-    bag = rosbag.Bag(sys.argv[2], 'w')
-
-    gps = np.loadtxt(sys.argv[1] + "gps.csv", delimiter = ",")
-    gps_rtk = np.loadtxt(sys.argv[1] + "gps_rtk.csv", delimiter = ",")
-    ms25 = np.loadtxt(sys.argv[1] + "ms25.csv", delimiter = ",")
-    ms25_euler = np.loadtxt(sys.argv[1] + "ms25_euler.csv", delimiter = ",")
+    gps = np.loadtxt(Constants.NCLT_GNSS_DATA_PATH, delimiter = ",")
+    gps_rtk = np.loadtxt(Constants.NCLT_RTK_GNSS_DATA_PATH, delimiter = ",")
+    ms25 = np.loadtxt(Constants.NCLT_AHRS_DATA_PATH, delimiter = ",")
+    # ms25_euler = np.loadtxt(sys.argv[1] + "ms25_euler.csv", delimiter = ",")
 
     i_gps = 0
     i_gps_rtk = 0
@@ -387,9 +379,9 @@ def main(args):
         if i_ms25<len(ms25) and (ms25[i_ms25, 0]<next_utime or next_utime<0):
             next_packet = "ms25"
 
-        if i_ms25_euler<len(ms25_euler) and (ms25_euler[i_ms25_euler, 0]<next_utime or next_utime<0):
-            next_packet = "ms25_euler"
-
+        # if i_ms25_euler<len(ms25_euler) and (ms25_euler[i_ms25_euler, 0]<next_utime or next_utime<0):
+        #     next_packet = "ms25_euler"
+        #
         # if utime_vel>0 and (utime_vel<next_utime or next_utime<0):
         #     next_packet = "vel"
         #
@@ -411,9 +403,9 @@ def main(args):
         elif next_packet == "ms25":
             write_ms25(ms25, i_ms25, bag)
             i_ms25 = i_ms25 + 1
-        elif next_packet == "ms25_euler":
-            write_ms25_euler(ms25_euler, i_ms25_euler, bag)
-            i_ms25_euler = i_ms25_euler + 1
+        # elif next_packet == "ms25_euler":
+        #     write_ms25_euler(ms25_euler, i_ms25_euler, bag)
+        #     i_ms25_euler = i_ms25_euler + 1
         # elif next_packet == "vel":
         #     write_vel(vel_data, utime_vel, bag)
         #     utime_vel, vel_data = read_next_vel_packet(f_vel)

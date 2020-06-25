@@ -4,12 +4,6 @@ class Constants:
     ###################### Globals ######################
     #####################################################
 
-    # file locations
-    DATASET_DIRECTORY = '~/kalani/data/2012-04-29'
-    GNSS_DATA_PATH = DATASET_DIRECTORY + '/' + 'gps.csv'
-    IMU_DATA_PATH = DATASET_DIRECTORY + '/' + 'ms25.csv'
-    GROUNDTRUTH_DATA_PATH = DATASET_DIRECTORY + '/' + 'groundtruth.csv'
-
     # ros topics
     ERROR_TOPIC = 'error'
     GNSS_DATA_TOPIC = 'gnss_data'
@@ -34,7 +28,13 @@ class Constants:
     #####################################################
 
     # file locations
-    NCLT_SENSOR_DATA_ROSBAG_PATH = DATASET_DIRECTORY + '/' + 'sensor_data.bag'
+    NCLT_DATASET_DIRECTORY = '/home/entc/kalani/data/2013-01-10'
+    NCLT_GNSS_DATA_PATH = NCLT_DATASET_DIRECTORY + '/' + 'gps.csv'
+    NCLT_RTK_GNSS_DATA_PATH = NCLT_DATASET_DIRECTORY + '/' + 'gps_rtk.csv'
+    NCLT_AHRS_DATA_PATH = NCLT_DATASET_DIRECTORY + '/' + 'ms25.csv'
+    NCLT_GROUNDTRUTH_DATA_PATH = NCLT_DATASET_DIRECTORY + '/' + 'groundtruth.csv'
+    NCLT_SENSOR_DATA_ROSBAG_PATH = NCLT_DATASET_DIRECTORY + '/' + 'sensor_data.bag'
+
 
     # raw data topics
     NCLT_RAW_DATA_GNSS_FIX_TOPIC = 'raw_data/gnss_fix'
@@ -47,6 +47,7 @@ class Constants:
 
     NCLT_RAW_DATA_IMU_TOPIC = 'raw_data/imu'
     NCLT_RAW_DATA_MAGNETOMETER_TOPIC = 'raw_data/magnetometer'
+
 
     # ros node names
     NCLT_GNSS_NODE_NAME = 'nclt_gnss'
