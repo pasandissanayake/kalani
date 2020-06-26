@@ -55,7 +55,7 @@ def publish_state():
     msg.covariance = kf.get_covariance_as_numpy().tolist()
     msg.is_initialized = kf.state_initialized
     pub.publish(msg)
-    br.sendTransform((1,-1,0),(state[8],state[9],state[10],state[7]),rospy.Time.from_sec(state[0]),'estimate','world')
+    br.sendTransform(state[1:4],(state[8],state[9],state[10],state[7]),rospy.Time.from_sec(state[0]),'estimate','world')
 
 
 def publish_gnss(time, fix):
@@ -175,7 +175,10 @@ def mag_callback(data):
     ori = get_orientation_from_magnetic_field(mm,measured_acceleration)
 
     if kf.state_initialized:
-        pass
+        Hx = np.zeros([4,16])
+        Hx[:,6:10] = np.eye(4)
+        V = np.diag([0.001,0.001,0.001,0.001])
+        kf.correct(ori,Hx,V,time)
     else:
         v = np.zeros(3)
         cov_v = [0, 0, 0]

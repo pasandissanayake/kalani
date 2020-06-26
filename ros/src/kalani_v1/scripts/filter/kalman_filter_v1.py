@@ -163,7 +163,7 @@ class Kalman_Filter_V1():
 
                 self.p = self.p + self.v * dt + 0.5 * (R_inert_body.dot(am - self.ab) + self.g) * dt ** 2
                 self.v = self.v + (R_inert_body.dot(am - self.ab) + self.g) * dt
-                self.q = Quaternion(self.q[0],self.q[1],self.q[2],self.q[3]).quat_mult_left(Quaternion(axis_angle=dt * (wm - self.wb)))
+                self.q = Quaternion(self.q[0],self.q[1],self.q[2],self.q[3]).quat_mult_left(Quaternion(axis_angle=dt * (wm - self.wb)),out='Quaternion').normalize().to_numpy()
                 self.ab = self.ab
                 self.wb = self.wb
 
@@ -209,7 +209,7 @@ class Kalman_Filter_V1():
 
             self.p = self.p + dx[0:3]
             self.v = self.v + dx[3:6]
-            self.q = Quaternion(axis_angle=dx[6:9]).quat_mult_left(self.q)
+            self.q = Quaternion(axis_angle=dx[6:9]).quat_mult_left(self.q,out='Quaternion').normalize().to_numpy()
             self.ab = self.ab + dx[9:12]
             self.wb = self.wb + dx[12:15]
 

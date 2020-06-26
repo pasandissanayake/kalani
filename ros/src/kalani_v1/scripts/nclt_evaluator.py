@@ -112,7 +112,7 @@ def publish_gt(time, position, ori_e):
     msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(ori_q)
     msg.euler.x, msg.euler.y, msg.euler.z = list(ori_e)
     pub.publish(msg)
-    br.sendTransform((1,1,0), (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), 'gt', 'world')
+    br.sendTransform(position, (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), 'gt', 'world')
 
 
 def imu_callback(data):
