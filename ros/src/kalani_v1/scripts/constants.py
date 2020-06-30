@@ -12,8 +12,8 @@ class Constants:
     STATE_TOPIC = 'state'
 
     # ros node names
-    FILTER_NODE_NAME = 'filter'
-    ERROR_CAL_NODE_NAME = 'errorcal'
+    LOCATOR_NODE_NAME = 'locator'
+    EVALUATOR_NODE_NAME = 'evaluator'
 
     # frame ids
     GNSS_FRAME = 'gnss_frame'

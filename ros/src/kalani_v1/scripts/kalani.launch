@@ -4,5 +4,5 @@
   <!--<node name="groundtruth" pkg="kalani_v1" type="nclt_groundtruth_publisher.py" />-->
   <node name="locator" pkg="kalani_v1" type="nclt_locator.py" />
   <node name="evaluator" pkg="kalani_v1" type="nclt_evaluator.py" />
-  <node pkg="rosbag" type="play" name="player" output="screen" args="--queue=1 --rate=10 --clock /home/entc/kalani/data/2013-01-10/sensor_data.bag"/>
+  <node pkg="rosbag" type="play" name="player" output="screen" args="--queue=1 --rate=1 --clock /home/entc/kalani/data/2012-04-29/sensor_data.bag"/>
 </launch>

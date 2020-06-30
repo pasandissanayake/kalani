@@ -13,6 +13,7 @@ import numpy as np
 import scipy
 import math
 from scipy.optimize import leastsq
+import threading
 
 from constants import Constants
 from filter.kalman_filter_v1 import Kalman_Filter_V1
@@ -22,11 +23,11 @@ from filter.rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_s
 kf = Kalman_Filter_V1()
 
 nclt_gnss_var = [10.0, 10.0, 200]
-nclt_imu_acceleration_var = [0.001, 0.001, 0.001]
-nclt_imu_angularvelocity_var = [0.001, 0.001, 0.001]
-nclt_imu_acceleration_bias_var = [0.001, 0.001, 0.001]
-nclt_imu_angularvelocity_bias_var = [0.001, 0.001, 0.001]
-nclt_mag_orientation_var = [1,1,1]
+nclt_imu_acceleration_var = [0.01, 0.01, 0.01]
+nclt_imu_angularvelocity_var = [0.01, 0.01, 0.01]
+nclt_imu_acceleration_bias_var = [0.1, 0.1, 0.1]
+nclt_imu_angularvelocity_bias_var = [0.1, 0.1, 0.1]
+nclt_mag_orientation_var = [0.001,0.001,0.001]
 
 
 # Rotation matrix from NED to ENU
@@ -37,7 +38,7 @@ measured_acceleration = np.zeros(3)
 
 
 def log(message):
-    rospy.loginfo(Constants.FILTER_NODE_NAME + ' := ' + str(message))
+    rospy.loginfo(Constants.LOCATOR_NODE_NAME + ' := ' + str(message))
 
 
 def publish_state():
@@ -123,7 +124,7 @@ def gnss_callback(data):
             Hx = np.zeros([3, 16])
             Hx[:, 0:3] = np.eye(3)
             V = np.diag(nclt_gnss_var)
-            kf.correct(fix, Hx, V, time)
+            kf.correct(fix, Hx, V, time, measurementname='gnss')
             publish_state()
             publish_gnss(time, fix)
 
@@ -163,7 +164,7 @@ def imu_callback(data):
     time = data.header.stamp.to_sec()
 
     if kf.state_initialized:
-        kf.predict(am,wm,time)
+        kf.predict(am,wm,time, inputname='imu')
         publish_state()
 
 
@@ -178,7 +179,7 @@ def mag_callback(data):
         Hx = np.zeros([4,16])
         Hx[:,6:10] = np.eye(4)
         V = np.diag([0.001,0.001,0.001,0.001])
-        kf.correct(ori,Hx,V,time)
+        kf.correct(ori,Hx,V,time, measurementname='magnetometer')
     else:
         v = np.zeros(3)
         cov_v = [0, 0, 0]
@@ -204,7 +205,7 @@ def mag_callback(data):
 
 
 if __name__ == '__main__':
-    rospy.init_node(Constants.FILTER_NODE_NAME, anonymous=True)
+    rospy.init_node(Constants.LOCATOR_NODE_NAME, anonymous=True)
     log('Node initialized.')
     rospy.Subscriber(Constants.NCLT_RAW_DATA_GNSS_FIX_TOPIC, NavSatFix, gnss_callback, queue_size=1)
     rospy.Subscriber(Constants.NCLT_RAW_DATA_IMU_TOPIC, Imu, imu_callback, queue_size=1)

@@ -23,7 +23,7 @@ t = np.zeros((1))
 
 
 def log(message):
-    rospy.loginfo(Constants.FILTER_NODE_NAME + ' := ' + str(message))
+    rospy.loginfo(Constants.LOCATOR_NODE_NAME + ' := ' + str(message))
 
 
 def state_callback(data):
@@ -110,7 +110,7 @@ def imu_callback(data):
 
 if __name__ == '__main__':
     try:
-        rospy.init_node(Constants.ERROR_CAL_NODE_NAME, anonymous=True)
+        rospy.init_node(Constants.EVALUATOR_NODE_NAME, anonymous=True)
         i_gtruth = 0
         gtruth_input = []
         while not rospy.is_shutdown() and len(df) > i_gtruth:

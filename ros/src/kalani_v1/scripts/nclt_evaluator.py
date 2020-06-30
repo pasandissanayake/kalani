@@ -5,7 +5,8 @@ import tf
 
 from kalani_v1.msg import State
 from kalani_v1.msg import Error
-from std_msgs.msg import MultiArrayLayout
+from geometry_msgs.msg import PoseStamped
+from nav_msgs.msg import Path
 
 import numpy as np
 import pandas as pd
@@ -24,7 +25,20 @@ t = np.zeros(1)
 
 
 def log(message):
-    rospy.loginfo(Constants.FILTER_NODE_NAME + ' := ' + str(message))
+    rospy.loginfo(Constants.EVALUATOR_NODE_NAME + ' := ' + str(message))
+
+
+def publish_path(data, publisher, frameid):
+    path = Path()
+    path.header.stamp = data.header.stamp
+    path.header.frame_id = frameid
+    pose = PoseStamped()
+    pose.header.stamp = data.header.stamp
+    pose.header.frame_id = frameid
+    pose.pose.position = data.position
+    pose.pose.orientation = data.orientation
+    path.poses.append(pose)
+    publisher.publish(path)
 
 
 def state_callback(data):
@@ -79,6 +93,7 @@ def state_callback(data):
 
     publish_error()
     publish_gt(state[0],gt_interpol[0:3], gt_interpol[3:6])
+    publish_path(data, et_path_pub, 'world')
 
 
 def publish_error():
@@ -112,6 +127,7 @@ def publish_gt(time, position, ori_e):
     msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(ori_q)
     msg.euler.x, msg.euler.y, msg.euler.z = list(ori_e)
     pub.publish(msg)
+    publish_path(msg,gt_path_pub,'world')
     br.sendTransform(position, (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), 'gt', 'world')
 
 
@@ -122,7 +138,8 @@ def imu_callback(data):
 
 if __name__ == '__main__':
     try:
-        rospy.init_node(Constants.ERROR_CAL_NODE_NAME, anonymous=True)
+        rospy.init_node(Constants.EVALUATOR_NODE_NAME, anonymous=True)
+        log('Node initialized.')
 
         i_gtruth = 0
         gtruth_input = []
@@ -146,14 +163,17 @@ if __name__ == '__main__':
             # gt[i,4:7] = q.to_euler()
             gt[i, 4:7] = np.matmul(R_ned_enu, gtruth_input[i, 4:7])
 
-        rospy.loginfo(str("data storing finished"))
+        log('Data storing finished.')
         gt = np.array(gt)
-        print gt
 
         gt_function = interp1d(gt[:, 0], gt[:, 1:7], axis=0, bounds_error=False, fill_value='extrapolate', kind='linear')
+        log('Interpolation finished.')
 
         rospy.Subscriber(Constants.STATE_TOPIC, State, state_callback, queue_size=1)
         br = tf.TransformBroadcaster()
+        et_path_pub = rospy.Publisher('estimate_path', Path, queue_size=10)
+        gt_path_pub = rospy.Publisher('groundtruth_path', Path, queue_size=10)
+        log('Evaluator ready.')
         rospy.spin()
     except rospy.ROSInterruptException:
         log('Stopping node unexpectedly.')

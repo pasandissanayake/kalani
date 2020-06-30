@@ -131,7 +131,7 @@ class Kalman_Filter_V1():
                 print('initial state time stamps:', self.state_times)
 
 
-    def predict(self, am, wm, time, loadindex=-1):
+    def predict(self, am, wm, time, loadindex=-1, inputname='unspecified'):
         # with self._lock:
             if not self.state_initialized:
                 print('state not initialized')
@@ -140,7 +140,7 @@ class Kalman_Filter_V1():
             self.load_state_from_buffer(loadindex)
 
             if self.filter_time > time:
-                print('filter is ahead of time')
+                print(inputname, 'input is too old. input time:', time, 'filter time:', self.filter_time)
                 return
 
             else:
@@ -177,12 +177,12 @@ class Kalman_Filter_V1():
                     self.put_inputs_in_buffer(loadindex + 1, am, wm)
 
 
-    def correct(self, y, Hx, V, time):
+    def correct(self, y, Hx, V, time, measurementname='unspecified'):
         # with self._lock:
             index = self.get_nearest_index_by_time(time)
 
             if time < self.get_filter_time(0):
-                print('measurement is too old. measurement time:', time, 'filter time range:', self.get_filter_time(-1), ' to ', self.get_filter_time(0),)
+                print(measurementname, 'measurement is too old. measurement time:', time, 'filter time range:', self.get_filter_time(0), ' to ', self.get_filter_time(-1),)
                 return
 
             self.load_state_from_buffer(index)
@@ -220,7 +220,7 @@ class Kalman_Filter_V1():
             if index+1 < len(self.state_buffer):
                 for i in range(index+1, len(self.state_buffer)):
                     inputs = self.get_inputs_from_buffer(i)
-                    self.predict(inputs[0],inputs[1],self.get_filter_time(i),i-1)
+                    self.predict(inputs[0],inputs[1],self.get_filter_time(i),i-1,measurementname + '_correction')
 
 
     def get_state(self):
