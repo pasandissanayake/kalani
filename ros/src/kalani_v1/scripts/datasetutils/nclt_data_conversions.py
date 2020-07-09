@@ -1,11 +1,7 @@
 import numpy as np
-import math
-from scipy.interpolate import interp1d
-
 import sys
 sys.path.append('../')
 from constants import Constants
-
 
 
 class GroundTruth:

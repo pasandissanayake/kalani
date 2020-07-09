@@ -4,20 +4,16 @@ import rospy
 import tf.transformations as tft
 import tf
 from sensor_msgs.msg import NavSatFix
-from sensor_msgs.msg import NavSatStatus
 from sensor_msgs.msg import Imu
 from sensor_msgs.msg import MagneticField
 from kalani_v1.msg import State
 
 import numpy as np
 import scipy
-import math
 from scipy.optimize import leastsq
-import threading
-
 from constants import Constants
 from filter.kalman_filter_v1 import Kalman_Filter_V1
-from filter.rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
+from filter.rotations_v1 import Quaternion
 from datasetutils.nclt_data_conversions import NCLTDataConversions
 
 kf = Kalman_Filter_V1()
@@ -102,25 +98,6 @@ def get_orientation_from_magnetic_field(mm, fm):
 
 
 def gnss_callback(data):
-    # fix_mode = data.status.status
-    # fix = [data.latitude, data.longitude, data.altitude]
-    # time = data.header.stamp.to_sec()
-    #
-    # if fix_mode == NavSatStatus.STATUS_FIX and not any(math.isnan(f) for f in fix):
-    #     fix[0:2] = np.deg2rad(fix[0:2])
-    #     origin = np.array([np.deg2rad(42.293227), np.deg2rad(-83.709657), 270])
-    #     dif = fix - origin
-    #     dif[2] = -dif[2]
-    #
-    #     # GNSS data in NED
-    #     r = 6400000
-    #     fix[0] = r * np.sin(dif[0])
-    #     fix[1] = r * np.cos(origin[0]) * np.sin(dif[1])
-    #     fix[2] = dif[2]
-    #
-    #     # GNSS data in ENU
-    #     fix = np.matmul(R_ned_enu, fix)
-
     time = data.header.stamp.to_sec()
     fix_mode = data.status.status
     lat = data.latitude
