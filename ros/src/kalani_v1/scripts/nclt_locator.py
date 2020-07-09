@@ -22,12 +22,12 @@ from filter.rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_s
 
 kf = Kalman_Filter_V1()
 
-nclt_gnss_var = [10.0, 10.0, 200]
+nclt_gnss_var = [50.0, 70.0, 200]
 nclt_imu_acceleration_var = [0.01, 0.01, 0.01]
 nclt_imu_angularvelocity_var = [0.01, 0.01, 0.01]
-nclt_imu_acceleration_bias_var = [0.1, 0.1, 0.1]
-nclt_imu_angularvelocity_bias_var = [0.1, 0.1, 0.1]
-nclt_mag_orientation_var = [0.001,0.001,0.001]
+nclt_imu_acceleration_bias_var = [0.001, 0.001, 0.001]
+nclt_imu_angularvelocity_bias_var = [0.001, 0.001, 0.001]
+nclt_mag_orientation_var = [0.01,0.01,0.01]
 
 
 # Rotation matrix from NED to ENU
@@ -106,8 +106,8 @@ def gnss_callback(data):
     time = data.header.stamp.to_sec()
 
     if fix_mode == NavSatStatus.STATUS_FIX and not any(math.isnan(f) for f in fix):
-        fix = np.deg2rad(fix)
-        origin = np.array([np.deg2rad(42.293227), np.deg2rad(-83.709657), 0])
+        fix[0:2] = np.deg2rad(fix[0:2])
+        origin = np.array([np.deg2rad(42.293227), np.deg2rad(-83.709657), 270])
         dif = fix - origin
         dif[2] = -dif[2]
 
@@ -178,7 +178,7 @@ def mag_callback(data):
     if kf.state_initialized:
         Hx = np.zeros([4,16])
         Hx[:,6:10] = np.eye(4)
-        V = np.diag([0.001,0.001,0.001,0.001])
+        V = np.diag([0.01,0.01,0.01,0.01])
         kf.correct(ori,Hx,V,time, measurementname='magnetometer')
     else:
         v = np.zeros(3)

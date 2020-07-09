@@ -7,6 +7,8 @@ from kalani_v1.msg import State
 from kalani_v1.msg import Error
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Path
+from visualization_msgs.msg import Marker
+import visualization_msgs
 
 import numpy as np
 import pandas as pd
@@ -26,6 +28,26 @@ t = np.zeros(1)
 
 def log(message):
     rospy.loginfo(Constants.EVALUATOR_NODE_NAME + ' := ' + str(message))
+
+
+def publish_covariance(data, publisher, frameid, covariance):
+    marker = Marker()
+    marker.header.frame_id = frameid
+    marker.header.stamp = data.header.stamp
+    marker.ns = "my_namespace2"
+    marker.type = visualization_msgs.msg.Marker.SPHERE
+    marker.action = visualization_msgs.msg.Marker.ADD
+    marker.pose.position = data.position
+    marker.pose.orientation = data.orientation
+
+    marker.scale.x = covariance[0]
+    marker.scale.y = covariance[1]
+    marker.scale.z = covariance[2]
+    marker.color.a = 1.0
+    marker.color.r = 100.0
+    marker.color.g = 100.0
+    marker.color.b = 0.0
+    publisher.publish(marker)
 
 
 def publish_path(data, publisher, frameid):
@@ -94,6 +116,7 @@ def state_callback(data):
     publish_error()
     publish_gt(state[0],gt_interpol[0:3], gt_interpol[3:6])
     publish_path(data, et_path_pub, 'world')
+    publish_covariance(data, cov_ellipse_pub, 'world', pos_cal[:,1])
 
 
 def publish_error():
@@ -156,11 +179,6 @@ if __name__ == '__main__':
         gt[:, 0] = gtruth_input[:, 0] * 10 ** (-6)
         for i in range(len(gt)):
             gt[i,1:4] = np.matmul(R_ned_enu, gtruth_input[i,1:4])
-            # q_enu_ned = Quaternion(euler=np.array([0, np.pi, np.pi / 2]))
-            # q_in_ned = Quaternion(euler=gtruth_input[i, 4:7])
-            # q = q_enu_ned.quat_mult_left(q_in_ned)
-            # q = Quaternion(q[0],q[1],q[2],q[3])
-            # gt[i,4:7] = q.to_euler()
             gt[i, 4:7] = np.matmul(R_ned_enu, gtruth_input[i, 4:7])
 
         log('Data storing finished.')
@@ -173,6 +191,7 @@ if __name__ == '__main__':
         br = tf.TransformBroadcaster()
         et_path_pub = rospy.Publisher('estimate_path', Path, queue_size=10)
         gt_path_pub = rospy.Publisher('groundtruth_path', Path, queue_size=10)
+        cov_ellipse_pub = rospy.Publisher('cov_ellipse', Marker, queue_size=10)
         log('Evaluator ready.')
         rospy.spin()
     except rospy.ROSInterruptException:
