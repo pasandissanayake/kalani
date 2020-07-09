@@ -18,11 +18,11 @@ import threading
 from constants import Constants
 from filter.kalman_filter_v1 import Kalman_Filter_V1
 from filter.rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
-
+from datasetutils.nclt_data_conversions import NCLTDataConversions
 
 kf = Kalman_Filter_V1()
 
-nclt_gnss_var = [50.0, 70.0, 200]
+nclt_gnss_var = [10.0, 15.0, 120]
 nclt_imu_acceleration_var = [0.01, 0.01, 0.01]
 nclt_imu_angularvelocity_var = [0.01, 0.01, 0.01]
 nclt_imu_acceleration_bias_var = [0.001, 0.001, 0.001]
@@ -65,6 +65,7 @@ def publish_gnss(time, fix):
     msg.header.stamp = rospy.Time.from_sec(time)
     msg.position.x, msg.position.y, msg.position.z = list(fix)
     pub.publish(msg)
+    br.sendTransform(fix,(0,0,0,1),rospy.Time.from_sec(time),'gps','world')
 
 
 def publish_mag_orientation(time, q):
@@ -101,24 +102,36 @@ def get_orientation_from_magnetic_field(mm, fm):
 
 
 def gnss_callback(data):
-    fix_mode = data.status.status
-    fix = [data.latitude, data.longitude, data.altitude]
+    # fix_mode = data.status.status
+    # fix = [data.latitude, data.longitude, data.altitude]
+    # time = data.header.stamp.to_sec()
+    #
+    # if fix_mode == NavSatStatus.STATUS_FIX and not any(math.isnan(f) for f in fix):
+    #     fix[0:2] = np.deg2rad(fix[0:2])
+    #     origin = np.array([np.deg2rad(42.293227), np.deg2rad(-83.709657), 270])
+    #     dif = fix - origin
+    #     dif[2] = -dif[2]
+    #
+    #     # GNSS data in NED
+    #     r = 6400000
+    #     fix[0] = r * np.sin(dif[0])
+    #     fix[1] = r * np.cos(origin[0]) * np.sin(dif[1])
+    #     fix[2] = dif[2]
+    #
+    #     # GNSS data in ENU
+    #     fix = np.matmul(R_ned_enu, fix)
+
     time = data.header.stamp.to_sec()
-
-    if fix_mode == NavSatStatus.STATUS_FIX and not any(math.isnan(f) for f in fix):
-        fix[0:2] = np.deg2rad(fix[0:2])
-        origin = np.array([np.deg2rad(42.293227), np.deg2rad(-83.709657), 270])
-        dif = fix - origin
-        dif[2] = -dif[2]
-
-        # GNSS data in NED
-        r = 6400000
-        fix[0] = r * np.sin(dif[0])
-        fix[1] = r * np.cos(origin[0]) * np.sin(dif[1])
-        fix[2] = dif[2]
-
-        # GNSS data in ENU
-        fix = np.matmul(R_ned_enu, fix)
+    fix_mode = data.status.status
+    lat = data.latitude
+    long = data.longitude
+    alt = data.altitude
+    track = 0
+    speed = 0
+    gnss_array = np.array([time*1e6,fix_mode,4,lat,long,alt,track,speed])
+    gnss = NCLTDataConversions.gnss_numpy_to_converted(gnss_array)
+    fix = np.array([gnss.x,gnss.y,gnss.z])
+    if gnss.fix_mode == 3:
 
         if kf.state_initialized:
             Hx = np.zeros([3, 16])
