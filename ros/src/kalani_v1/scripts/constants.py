@@ -5,20 +5,20 @@ class Constants:
     #####################################################
 
     # ros topics
-    ERROR_TOPIC = 'error'
-    GNSS_DATA_TOPIC = 'gnss_data'
-    GROUNDTRUTH_DATA_TOPIC = 'groundtruth_data'
-    IMU_DATA_TOPIC = 'imu_data'
     STATE_TOPIC = 'state'
+    ERROR_TOPIC = 'error'
+    CONVERTED_GNSS_DATA_TOPIC = 'conv_data/gnss'
+    CONVERTED_GROUNDTRUTH_DATA_TOPIC = 'conv_data/groundtruth'
 
     # ros node names
     LOCATOR_NODE_NAME = 'locator'
     EVALUATOR_NODE_NAME = 'evaluator'
 
     # frame ids
-    GNSS_FRAME = 'gnss_frame'
-    IMU_FRAME = 'imu_frame'
-    STATE_FRAME = 'state_frame'
+    WORLD_FRAME = 'world'       # The local ENU frame, stationary relative to the earth
+    BODY_FRAME = 'body'         # Body frame of the vehicle. Denotes the estimate
+    GROUNDTRUTH_FRAME = 'gt'    # Frame in which the ground truth is published
+    GNSS_FRAME = 'gnss'         # Frame in which the converted GNSS location is published
 
 
 
@@ -57,7 +57,4 @@ class Constants:
 
 
     # ros node names
-    NCLT_GNSS_NODE_NAME = 'nclt_gnss'
-    NCLT_GROUNDTRUTH_NODE_NAME = 'nclt_groundtruth'
-    NCLT_IMU_NODE_NAME = 'nclt_imu'
     NCLT_SENSOR_DATA_ROSBAG_NODE_NAME = 'nclt_rosbag'

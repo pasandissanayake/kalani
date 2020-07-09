@@ -61,7 +61,7 @@ class NCLTDataConversions:
             groundtruth.z = gt_array[:, 3]
             groundtruth.r = gt_array[:, 4]
             groundtruth.p = gt_array[:, 5]
-            groundtruth.r = gt_array[:, 6]
+            groundtruth.h = gt_array[:, 6]
         else:
             groundtruth = GroundTruth(1)
             groundtruth.time = gt_array[0] / 1e6
@@ -70,7 +70,7 @@ class NCLTDataConversions:
             groundtruth.z = gt_array[3]
             groundtruth.r = gt_array[4]
             groundtruth.p = gt_array[5]
-            groundtruth.r = gt_array[6]
+            groundtruth.h = gt_array[6]
         return groundtruth
 
     @staticmethod
@@ -164,6 +164,10 @@ class NCLTDataConversions:
         gnss_raw = NCLTDataConversions.gnss_numpy_to_raw(gnss_array, angle_unit)
         return NCLTDataConversions.gnss_raw_to_converted(gnss_raw)
 
+    @staticmethod
+    def vector_ned_to_enu(vector):
+        R_ned_enu = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
+        return np.matmul(R_ned_enu, vector)
 
 
 class NCLTData:

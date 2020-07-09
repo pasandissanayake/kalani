@@ -16,6 +16,7 @@ from scipy.interpolate import interp1d
 from filter.rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
 
 from constants import Constants
+from datasetutils.nclt_data_conversions import NCLTData
 
 df = pd.read_csv(Constants.NCLT_GROUNDTRUTH_DATA_PATH, header=None)
 
@@ -30,20 +31,20 @@ def log(message):
     rospy.loginfo(Constants.EVALUATOR_NODE_NAME + ' := ' + str(message))
 
 
-def publish_covariance(data, publisher, frameid, covariance):
+def publish_covariance(data, publisher, frameid, threesigma):
     marker = Marker()
     marker.header.frame_id = frameid
     marker.header.stamp = data.header.stamp
-    marker.ns = "my_namespace2"
+    marker.ns = 'covariances'
     marker.type = visualization_msgs.msg.Marker.SPHERE
     marker.action = visualization_msgs.msg.Marker.ADD
     marker.pose.position = data.position
     marker.pose.orientation = data.orientation
 
-    marker.scale.x = covariance[0]
-    marker.scale.y = covariance[1]
-    marker.scale.z = covariance[2]
-    marker.color.a = 1.0
+    marker.scale.x = threesigma[0]
+    marker.scale.y = threesigma[1]
+    marker.scale.z = threesigma[2]
+    marker.color.a = 0.5
     marker.color.r = 100.0
     marker.color.g = 100.0
     marker.color.b = 0.0
@@ -107,20 +108,18 @@ def state_callback(data):
         pos_cal[i, 2] = -3 * p_cov_std[:, i]
 
     # orientation error calculation
-
     for i in range(3):
         ori_cal[i, 0] = angle_normalize(gt_interpol[i + 3] - p_est_euler[:, i])
         ori_cal[i, 1] = 3 * p_cov_euler_std[:, i]
         ori_cal[i, 2] = -3 * p_cov_euler_std[:, i]
 
-    publish_error()
-    publish_gt(state[0],gt_interpol[0:3], gt_interpol[3:6])
-    publish_path(data, et_path_pub, 'world')
-    publish_covariance(data, cov_ellipse_pub, 'world', pos_cal[:,1])
+    publish_error(error_pub)
+    publish_gt(gt_pub, state[0],gt_interpol[0:3], gt_interpol[3:6])
+    publish_path(data, et_path_pub, Constants.WORLD_FRAME)
+    publish_covariance(data, cov_ellipse_pub, Constants.WORLD_FRAME, pos_cal[:,1])
 
 
-def publish_error():
-    pub = rospy.Publisher(Constants.ERROR_TOPIC, Error, queue_size=1)
+def publish_error(pub):
     msg = Error()
     msg.header.stamp = rospy.Time.from_sec(t[0])
     msg.position.x, msg.position.y, msg.position.z = pos_cal[0:3, 0]
@@ -141,8 +140,7 @@ def publish_error():
 
     pub.publish(msg)
 
-def publish_gt(time, position, ori_e):
-    pub = rospy.Publisher('converted_gt', State, queue_size=1)
+def publish_gt(pub, time, position, ori_e):
     ori_q = Quaternion(euler=ori_e).to_numpy()
     msg = State()
     msg.header.stamp = rospy.Time.from_sec(time)
@@ -150,8 +148,8 @@ def publish_gt(time, position, ori_e):
     msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(ori_q)
     msg.euler.x, msg.euler.y, msg.euler.z = list(ori_e)
     pub.publish(msg)
-    publish_path(msg,gt_path_pub,'world')
-    br.sendTransform(position, (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), 'gt', 'world')
+    publish_path(msg,gt_path_pub,Constants.WORLD_FRAME)
+    br.sendTransform(position, (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), Constants.GROUNDTRUTH_FRAME, Constants.WORLD_FRAME)
 
 
 def imu_callback(data):
@@ -164,34 +162,21 @@ if __name__ == '__main__':
         rospy.init_node(Constants.EVALUATOR_NODE_NAME, anonymous=True)
         log('Node initialized.')
 
-        i_gtruth = 0
-        gtruth_input = []
-        while not rospy.is_shutdown() and len(df) > i_gtruth:
-            gtruth_input.append(list(df.loc[i_gtruth]))
-            if i_gtruth <= (len(df) - 1):
-                i_gtruth = i_gtruth + 1
-            else:
-                break
-        gtruth_input = np.array(gtruth_input)
-
-        R_ned_enu = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
-        gt = np.zeros(gtruth_input.shape)
-        gt[:, 0] = gtruth_input[:, 0] * 10 ** (-6)
-        for i in range(len(gt)):
-            gt[i,1:4] = np.matmul(R_ned_enu, gtruth_input[i,1:4])
-            gt[i, 4:7] = np.matmul(R_ned_enu, gtruth_input[i, 4:7])
-
-        log('Data storing finished.')
-        gt = np.array(gt)
+        ds = NCLTData(Constants.NCLT_DATASET_DIRECTORY)
+        gt = np.array([ds.groundtruth.time, ds.groundtruth.x, ds.groundtruth.y, ds.groundtruth.z, ds.groundtruth.r, ds.groundtruth.p, ds.groundtruth.h]).T
 
         gt_function = interp1d(gt[:, 0], gt[:, 1:7], axis=0, bounds_error=False, fill_value='extrapolate', kind='linear')
         log('Interpolation finished.')
 
         rospy.Subscriber(Constants.STATE_TOPIC, State, state_callback, queue_size=1)
+
         br = tf.TransformBroadcaster()
+        gt_pub = rospy.Publisher(Constants.CONVERTED_GROUNDTRUTH_DATA_TOPIC, State, queue_size=1)
+        error_pub = rospy.Publisher(Constants.ERROR_TOPIC, Error, queue_size=1)
         et_path_pub = rospy.Publisher('estimate_path', Path, queue_size=10)
         gt_path_pub = rospy.Publisher('groundtruth_path', Path, queue_size=10)
         cov_ellipse_pub = rospy.Publisher('cov_ellipse', Marker, queue_size=10)
+
         log('Evaluator ready.')
         rospy.spin()
     except rospy.ROSInterruptException:

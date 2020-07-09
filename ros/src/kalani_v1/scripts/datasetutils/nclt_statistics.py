@@ -26,7 +26,10 @@ mean_z = np.average(error_z)
 variance_z = np.average(error_z**2)
 print 'var z:',variance_z, '\nmean z:',mean_z
 
+
 fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+
+# error distributions
 num_bins = 100
 error_range = np.arange(-15,15,0.1)
 
@@ -42,6 +45,9 @@ z_error_range = np.arange(-200,200,1)
 ax3.hist(error_z, num_bins, facecolor='blue', alpha=0.5, normed=True)
 ax3.plot(z_error_range,mlab.normpdf(z_error_range, mean_z, np.sqrt(variance_z)))
 ax3.set_title('z')
+
+# ax1.plot(time, error_x)
+# ax2.plot(time, error_y)
 
 plt.show()
 
