@@ -2,7 +2,6 @@
 
 import rospy
 import tf
-
 from kalani_v1.msg import State
 from kalani_v1.msg import Error
 from geometry_msgs.msg import PoseStamped
@@ -11,14 +10,10 @@ from visualization_msgs.msg import Marker
 import visualization_msgs
 
 import numpy as np
-import pandas as pd
 from scipy.interpolate import interp1d
-from filter.rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
-
+from filter.rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, Quaternion
 from constants import Constants
 from datasetutils.nclt_data_conversions import NCLTData
-
-df = pd.read_csv(Constants.NCLT_GROUNDTRUTH_DATA_PATH, header=None)
 
 gt = []
 gt_function = []
@@ -41,9 +36,9 @@ def publish_covariance(data, publisher, frameid, threesigma):
     marker.pose.position = data.position
     marker.pose.orientation = data.orientation
 
-    marker.scale.x = threesigma[0]
-    marker.scale.y = threesigma[1]
-    marker.scale.z = threesigma[2]
+    marker.scale.x = threesigma[0] * 2
+    marker.scale.y = threesigma[1] * 2
+    marker.scale.z = threesigma[2] * 2
     marker.color.a = 0.5
     marker.color.r = 100.0
     marker.color.g = 100.0
@@ -62,6 +57,40 @@ def publish_path(data, publisher, frameid):
     pose.pose.orientation = data.orientation
     path.poses.append(pose)
     publisher.publish(path)
+
+
+def publish_error(pub):
+    msg = Error()
+    msg.header.stamp = rospy.Time.from_sec(t[0])
+    msg.position.x, msg.position.y, msg.position.z = pos_cal[0:3, 0]
+    msg.x_eb_u = [pos_cal[0, 1]]
+    msg.x_eb_d = [pos_cal[0, 2]]
+    msg.y_eb_u = [pos_cal[1, 1]]
+    msg.y_eb_d = [pos_cal[1, 2]]
+    msg.z_eb_u = [pos_cal[2, 1]]
+    msg.z_eb_d = [pos_cal[2, 2]]
+
+    msg.orientation.x, msg.orientation.y, msg.orientation.z = ori_cal[0:3, 0]
+    msg.r_eb_u = [ori_cal[0, 1]]
+    msg.p_eb_u = [ori_cal[1, 1]]
+    msg.ya_eb_u = [ori_cal[2, 1]]
+    msg.r_eb_d = [ori_cal[0, 2]]
+    msg.p_eb_d = [ori_cal[1, 2]]
+    msg.ya_eb_d = [ori_cal[2, 2]]
+
+    pub.publish(msg)
+
+
+def publish_gt(pub, time, position, ori_e):
+    ori_q = Quaternion(euler=ori_e).to_numpy()
+    msg = State()
+    msg.header.stamp = rospy.Time.from_sec(time)
+    msg.position.x, msg.position.y, msg.position.z = list(position)
+    msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(ori_q)
+    msg.euler.x, msg.euler.y, msg.euler.z = list(ori_e)
+    pub.publish(msg)
+    publish_path(msg,gt_path_pub,Constants.WORLD_FRAME)
+    br.sendTransform(position, (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), Constants.GROUNDTRUTH_FRAME, Constants.WORLD_FRAME)
 
 
 def state_callback(data):
@@ -117,39 +146,6 @@ def state_callback(data):
     publish_gt(gt_pub, state[0],gt_interpol[0:3], gt_interpol[3:6])
     publish_path(data, et_path_pub, Constants.WORLD_FRAME)
     publish_covariance(data, cov_ellipse_pub, Constants.WORLD_FRAME, pos_cal[:,1])
-
-
-def publish_error(pub):
-    msg = Error()
-    msg.header.stamp = rospy.Time.from_sec(t[0])
-    msg.position.x, msg.position.y, msg.position.z = pos_cal[0:3, 0]
-    msg.x_eb_u = [pos_cal[0, 1]]
-    msg.x_eb_d = [pos_cal[0, 2]]
-    msg.y_eb_u = [pos_cal[1, 1]]
-    msg.y_eb_d = [pos_cal[1, 2]]
-    msg.z_eb_u = [pos_cal[2, 1]]
-    msg.z_eb_d = [pos_cal[2, 2]]
-
-    msg.orientation.x, msg.orientation.y, msg.orientation.z = ori_cal[0:3, 0]
-    msg.r_eb_u = [ori_cal[0, 1]]
-    msg.p_eb_u = [ori_cal[1, 1]]
-    msg.ya_eb_u = [ori_cal[2, 1]]
-    msg.r_eb_d = [ori_cal[0, 2]]
-    msg.p_eb_d = [ori_cal[1, 2]]
-    msg.ya_eb_d = [ori_cal[2, 2]]
-
-    pub.publish(msg)
-
-def publish_gt(pub, time, position, ori_e):
-    ori_q = Quaternion(euler=ori_e).to_numpy()
-    msg = State()
-    msg.header.stamp = rospy.Time.from_sec(time)
-    msg.position.x, msg.position.y, msg.position.z = list(position)
-    msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(ori_q)
-    msg.euler.x, msg.euler.y, msg.euler.z = list(ori_e)
-    pub.publish(msg)
-    publish_path(msg,gt_path_pub,Constants.WORLD_FRAME)
-    br.sendTransform(position, (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), Constants.GROUNDTRUTH_FRAME, Constants.WORLD_FRAME)
 
 
 def imu_callback(data):
