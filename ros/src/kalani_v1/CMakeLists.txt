@@ -11,10 +11,13 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   rospy_tutorials
+  tf
 
   message_generation
   std_msgs
   geometry_msgs
+  sensor_msgs
+  visualization_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -54,8 +57,6 @@ find_package(catkin REQUIRED COMPONENTS
  add_message_files(
    FILES
    Error.msg
-   GNSS.msg
-   IMU.msg
    State.msg
  )
 
@@ -78,6 +79,8 @@ find_package(catkin REQUIRED COMPONENTS
    DEPENDENCIES
    std_msgs
    geometry_msgs
+   sensor_msgs
+   visualization_msgs
  )
 
 ################################################
