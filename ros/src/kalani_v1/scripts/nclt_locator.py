@@ -25,6 +25,7 @@ nclt_imu_angularvelocity_bias_var = [0.001, 0.001, 0.001]
 # nclt_imu_acceleration_var = [0.01, 0.01, 0.01]
 # nclt_imu_angularvelocity_var = [0.01, 0.01, 0.01]
 
+
 # Latest acceleration measured by the IMU, to be used in estimating orientation in mag_callback()
 measured_acceleration = np.zeros(3)
 
