@@ -17,13 +17,13 @@ from datasetutils.nclt_data_conversions import NCLTDataConversions
 
 kf = Kalman_Filter_V1()
 
-nclt_gnss_var = [10.0, 15.0, 120]
-nclt_imu_acceleration_var = [0.01, 0.01, 0.01]
-nclt_imu_angularvelocity_var = [0.01, 0.01, 0.01]
+nclt_gnss_var = [20.0, 25.0, 200]
+nclt_mag_orientation_var = [0.01,0.01,0.01]
 nclt_imu_acceleration_bias_var = [0.001, 0.001, 0.001]
 nclt_imu_angularvelocity_bias_var = [0.001, 0.001, 0.001]
-nclt_mag_orientation_var = [0.01,0.01,0.01]
 
+# nclt_imu_acceleration_var = [0.01, 0.01, 0.01]
+# nclt_imu_angularvelocity_var = [0.01, 0.01, 0.01]
 
 # Latest acceleration measured by the IMU, to be used in estimating orientation in mag_callback()
 measured_acceleration = np.zeros(3)
@@ -132,7 +132,13 @@ def gnss_callback(data):
             if kf.state_initialized:
                 log('State initialized.')
     elif gnss.fix_mode == 2:
-        print '2 occured'
+        if kf.state_initialized:
+            Hx = np.zeros([2, 16])
+            Hx[:, 0:2] = np.eye(2)
+            V = np.diag(nclt_gnss_var[0:2])
+            kf.correct(fix[0:2], Hx, V, time, measurementname='gnss_no_alt')
+            publish_state(state_pub)
+            publish_gnss(converted_gnss_pub, time, fix)
 
 
 def imu_callback(data):
