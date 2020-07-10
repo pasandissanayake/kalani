@@ -2,7 +2,7 @@
 
 import numpy as np
 import threading
-from rotations_v1 import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
+from rotations_v1 import skew_symmetric, Quaternion
 
 
 class Kalman_Filter_V1():
@@ -38,7 +38,7 @@ class Kalman_Filter_V1():
         self.state_initialized = False
         self.state_times = -1 * np.ones(Kalman_Filter_V1.NO_STATE_VARIABLES)
         self.state_buffer = []
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
         #############################################################
         ################# Prediction step variables #################
@@ -49,30 +49,10 @@ class Kalman_Filter_V1():
         self.Fi[3:15, :] = np.eye(12)
 
         # Prediction variances
-        self.var_imu_an = 0.0001
-        self.var_imu_wn = 0.0005
-        self.var_imu_aw = 0.0001
-        self.var_imu_ww = 0.0001
-
-        #############################################################
-        ################# Correction step variables #################
-        #############################################################
-
-        # Variables for GNSS with altitude
-        self.var_gnss_with_alt_horizontal = 10.0
-        self.var_gnss_with_alt_vertical = 200.0
-        self.Hx_gnss_with_alt = np.zeros([3, 16])
-        self.Hx_gnss_with_alt[:, 0:3] = np.eye(3)
-
-        # Variables for GNSS without altitude
-        self.var_gnss_no_alt_horizontal = self.var_gnss_with_alt_horizontal
-        self.Hx_gnss_no_alt = np.zeros([2, 16])
-        self.Hx_gnss_no_alt[:, 0:2] = np.eye(2)
-
-        # Variables for velocity from odometry with altitude
-        self.var_odom_with_alt = 10.0
-        self.Hx_odom_with_alt = np.zeros([3,16])
-        self.Hx_odom_with_alt[:, 3:6] = np.eye(3)
+        self.var_imu_an = 0.001
+        self.var_imu_wn = 0.001
+        self.var_imu_aw = 0.01
+        self.var_imu_ww = 0.01
 
 
     def initialize_state(self, p=None, cov_p=None, v=None, cov_v=None, q=None, cov_q=None, ab=None, cov_ab=None, wb=None, cov_wb=None, g=None, time=-1):
@@ -140,7 +120,7 @@ class Kalman_Filter_V1():
             self.load_state_from_buffer(loadindex)
 
             if self.filter_time > time:
-                print(inputname, 'input is too old. input time:', time, 'filter time:', self.filter_time)
+                print(inputname, 'input is too old. input time:', time, 'filter time:', self.filter_time, 'load index:', loadindex)
                 return
 
             else:
@@ -187,8 +167,6 @@ class Kalman_Filter_V1():
 
             self.load_state_from_buffer(index)
 
-            dx = np.zeros(15)
-
             Q_dtheta = 0.5 * np.array([
                 [-self.q[1], -self.q[2], -self.q[3]],
                 [self.q[0], self.q[3], -self.q[2]],
@@ -220,7 +198,7 @@ class Kalman_Filter_V1():
             if index+1 < len(self.state_buffer):
                 for i in range(index+1, len(self.state_buffer)):
                     inputs = self.get_inputs_from_buffer(i)
-                    self.predict(inputs[0],inputs[1],self.get_filter_time(i),i-1,measurementname + '_correction')
+                    self.predict(inputs[0],inputs[1],self.get_filter_time(i),i-1,measurementname + '_correction @ ' + str(time))
 
 
     def get_state(self):
@@ -245,15 +223,6 @@ class Kalman_Filter_V1():
         self.filter_time = self.state_buffer[index][Kalman_Filter_V1.NO_STATE_VARIABLES + 1]
 
 
-    def store_state_in_buffer(self, index=None):
-        # with self._lock:
-            if index is None:
-                self.state_buffer.append([self.p, self.v, self.q, self.ab, self.wb, self.P, self.filter_time, 'nan', 'nan'])
-                if len(self.state_buffer) >= Kalman_Filter_V1.STATE_BUFFER_LENGTH: self.state_buffer.pop(0)
-            else:
-                self.state_buffer[index][0:Kalman_Filter_V1.NO_STATE_VARIABLES + 2] = [self.p, self.v, self.q, self.ab, self.wb, self.P, self.filter_time]
-
-
     def get_filter_time(self, index):
         return self.state_buffer[index][Kalman_Filter_V1.NO_STATE_VARIABLES + 1]
 
@@ -262,9 +231,16 @@ class Kalman_Filter_V1():
         return self.state_buffer[index][Kalman_Filter_V1.NO_STATE_VARIABLES + 2:Kalman_Filter_V1.NO_STATE_VARIABLES + 4]
 
 
+    def store_state_in_buffer(self, index=None):
+        if index is None:
+            if len(self.state_buffer) >= Kalman_Filter_V1.STATE_BUFFER_LENGTH: self.state_buffer.pop(0)
+            self.state_buffer.append([self.p, self.v, self.q, self.ab, self.wb, self.P, self.filter_time, 'nan', 'nan'])
+        else:
+            self.state_buffer[index][0:Kalman_Filter_V1.NO_STATE_VARIABLES + 2] = [self.p, self.v, self.q, self.ab, self.wb, self.P, self.filter_time]
+
+
     def put_inputs_in_buffer(self, index, am, wm):
-        # with self._lock:
-            self.state_buffer[index][Kalman_Filter_V1.NO_STATE_VARIABLES + 2:Kalman_Filter_V1.NO_STATE_VARIABLES + 4] = [am, wm]
+        self.state_buffer[index][Kalman_Filter_V1.NO_STATE_VARIABLES + 2:Kalman_Filter_V1.NO_STATE_VARIABLES + 4] = [am, wm]
 
 
     def get_nearest_index_by_time(self,time):

@@ -117,7 +117,7 @@ def gnss_callback(data):
             v = np.zeros(3)
             cov_v = [0,0,0]
 
-            ab = np.zeros(3)
+            ab = np.array([0.0, 0.0, 0.0])
             cov_ab = nclt_imu_acceleration_bias_var
 
             wb = np.zeros(3)
@@ -168,7 +168,7 @@ def mag_callback(data):
         q = ori
         cov_q = nclt_mag_orientation_var
 
-        ab = np.zeros(3)
+        ab = np.array([0.0, 0.0, 0.0])
         cov_ab = nclt_imu_acceleration_bias_var
 
         wb = np.zeros(3)
