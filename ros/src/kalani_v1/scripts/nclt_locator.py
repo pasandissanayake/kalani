@@ -17,10 +17,10 @@ from datasetutils.nclt_data_conversions import NCLTDataConversions
 
 kf = Kalman_Filter_V1()
 
-nclt_gnss_var = [20.0, 25.0, 200]
-nclt_mag_orientation_var = [0.01,0.01,0.01]
+nclt_gnss_var = [100.0, 25.0, 150]
+nclt_mag_orientation_var = [0.001,0.001,0.001]
 nclt_imu_acceleration_bias_var = [0.001, 0.001, 0.001]
-nclt_imu_angularvelocity_bias_var = [0.001, 0.001, 0.001]
+nclt_imu_angularvelocity_bias_var = [0.001, 0.01, 0.001]
 
 # nclt_imu_acceleration_var = [0.01, 0.01, 0.01]
 # nclt_imu_angularvelocity_var = [0.01, 0.01, 0.01]
@@ -92,6 +92,7 @@ def get_orientation_from_magnetic_field(mm, fm):
 
 
 def gnss_callback(data):
+    print 'gps callback'
     time = data.header.stamp.to_sec()
     fix_mode = data.status.status
     lat = data.latitude
@@ -141,8 +142,12 @@ def gnss_callback(data):
             publish_state(state_pub)
             publish_gnss(converted_gnss_pub, time, fix)
 
+    print 'gps callback end'
+
 
 def imu_callback(data):
+    print 'imu callback'
+
     am = NCLTDataConversions.vector_ned_to_enu(np.array([data.linear_acceleration.x, data.linear_acceleration.y, data.linear_acceleration.z]))
     global measured_acceleration
     measured_acceleration = am
@@ -155,8 +160,11 @@ def imu_callback(data):
         kf.predict(am,wm,time, inputname='imu')
         publish_state(state_pub)
 
+    print 'imu callback end'
+
 
 def mag_callback(data):
+    print 'mag callback'
     mm = NCLTDataConversions.vector_ned_to_enu(np.array([data.magnetic_field.x, data.magnetic_field.y, data.magnetic_field.z]))
     time = data.header.stamp.to_sec()
 
@@ -187,6 +195,7 @@ def mag_callback(data):
 
         if kf.state_initialized:
             log('State initialized.')
+    print 'mag callback end'
 
 
 if __name__ == '__main__':

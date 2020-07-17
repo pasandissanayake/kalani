@@ -3,9 +3,12 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 from nclt_data_conversions import *
+sys.path.append('../')
+from constants import Constants
 
 
-dataset = NCLTData('/home/entc/kalani/data/2012-04-29')
+dataset = NCLTData(Constants.NCLT_DATASET_DIRECTORY)
+# dataset = NCLTData('/home/entc/kalani/data/2013-01-10')
 
 time = dataset.converted_gnss.time
 gt_interpol_x = interp1d(dataset.groundtruth.time,dataset.groundtruth.x,axis=0, bounds_error=False, fill_value='extrapolate', kind='linear')

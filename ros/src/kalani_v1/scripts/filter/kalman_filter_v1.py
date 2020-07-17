@@ -49,10 +49,10 @@ class Kalman_Filter_V1():
         self.Fi[3:15, :] = np.eye(12)
 
         # Prediction variances
-        self.var_imu_an = 0.001
-        self.var_imu_wn = 0.001
-        self.var_imu_aw = 0.01
-        self.var_imu_ww = 0.01
+        self.var_imu_an = 0.0001
+        self.var_imu_wn = 0.0001
+        self.var_imu_aw = 0.0001
+        self.var_imu_ww = 0.0001
 
 
     def initialize_state(self, p=None, cov_p=None, v=None, cov_v=None, q=None, cov_q=None, ab=None, cov_ab=None, wb=None, cov_wb=None, g=None, time=-1):
@@ -202,25 +202,33 @@ class Kalman_Filter_V1():
 
 
     def get_state(self):
-        return self.p, self.v, self.q, self.ab, self.wb, self.P
+        # with self._lock:
+            self.load_state_from_buffer()
+            return self.p, self.v, self.q, self.ab, self.wb, self.P
 
 
     def get_state_as_numpy(self):
-        return np.array(np.concatenate(([self.filter_time],self.p,self.v,self.q,self.ab,self.wb))).flatten()
+        # with self._lock:
+            self.load_state_from_buffer()
+            return np.array(np.concatenate(([self.filter_time],self.p,self.v,self.q,self.ab,self.wb))).flatten()
 
 
     def get_covariance_as_numpy(self):
-        return self.P.flatten()
+        # with self._lock:
+            self.load_state_from_buffer()
+            return self.P.flatten()
 
 
     def load_state_from_buffer(self, index=-1):
-        self.p = self.state_buffer[index][0]
-        self.v = self.state_buffer[index][1]
-        self.q = self.state_buffer[index][2]
-        self.ab = self.state_buffer[index][3]
-        self.wb = self.state_buffer[index][4]
-        self.P = self.state_buffer[index][Kalman_Filter_V1.NO_STATE_VARIABLES + 0]
-        self.filter_time = self.state_buffer[index][Kalman_Filter_V1.NO_STATE_VARIABLES + 1]
+        # with self._lock:
+            self.p = self.state_buffer[index][0]
+            self.v = self.state_buffer[index][1]
+            self.q = self.state_buffer[index][2]
+            self.ab = self.state_buffer[index][3]
+            self.wb = self.state_buffer[index][4]
+            self.P = self.state_buffer[index][Kalman_Filter_V1.NO_STATE_VARIABLES + 0]
+            self.filter_time = self.state_buffer[index][Kalman_Filter_V1.NO_STATE_VARIABLES + 1]
+            print threading.current_thread().getName()
 
 
     def get_filter_time(self, index):
