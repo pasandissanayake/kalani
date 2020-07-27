@@ -14,9 +14,9 @@ def angle_normalize(a):
 def skew_symmetric(v):
     """Skew symmetric form of a 3x1 vector."""
     return np.array(
-        [[0, -v[2], v[1]],
-         [v[2], 0, -v[0]],
-         [-v[1], v[0], 0]], dtype=np.float64)
+        [[    0, -v[2],  v[1]],
+         [ v[2],     0, -v[0]],
+         [-v[1],  v[0],    0]], dtype=np.float64)
 
 def rpy_jacobian_axis_angle(a):
     """Jacobian of RPY Euler angles with respect to axis-angle vector."""

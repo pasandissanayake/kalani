@@ -15,16 +15,20 @@ from constants import Constants
 from filter.kalman_filter_v1 import Kalman_Filter_V1
 from datasetutils.nclt_data_conversions import NCLTDataConversions
 
-kf = Kalman_Filter_V1()
 
-nclt_gnss_var = [100.0, 25.0, 150]
-nclt_mag_orientation_var = [0.001,0.001,0.001]
-nclt_imu_acceleration_bias_var = [0.001, 0.001, 0.001]
-nclt_imu_angularvelocity_bias_var = [0.001, 0.01, 0.001]
+nclt_gnss_var = [25.0, 25.0, 120]
+nclt_mag_orientation_var = 0.01 * np.ones(3)
 
-# nclt_imu_acceleration_var = [0.01, 0.01, 0.01]
-# nclt_imu_angularvelocity_var = [0.01, 0.01, 0.01]
+aw_var = 0.0000
+ww_var = 0.0000
 
+am_var = 0.001
+wm_var = 0.001
+
+g = np.array([0, 0, -9.8])
+
+# kf = Kalman_Filter_V1(g, aw_var, ww_var)
+kf = Kalman_Filter_V1(np.zeros(3), aw_var, ww_var)
 
 # Latest acceleration measured by the IMU, to be used in estimating orientation in mag_callback()
 measured_acceleration = np.zeros(3)
@@ -37,18 +41,19 @@ def log(message):
 def publish_state(pub):
     state = kf.get_state_as_numpy()
     msg = State()
-    msg.header.stamp = rospy.Time.from_sec(state[0])
+    msg.header.stamp = rospy.Time.from_sec(state[-2])
     msg.header.frame_id = Constants.WORLD_FRAME
-    msg.position.x, msg.position.y, msg.position.z = list(state[1:4])
-    msg.velocity.x, msg.velocity.y, msg.velocity.z = list(state[4:7])
-    msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(state[7:11])
+    msg.position.x, msg.position.y, msg.position.z = list(state[0:3])
+    msg.velocity.x, msg.velocity.y, msg.velocity.z = list(state[3:6])
+    msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(state[6:10])
     [msg.euler.x, msg.euler.y, msg.euler.z] = tft.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w], axes='rxyz')
-    msg.accleration_bias.x, msg.accleration_bias.y, msg.accleration_bias.z = list(state[11:14])
-    msg.angularvelocity_bias.x, msg.angularvelocity_bias.y, msg.angularvelocity_bias.z = list(state[14:17])
+    msg.accleration_bias.x, msg.accleration_bias.y, msg.accleration_bias.z = list(state[10:13])
+    msg.angularvelocity_bias.x, msg.angularvelocity_bias.y, msg.angularvelocity_bias.z = list(state[13:16])
     msg.covariance = kf.get_covariance_as_numpy().tolist()
-    msg.is_initialized = kf.state_initialized
+    msg.is_initialized = bool(state[-1])
     pub.publish(msg)
-    br.sendTransform(state[1:4],(state[8],state[9],state[10],state[7]),rospy.Time.from_sec(state[0]),Constants.BODY_FRAME,Constants.WORLD_FRAME)
+    br.sendTransform(state[0:3],(state[7],state[8],state[9],state[6]),rospy.Time.from_sec(state[-2]),Constants.BODY_FRAME,Constants.WORLD_FRAME)
+    # br.sendTransform([0,0,0.5],(state[7],state[8],state[9],state[6]),rospy.Time.from_sec(state[-2]),Constants.BODY_FRAME,Constants.WORLD_FRAME)
 
 
 def publish_gnss(pub, time, fix):
@@ -92,7 +97,7 @@ def get_orientation_from_magnetic_field(mm, fm):
 
 
 def gnss_callback(data):
-    print 'gps callback'
+    # print 'gps callback'
     time = data.header.stamp.to_sec()
     fix_mode = data.status.status
     lat = data.latitude
@@ -104,7 +109,7 @@ def gnss_callback(data):
     gnss = NCLTDataConversions.gnss_numpy_to_converted(gnss_array)
     fix = np.array([gnss.x,gnss.y,gnss.z])
     if gnss.fix_mode == 3:
-        if kf.state_initialized:
+        if kf.is_initialized():
             Hx = np.zeros([3, 16])
             Hx[:, 0:3] = np.eye(3)
             V = np.diag(nclt_gnss_var)
@@ -120,21 +125,17 @@ def gnss_callback(data):
             cov_v = [0,0,0]
 
             ab = np.array([0.0, 0.0, 0.0])
-            cov_ab = nclt_imu_acceleration_bias_var
+            cov_ab = aw_var * np.ones(3)
 
             wb = np.zeros(3)
-            cov_wb = nclt_imu_angularvelocity_bias_var
-
-            g = np.array([0, 0, -9.8])
+            cov_wb = ww_var * np.ones(3)
 
             t = time
 
-            kf.initialize_state(p=p,cov_p=cov_p,v=v,cov_v=cov_v,ab=ab,cov_ab=cov_ab,wb=wb,cov_wb=cov_wb,g=g,time=t)
+            kf.initialize_state(p=p,cov_p=cov_p,v=v,cov_v=cov_v,ab=ab,cov_ab=cov_ab,wb=wb,cov_wb=cov_wb,time=t)
 
-            if kf.state_initialized:
-                log('State initialized.')
     elif gnss.fix_mode == 2:
-        if kf.state_initialized:
+        if kf.is_initialized():
             Hx = np.zeros([2, 16])
             Hx[:, 0:2] = np.eye(2)
             V = np.diag(nclt_gnss_var[0:2])
@@ -142,35 +143,37 @@ def gnss_callback(data):
             publish_state(state_pub)
             publish_gnss(converted_gnss_pub, time, fix)
 
-    print 'gps callback end'
+    # print 'gps callback end'
 
 
 def imu_callback(data):
-    print 'imu callback'
+    # print 'imu callback'
 
     am = NCLTDataConversions.vector_ned_to_enu(np.array([data.linear_acceleration.x, data.linear_acceleration.y, data.linear_acceleration.z]))
     global measured_acceleration
     measured_acceleration = am
 
+    am = np.array([am[0],am[1],am[2]]) + g
+
     wm = NCLTDataConversions.vector_ned_to_enu(np.array([data.angular_velocity.x, data.angular_velocity.y, data.angular_velocity.z]))
 
     time = data.header.stamp.to_sec()
 
-    if kf.state_initialized:
-        kf.predict(am,wm,time, inputname='imu')
+    if kf.is_initialized():
+        kf.predict(am, am_var, wm, wm_var, time, inputname='imu')
         publish_state(state_pub)
 
-    print 'imu callback end'
+    # print 'imu callback end'
 
 
 def mag_callback(data):
-    print 'mag callback'
+    # print 'mag callback'
     mm = NCLTDataConversions.vector_ned_to_enu(np.array([data.magnetic_field.x, data.magnetic_field.y, data.magnetic_field.z]))
     time = data.header.stamp.to_sec()
 
     ori = get_orientation_from_magnetic_field(mm,measured_acceleration)
 
-    if kf.state_initialized:
+    if kf.is_initialized():
         Hx = np.zeros([4,16])
         Hx[:,6:10] = np.eye(4)
         V = np.diag([0.01,0.01,0.01,0.01])
@@ -183,19 +186,17 @@ def mag_callback(data):
         q = ori
         cov_q = nclt_mag_orientation_var
 
-        ab = np.array([0.0, 0.0, 0.0])
-        cov_ab = nclt_imu_acceleration_bias_var
+        ab = np.zeros(3)
+        cov_ab = aw_var * np.ones(3)
 
         wb = np.zeros(3)
-        cov_wb = nclt_imu_angularvelocity_bias_var
-
-        g = np.array([0, 0, -9.8])
+        cov_wb = ww_var * np.ones(3)
 
         kf.initialize_state(v=v,cov_v=cov_v,q=q,cov_q=cov_q,ab=ab,cov_ab=cov_ab,wb=wb,cov_wb=cov_wb,g=g,time=time)
 
-        if kf.state_initialized:
+        if kf.is_initialized():
             log('State initialized.')
-    print 'mag callback end'
+    # print 'mag callback end'
 
 
 if __name__ == '__main__':

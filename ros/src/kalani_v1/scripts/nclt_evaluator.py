@@ -91,6 +91,7 @@ def publish_gt(pub, time, position, ori_e):
     pub.publish(msg)
     publish_path(msg,gt_path_pub,Constants.WORLD_FRAME)
     br.sendTransform(position, (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), Constants.GROUNDTRUTH_FRAME, Constants.WORLD_FRAME)
+    # br.sendTransform([0,0,0], (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), Constants.GROUNDTRUTH_FRAME, Constants.WORLD_FRAME)
 
 
 def state_callback(data):
