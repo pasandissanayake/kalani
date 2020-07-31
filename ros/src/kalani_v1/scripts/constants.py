@@ -8,6 +8,7 @@ class Constants:
     STATE_TOPIC = 'state'
     ERROR_TOPIC = 'error'
     CONVERTED_GNSS_DATA_TOPIC = 'conv_data/gnss'
+    CONVERTED_MAGNETIC_DATA_TOPIC = 'conv_data/magnetic'
     CONVERTED_GROUNDTRUTH_DATA_TOPIC = 'conv_data/groundtruth'
 
     # ros node names
@@ -15,10 +16,10 @@ class Constants:
     EVALUATOR_NODE_NAME = 'evaluator'
 
     # frame ids
-    WORLD_FRAME = 'world'       # The local ENU frame, stationary relative to the earth
-    BODY_FRAME = 'body'         # Body frame of the vehicle. Denotes the estimate
-    GROUNDTRUTH_FRAME = 'gt'    # Frame in which the ground truth is published
-    GNSS_FRAME = 'gnss'         # Frame in which the converted GNSS location is published
+    WORLD_FRAME = '/world'       # The local ENU frame, stationary relative to the earth
+    BODY_FRAME = '/body'         # Body frame of the vehicle. Denotes the estimate
+    GROUNDTRUTH_FRAME = '/gt'    # Frame in which the ground truth is published
+    GNSS_FRAME = '/gnss'         # Frame in which the converted GNSS location is published
 
 
 
@@ -28,7 +29,7 @@ class Constants:
     #####################################################
 
     # file locations
-    NCLT_DATASET_DIRECTORY = '/home/pasan/kalani/data/2012-04-29'
+    NCLT_DATASET_DIRECTORY = '/home/entc/kalani/data/nclt/2012-04-29'
 
     NCLT_GNSS_DATA_FILE_NAME = 'gps.csv'
     NCLT_RTK_GNSS_DATA_FILE_NAME = 'gps_rtk.csv'
@@ -53,7 +54,7 @@ class Constants:
     NCLT_RAW_DATA_RTK_GNSS_TRACK_TOPIC = 'raw_data/rtk_gnss_track'
 
     NCLT_RAW_DATA_IMU_TOPIC = 'raw_data/imu'
-    NCLT_RAW_DATA_MAGNETOMETER_TOPIC = 'raw_data/magnetometer'
+    NCLT_RAW_DATA_MAGNETOMETER_TOPIC = 'raw_data/mag'
 
 
     # ros node names

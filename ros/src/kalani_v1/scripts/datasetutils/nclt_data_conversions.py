@@ -86,7 +86,7 @@ class NCLTDataConversions:
         return groundtruth
 
     @staticmethod
-    def grountruthu_numpy_to_converted(gt_array):
+    def groundtruth_numpy_to_converted(gt_array):
         raw_gt = NCLTDataConversions.groundtruth_numpy_to_raw(gt_array)
         return NCLTDataConversions.groundtruth_raw_to_converted(raw_gt)
 
@@ -174,7 +174,7 @@ class NCLTData:
 
     def __init__(self, data_directory):
         gt_array = np.loadtxt(data_directory + '/' + Constants.NCLT_GROUNDTRUTH_DATA_FILE_NAME, delimiter=',')
-        self.groundtruth = NCLTDataConversions.grountruthu_numpy_to_converted(gt_array)
+        self.groundtruth = NCLTDataConversions.groundtruth_numpy_to_converted(gt_array)
 
         gnss_array = np.loadtxt(data_directory + '/' + Constants.NCLT_GNSS_DATA_FILE_NAME, delimiter=',')
         self.converted_gnss = NCLTDataConversions.gnss_numpy_to_converted(gnss_array, 'rad')

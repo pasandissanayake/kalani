@@ -3,9 +3,12 @@
 import rospy
 import tf.transformations as tft
 import tf
+import tf2_ros
 from sensor_msgs.msg import NavSatFix
 from sensor_msgs.msg import Imu
 from sensor_msgs.msg import MagneticField
+from geometry_msgs.msg import TransformStamped
+from nav_msgs.msg import Odometry
 from kalani_v1.msg import State
 
 import numpy as np
@@ -16,11 +19,12 @@ from filter.kalman_filter_v1 import Kalman_Filter_V1
 from datasetutils.nclt_data_conversions import NCLTDataConversions
 
 
-nclt_gnss_var = [25.0, 25.0, 120]
-nclt_mag_orientation_var = 0.01 * np.ones(3)
+nclt_gnss_var = [25.0, 25.0, 100]
+nclt_loam_var = 0.001 * np.ones(3)
+nclt_mag_orientation_var = 0.001 * np.ones(3)
 
-aw_var = 0.0000
-ww_var = 0.0000
+aw_var = 0.0
+ww_var = 0.0
 
 am_var = 0.001
 wm_var = 0.001
@@ -28,10 +32,14 @@ wm_var = 0.001
 g = np.array([0, 0, -9.8])
 
 # kf = Kalman_Filter_V1(g, aw_var, ww_var)
-kf = Kalman_Filter_V1(np.zeros(3), aw_var, ww_var)
+kf = Kalman_Filter_V1(g, aw_var, ww_var)
 
 # Latest acceleration measured by the IMU, to be used in estimating orientation in mag_callback()
 measured_acceleration = np.zeros(3)
+
+
+frame1 = '/world'
+frame2 = '/loam_origin'
 
 
 def log(message):
@@ -46,7 +54,7 @@ def publish_state(pub):
     msg.position.x, msg.position.y, msg.position.z = list(state[0:3])
     msg.velocity.x, msg.velocity.y, msg.velocity.z = list(state[3:6])
     msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(state[6:10])
-    [msg.euler.x, msg.euler.y, msg.euler.z] = tft.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w], axes='rxyz')
+    [msg.euler.x, msg.euler.y, msg.euler.z] = tft.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w], axes='sxyz')
     msg.accleration_bias.x, msg.accleration_bias.y, msg.accleration_bias.z = list(state[10:13])
     msg.angularvelocity_bias.x, msg.angularvelocity_bias.y, msg.angularvelocity_bias.z = list(state[13:16])
     msg.covariance = kf.get_covariance_as_numpy().tolist()
@@ -64,8 +72,17 @@ def publish_gnss(pub, time, fix):
     br.sendTransform(fix,(0,0,0,1),rospy.Time.from_sec(time),Constants.GNSS_FRAME,Constants.WORLD_FRAME)
 
 
+def publish_magnetic(pub, ori, time):
+    msg = State()
+    msg.header.stamp = rospy.Time.from_sec(time)
+    msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = ori
+    [msg.euler.x, msg.euler.y, msg.euler.z] = tft.euler_from_quaternion(
+        [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w], axes='sxyz')
+    pub.publish(msg)
+
+
 def publish_mag_orientation(time, q):
-    euler = tft.euler_from_quaternion([q[1],q[2],q[3],q[0]],axes='rxyz')
+    euler = tft.euler_from_quaternion([q[1],q[2],q[3],q[0]],axes='sxyz')
     pub = rospy.Publisher('conv_data/_mag_ori', State, queue_size=1)
     msg = State()
     msg.header.stamp = rospy.Time.from_sec(time)
@@ -88,7 +105,7 @@ def get_orientation_from_magnetic_field(mm, fm):
         G = R.dot(fs) + ge
         E = np.concatenate((M,G,[w**2+x**2+y**2+z**2-1]))
         return E
-    x, y, z, w = scipy.optimize.leastsq(eqn, tft.quaternion_from_euler(0,0,np.pi/4,axes='rxyz'))[0]
+    x, y, z, w = scipy.optimize.leastsq(eqn, tft.quaternion_from_euler(0,0,np.pi/4,axes='sxyz'))[0]
 
     quat_array = tft.unit_vector([w, x, y, z])
     if quat_array[0] < 0: quat_array = -quat_array
@@ -134,6 +151,14 @@ def gnss_callback(data):
 
             kf.initialize_state(p=p,cov_p=cov_p,v=v,cov_v=cov_v,ab=ab,cov_ab=cov_ab,wb=wb,cov_wb=cov_wb,time=t)
 
+            tf_quat = tft.quaternion_from_euler(0,0,0)
+            try:
+                (trans, rot) = ls.lookupTransform(frame2, frame1, rospy.Time(0))
+                br.sendTransform(p, rot, rospy.Time.from_sec(time), frame2, frame1)
+                print 'loam_origin set'
+            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+                br.sendTransform(p, tf_quat, rospy.Time.from_sec(time), frame2, frame1)
+
     elif gnss.fix_mode == 2:
         if kf.is_initialized():
             Hx = np.zeros([2, 16])
@@ -153,7 +178,7 @@ def imu_callback(data):
     global measured_acceleration
     measured_acceleration = am
 
-    am = np.array([am[0],am[1],am[2]]) + g
+    am = np.array([am[0],am[1],am[2]])
 
     wm = NCLTDataConversions.vector_ned_to_enu(np.array([data.angular_velocity.x, data.angular_velocity.y, data.angular_velocity.z]))
 
@@ -176,9 +201,17 @@ def mag_callback(data):
     if kf.is_initialized():
         Hx = np.zeros([4,16])
         Hx[:,6:10] = np.eye(4)
-        V = np.diag([0.01,0.01,0.01,0.01])
+        V = np.diag(np.ones(4) * 0.0001)
         kf.correct(ori,Hx,V,time, measurementname='magnetometer')
         publish_state(state_pub)
+        publish_magnetic(magnetic_pub, ori, time)
+
+        # try:
+        #     (trans, rot) = ls.lookupTransform('/loam_origin', '/world', rospy.Time(0))
+        #     br.sendTransform(trans, rot, rospy.Time.from_sec(time), '/world', '/loam_origin')
+        # except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        #     pass
+
     else:
         v = np.zeros(3)
         cov_v = [0, 0, 0]
@@ -194,10 +227,32 @@ def mag_callback(data):
 
         kf.initialize_state(v=v,cov_v=cov_v,q=q,cov_q=cov_q,ab=ab,cov_ab=cov_ab,wb=wb,cov_wb=cov_wb,g=g,time=time)
 
+        # tf_quat = np.concatenate([q[1:4],[q[0]]])
+        # try:
+        #     (trans, rot) = ls.lookupTransform('/loam_origin', '/world', rospy.Time(0))
+        #     br.sendTransform(trans, tf_quat, rospy.Time.from_sec(time), '/world', '/loam_origin')
+        #     print 'loam_origin set'
+        # except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        #     br.sendTransform((0,0,0), tf_quat, rospy.Time.from_sec(time), '/world', '/loam_origin')
+
         if kf.is_initialized():
             log('State initialized.')
     # print 'mag callback end'
 
+
+def loam_callback(data):
+        time = data.header.stamp.to_sec()
+
+        p = NCLTDataConversions.vector_ned_to_enu(np.array([data.pose.pose.position.x, data.pose.pose.position.y, data.pose.pose.position.z]))
+
+        q = np.array([data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w])
+        euler_in_ned = tft.euler_from_quaternion(q, axes='sxyz')
+        euler_in_enu = NCLTDataConversions.vector_ned_to_enu(euler_in_ned)
+        q = tft.quaternion_from_euler(euler_in_enu[0], euler_in_enu[1], euler_in_enu[2], axes='sxyz')
+
+        print 'loam p, q:', p, q
+
+        br.sendTransform(p,q,rospy.Time.from_sec(time), '/loam_link', '/loam_origin')
 
 if __name__ == '__main__':
     rospy.init_node(Constants.LOCATOR_NODE_NAME, anonymous=True)
@@ -205,10 +260,14 @@ if __name__ == '__main__':
     rospy.Subscriber(Constants.NCLT_RAW_DATA_GNSS_FIX_TOPIC, NavSatFix, gnss_callback, queue_size=1)
     rospy.Subscriber(Constants.NCLT_RAW_DATA_IMU_TOPIC, Imu, imu_callback, queue_size=1)
     rospy.Subscriber(Constants.NCLT_RAW_DATA_MAGNETOMETER_TOPIC, MagneticField, mag_callback, queue_size=1)
+    rospy.Subscriber('/aft_mapped_to_init', Odometry, loam_callback, queue_size=1)
 
     state_pub = rospy.Publisher(Constants.STATE_TOPIC, State, queue_size=1)
     converted_gnss_pub = rospy.Publisher(Constants.CONVERTED_GNSS_DATA_TOPIC, State, queue_size=1)
+    magnetic_pub = rospy.Publisher(Constants.CONVERTED_MAGNETIC_DATA_TOPIC, State, queue_size=1)
 
     br = tf.TransformBroadcaster()
+    ls = tf.TransformListener()
+    br_static = tf2_ros.StaticTransformBroadcaster()
     log('Locator ready.')
     rospy.spin()

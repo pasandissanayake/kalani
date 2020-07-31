@@ -1,4 +1,5 @@
 ''' version 1.0.0 - modified to be compatible with python 2 '''
+import tf.transformations as tft
 
 import numpy as np
 import threading
@@ -9,7 +10,7 @@ from state_buffer_v1 import StateBuffer, StateObject
 class Kalman_Filter_V1():
     def __init__(self, g, aw_var, ww_var):
         # State buffer length
-        self.STATE_BUFFER_LENGTH = 5
+        self.STATE_BUFFER_LENGTH = 1
 
         # Allowed maximum gap between any two initial state variables (in seconds)
         self.STATE_INIT_TIME_THRESHOLD = 1
@@ -111,10 +112,14 @@ class Kalman_Filter_V1():
 
                 P = st.covariance
 
-                R_inert_body = Quaternion(q[0],q[1],q[2],q[3]).to_mat()
+                # R_inert_body = Quaternion(q[0],q[1],q[2],q[3]).to_mat()
+                tf_q = np.concatenate([q[1:4],[q[0]]])
+                R_inert_body = tft.quaternion_matrix(tf_q)[0:3,0:3]
 
-                print 'quater(wxyz):', q
-                print 'axis angle:', Quaternion(q[0],q[1],q[2],q[3]).to_axis_angle()
+                # print 'quater(wxyz):', q
+                # print 'axis angle:', Quaternion(q[0],q[1],q[2],q[3]).to_axis_angle()
+                # print 'euler (rpy):', Quaternion(q[0],q[1],q[2],q[3]).to_euler()
+                # print 'tf euler (rpy):', tft.euler_from_quaternion(tf_q,axes='sxyz')
 
                 Fx = np.eye(15)
                 Fx[0:3, 3:6] = dt * np.eye(3)
@@ -136,12 +141,13 @@ class Kalman_Filter_V1():
                 ab = ab
                 wb = wb
 
-                print 'am:', am
-                print 'converted am:', R_inert_body.dot(am) + self._g
-                print 'R:', R_inert_body
-                print 'converted ve:', v
-                print 'ab:', ab
-                print '------------------------------------------------------------\n'
+                # print 'am:', am
+                # print 'converted am:', R_inert_body.dot(am)
+                # print 'converted am+g:', R_inert_body.dot(am) + self._g
+                # print 'R:', R_inert_body
+                # print 'converted ve:', v
+                # print 'ab:', ab
+                # print '------------------------------------------------------------\n'
 
                 st = StateObject()
                 st.position.value = p

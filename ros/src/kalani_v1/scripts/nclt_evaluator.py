@@ -91,7 +91,6 @@ def publish_gt(pub, time, position, ori_e):
     pub.publish(msg)
     publish_path(msg,gt_path_pub,Constants.WORLD_FRAME)
     br.sendTransform(position, (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), Constants.GROUNDTRUTH_FRAME, Constants.WORLD_FRAME)
-    # br.sendTransform([0,0,0], (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), Constants.GROUNDTRUTH_FRAME, Constants.WORLD_FRAME)
 
 
 def state_callback(data):
@@ -149,9 +148,14 @@ def state_callback(data):
     publish_covariance(data, cov_ellipse_pub, Constants.WORLD_FRAME, pos_cal[:,1])
 
 
-def imu_callback(data):
-    global imu_time
-    imu_time = data.header.stamp.to_sec()
+def gnss_callback(data):
+    time = data.header.stamp.to_sec()
+    fix = np.array([data.position.x, data.position.y, data.position.z])
+    gt_interpol = gt_function(time)
+    msg = Error()
+    msg.header.stamp = rospy.Time.from_sec(time)
+    msg.position.x, msg.position.y, msg.position.z = (gt_interpol[0:3] - fix).tolist()
+    gnss_error_pub.publish(msg)
 
 
 if __name__ == '__main__':
@@ -166,10 +170,13 @@ if __name__ == '__main__':
         log('Interpolation finished.')
 
         rospy.Subscriber(Constants.STATE_TOPIC, State, state_callback, queue_size=1)
+        rospy.Subscriber(Constants.CONVERTED_GNSS_DATA_TOPIC, State, gnss_callback, queue_size=1)
+        # rospy.Subscriber(Constants.CONVERTED_MAGNETIC_DATA_TOPIC, State, magnetic_callback, queue_size=1)
 
         br = tf.TransformBroadcaster()
         gt_pub = rospy.Publisher(Constants.CONVERTED_GROUNDTRUTH_DATA_TOPIC, State, queue_size=1)
         error_pub = rospy.Publisher(Constants.ERROR_TOPIC, Error, queue_size=1)
+        gnss_error_pub = rospy.Publisher('gnss_error', Error, queue_size=1)
         et_path_pub = rospy.Publisher('estimate_path', Path, queue_size=10)
         gt_path_pub = rospy.Publisher('groundtruth_path', Path, queue_size=10)
         cov_ellipse_pub = rospy.Publisher('cov_ellipse', Marker, queue_size=10)

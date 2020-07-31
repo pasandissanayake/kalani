@@ -126,13 +126,13 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /cov_ellipse
       Name: covariance_ellipsoid
       Namespaces:
-        covariances: true
+        {}
       Queue Size: 10
-      Value: true
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -170,11 +170,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 12.624263763427734
-      Target Frame: body
+      Scale: 10
+      Target Frame: gt
       Value: TopDownOrtho (rviz)
-      X: 0
-      Y: 0
+      X: 0.1674346923828125
+      Y: -0.818939208984375
     Saved: ~
 Window Geometry:
   Displays:
