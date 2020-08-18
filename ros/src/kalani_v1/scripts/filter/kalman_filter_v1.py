@@ -174,7 +174,7 @@ class Kalman_Filter_V1():
                     self._state_buffer.update_state(st, loadindex+1)
 
 
-    def correct(self, y, Hx, V, time, measurementname='unspecified'):
+    def correct(self, meas_func, hx_func, V, time, measurementname='unspecified'):
         with self._lock:
             oldest = self._state_buffer.get_state(0).state_time
             latest = self._state_buffer.get_state(-1).state_time
@@ -210,11 +210,13 @@ class Kalman_Filter_V1():
             X_dtheta[6:10,6:9] = Q_dtheta
             X_dtheta[10:16,9:15] = np.eye(6)
 
+            state_as_numpy = st.values_to_numpy()[0:-2]
+            Hx = hx_func(state_as_numpy)
             H = np.matmul(Hx,X_dtheta)
             K = np.matmul(np.matmul(P, H.T), np.linalg.inv(np.matmul(np.matmul(H, P), H.T) + V))
             P = np.matmul(np.eye(15) - np.matmul(K, H), P)
-            state_as_numpy = st.values_to_numpy()[0:-2]
-            dx = K.dot(y - np.matmul(Hx, state_as_numpy))
+            dx = K.dot(meas_func(state_as_numpy))
+            # dx = K.dot(y - np.matmul(Hx, state_as_numpy))
 
             p = p + dx[0:3]
             v = v + dx[3:6]

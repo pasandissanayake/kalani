@@ -35,7 +35,7 @@ g = np.array([0, 0, -9.8])
 kf = Kalman_Filter_V1(g, aw_var, ww_var)
 
 # Latest acceleration measured by the IMU, to be used in estimating orientation in mag_callback()
-measured_acceleration = np.zeros(3)
+latest_acceleration = np.zeros(3)
 
 
 frame1 = '/world'
@@ -175,7 +175,7 @@ def imu_callback(data):
     # print 'imu callback'
 
     am = NCLTDataConversions.vector_ned_to_enu(np.array([data.linear_acceleration.x, data.linear_acceleration.y, data.linear_acceleration.z]))
-    global measured_acceleration
+    global latest_acceleration
     measured_acceleration = am
 
     am = np.array([am[0],am[1],am[2]])
@@ -196,7 +196,7 @@ def mag_callback(data):
     mm = NCLTDataConversions.vector_ned_to_enu(np.array([data.magnetic_field.x, data.magnetic_field.y, data.magnetic_field.z]))
     time = data.header.stamp.to_sec()
 
-    ori = get_orientation_from_magnetic_field(mm,measured_acceleration)
+    ori = get_orientation_from_magnetic_field(mm, latest_acceleration)
 
     if kf.is_initialized():
         Hx = np.zeros([4,16])

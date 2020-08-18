@@ -17,9 +17,9 @@ class Constants:
 
     # frame ids
     WORLD_FRAME = '/world'       # The local ENU frame, stationary relative to the earth
-    BODY_FRAME = '/body'         # Body frame of the vehicle. Denotes the estimate
-    GROUNDTRUTH_FRAME = '/gt'    # Frame in which the ground truth is published
-    GNSS_FRAME = '/gnss'         # Frame in which the converted GNSS location is published
+    BODY_FRAME = 'body'         # Body frame of the vehicle. Denotes the estimate
+    GROUNDTRUTH_FRAME = 'gt'    # Frame in which the ground truth is published
+    GNSS_FRAME = 'gnss'         # Frame in which the converted GNSS location is published
 
 
 
