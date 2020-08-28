@@ -171,7 +171,8 @@ if __name__ == '__main__':
         ds = KAISTData('/home/entc/kalani/data/kaist/urban17', gnss=False)
         gt = np.array([ds.groundtruth.time, ds.groundtruth.x, ds.groundtruth.y, ds.groundtruth.z, ds.groundtruth.r, ds.groundtruth.p, ds.groundtruth.h]).T
 
-        gt_function = interp1d(gt[:, 0], gt[:, 1:7], axis=0, bounds_error=False, fill_value='extrapolate', kind='linear')
+        # gt_function = interp1d(gt[:, 0], gt[:, 1:7], axis=0, bounds_error=False, fill_value='extrapolate', kind='linear')
+        gt_function = interp1d(gt[:, 0], gt[:, 1:7], axis=0, bounds_error=False, fill_value=gt[0, 1:7], kind='linear')
         log('Interpolation finished.')
 
         rospy.Subscriber(Constants.STATE_TOPIC, State, state_callback, queue_size=1)

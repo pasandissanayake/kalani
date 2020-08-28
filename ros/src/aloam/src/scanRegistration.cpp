@@ -475,8 +475,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    // ros::Subscriber subLaserCloud = nh.subscribe<sensor_msgs::PointCloud2>("/velodyne_packet", 100, laserCloudHandler);
-    // stubbornly changed!!!
+
     ros::Subscriber subLaserCloud = nh.subscribe<sensor_msgs::PointCloud2>("/raw_data/velodyne_points", 100, laserCloudHandler);
 
     pubLaserCloud = nh.advertise<sensor_msgs::PointCloud2>("/velodyne_cloud_2", 100);

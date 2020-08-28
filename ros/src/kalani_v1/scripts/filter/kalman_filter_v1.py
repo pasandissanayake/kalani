@@ -10,7 +10,7 @@ from state_buffer_v1 import StateBuffer, StateObject
 class Kalman_Filter_V1():
     def __init__(self, g, aw_var, ww_var):
         # State buffer length
-        self.STATE_BUFFER_LENGTH = 1
+        self.STATE_BUFFER_LENGTH = 50
 
         # Allowed maximum gap between any two initial state variables (in seconds)
         self.STATE_INIT_TIME_THRESHOLD = 1
