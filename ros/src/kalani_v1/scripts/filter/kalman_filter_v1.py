@@ -5,6 +5,7 @@ import numpy as np
 import threading
 from rotations_v1 import skew_symmetric, Quaternion
 from state_buffer_v1 import StateBuffer, StateObject
+from copy import deepcopy
 
 
 class Kalman_Filter_V1():
@@ -198,6 +199,8 @@ class Kalman_Filter_V1():
 
             P = st.covariance
 
+            unsmooth_cov = deepcopy(P)
+
             Q_dtheta = 0.5 * np.array([
                 [-q[1], -q[2], -q[3]],
                 [ q[0],  q[3], -q[2]],
@@ -216,7 +219,6 @@ class Kalman_Filter_V1():
             K = np.matmul(np.matmul(P, H.T), np.linalg.inv(np.matmul(np.matmul(H, P), H.T) + V))
             P = np.matmul(np.eye(15) - np.matmul(K, H), P)
             dx = K.dot(meas_func(state_as_numpy))
-            # dx = K.dot(y - np.matmul(Hx, state_as_numpy))
 
             p = p + dx[0:3]
             v = v + dx[3:6]
@@ -238,6 +240,8 @@ class Kalman_Filter_V1():
             st.state_time = time
             st.initialized = True
             self._state_buffer.update_state(st, index)
+
+            self.backward_smooth(index, dx, unsmooth_cov)
 
             if index+1 < buffer_length:
                 for i in range(index+1, buffer_length):
@@ -375,9 +379,55 @@ class Kalman_Filter_V1():
                     self.predict(ist.accel_input, ist.accel_var, ist.angular_input, ist.angular_var, ist.state_time,
                                  i - 1, measurementname + '_correction @ ' + str(time1))
 
-    def backward_smooth(self, index):
+    def backward_smooth(self, index, dx, unsmooth_cov):
         for i in range(index, 0, -1):
-            pass
+            st_prev = self._state_buffer.get_state(i-1)
+            st_curr = self._state_buffer.get_state(i)
+
+            p_prev = st_prev.position.value
+            v_prev = st_prev.velocity.value
+            q_prev = st_prev.orientation.value
+            ab_prev = st_prev.accel_bias.value
+            wb_prev = st_prev.angular_bias.value
+
+            am = st_prev.accel_input
+            wm = st_prev.angular_input
+
+            P_prev = st_prev.covariance
+            P_curr = st_curr.covariance
+
+            dt = st_curr.state_time - st_prev.state_time
+
+            tf_q = np.concatenate([q_prev[1:4], [q_prev[0]]])
+            R_inert_body = tft.quaternion_matrix(tf_q)[0:3, 0:3]
+
+            Fx = np.eye(15)
+            Fx[0:3, 3:6] = dt * np.eye(3)
+            Fx[3:6, 6:9] = - skew_symmetric(R_inert_body.dot(am - ab_prev)) * dt
+            Fx[3:6, 9:12] = -dt * R_inert_body
+            Fx[6:9, 12:15] = -dt * R_inert_body
+
+            A = np.matmul(P_prev, np.matmul(Fx.T, np.linalg.inv(unsmooth_cov)))
+            dx = np.matmul(A, dx)
+            new_unsmooth_cov = deepcopy(P_prev)
+            P_prev = P_prev + np.matmul(A, np.matmul(P_curr - unsmooth_cov, A.T))
+            unsmooth_cov = new_unsmooth_cov
+
+            p_prev = p_prev + dx[0:3]
+            v_prev = v_prev + dx[3:6]
+            q_prev = Quaternion(axis_angle=dx[6:9]).quat_mult_left(q_prev, out='Quaternion').normalize().to_numpy()
+            ab_prev = ab_prev + dx[9:12]
+            wb_prev = wb_prev + dx[12:15]
+
+            st_prev.position.value = p_prev
+            st_prev.velocity.value = v_prev
+            st_prev.orientation.value = q_prev
+            st_prev.accel_bias.value = ab_prev
+            st_prev.angular_bias.value = wb_prev
+            st_prev.covariance = P_prev
+            self._state_buffer.update_state(st_prev, i-1)
+
+
 
 
 

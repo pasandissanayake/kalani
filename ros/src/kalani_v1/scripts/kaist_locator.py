@@ -152,7 +152,7 @@ def gnss_callback(data):
     if kf.is_initialized():
         Hx = np.zeros([3, 16])
         Hx[:, 0:3] = np.eye(3)
-        V = np.diag([covariance[0],covariance[4],covariance[8] * 1])
+        V = np.diag([covariance[0],covariance[4],covariance[8] * 10])
 
         def hx_func(state):
             return Hx
@@ -160,7 +160,7 @@ def gnss_callback(data):
         def meas_func(state):
             return fix - state[0:3]
 
-        # kf.correct(meas_func, hx_func, V, time, measurementname='gnss')
+        kf.correct(meas_func, hx_func, V, time, measurementname='gnss')
 
         # Hx = np.zeros([2, 16])
         # Hx[:, 0:2] = np.eye(2)
@@ -301,126 +301,24 @@ def get_transform_matrix_from_ts(ts_msg):
     R[0:3, 3] = t.T
     return R
 
+
 def quaternion_from_3x3_matrix(matrix):
     mat = np.zeros((4,4))
     mat[0:3, 0:3] = matrix
     mat[3, 3] = 1
     return tft.quaternion_from_matrix(mat)
 
+
 def laser_callback(data):
-    # transform = tf2_buffer.lookup_transform('base_link', 'left_velodyne', data.header.stamp)
-    # trans_cloud = do_transform_cloud(data, transform)
     pointcloud_pub.publish(data)
-#
-#     try:
-#         o2l = tf2_buffer.lookup_transform('odom', 'aft_mapped', rospy.Time(0))
-#         l2o = tf2_buffer.lookup_transform('aft_mapped', 'odom', rospy.Time(0))
-#         # l2o = tf2_buffer.lookup_transform('odom', 'laser_data', rospy.Time(0))
-#         # o2l = tf2_buffer.lookup_transform('laser_data', 'odom', rospy.Time(0))
-#         time = o2l.header.stamp.to_sec()
-#         state = kf.get_state_as_numpy()
-#
-#         global last_ld_transform, count_from_last_ld
-#
-#         if last_ld_transform is None:
-#             if kf.is_initialized():
-#                 last_ld_transform = [time, l2o, state]
-#         else:
-#             l1Ro = get_transform_matrix_from_ts(last_ld_transform[1])
-#             oRl2 = get_transform_matrix_from_ts(o2l)
-#             l1Rl2 = np.matmul(l1Ro, oRl2)
-#
-#             r = np.array([[-0.78021039, 0.54694543, 0.30351678, 0],
-#                           [-0.62551718, -0.6822075, -0.37857784, 0],
-#                           [0., -0.48522533, 0.87438915, 0],
-#                           [0, 0, 0, 1]])
-#             l1Rl2 = np.matmul(r, l1Rl2)
-#
-#             # print 'rel_trans:', l1Rl2[0:3, 3]
-#
-#             prev_state = last_ld_transform[2]
-#             prev_rot = tft.quaternion_matrix([prev_state[7], prev_state[8], prev_state[9], prev_state[6]])
-#             prev_r = np.zeros((4,4))
-#             prev_r[0:3, 0:3] = prev_rot[0:3, 0:3]
-#             prev_r[0:3, 3] = prev_state[0:3]
-#             prev_r[3, 3] = 1
-#             l1Rl2 = np.matmul(prev_r, l1Rl2)
-#
-#             translation = l1Rl2[0:3, 3]
-#
-#             dt = time - last_ld_transform[0]
-#             count_from_last_ld = count_from_last_ld + 1
-#             if count_from_last_ld>1:
-#                 count_from_last_ld = 0
-#                 last_ld_transform = [time, l2o, state]
-#             if dt != 0:
-#                 velo = translation / dt
-#                 # print 'trans:', translation, 'original:', state[0:3]
-#                 # def meas_func(state):
-#                 #     r = tft.quaternion_matrix([state[7], state[8], state[9], state[6]])[0:3, 0:3]
-#                 #     return velo - np.matmul(r.T, state[3:6])
-#                 #
-#                 # def hx_func(state):
-#                 #     def f(x):
-#                 #         vx, vy, vz = x[3:6]
-#                 #         qw, qx, qy, qz = x[6:10]
-#                 #
-#                 #         return anp.array([
-#                 #             (1 - 2 * (qy ** 2 + qz ** 2)) * vx + 2 * (qx * qy + qz * qw) * vy + 2 * (
-#                 #                         qx * qz - qy * qw) * vz,
-#                 #             2 * (qx * qy - qw * qz) * vx + (1 - 2 * (qx ** 2 + qz ** 2)) * vy + 2 * (
-#                 #                         qy * qz + qx * qw) * vz,
-#                 #             2 * (qx * qz + qy * qw) * vx + 2 * (qy * qz - qx * qw) * vy + (
-#                 #                         1 - 2 * (qx ** 2 + qy ** 2)) * vz
-#                 #         ])
-#                 #
-#                 #     jacob = jacobian(f)
-#                 #     return np.array(jacob(state))
-#
-#                 # def meas_func(state):
-#                 #     r = tft.quaternion_matrix([state[7], state[8], state[9], state[6]])[0:3, 0:3]
-#                 #     return velo[1] - np.matmul(r.T, state[3:6])[1]
-#                 #
-#                 # def hx_func(state):
-#                 #     def f(x):
-#                 #         vx, vy, vz = x[3:6]
-#                 #         qw, qx, qy, qz = x[6:10]
-#                 #
-#                 #         return anp.array([
-#                 #
-#                 #             2 * (qx * qy - qw * qz) * vx + (1 - 2 * (qx ** 2 + qz ** 2)) * vy + 2 * (
-#                 #                         qy * qz + qx * qw) * vz
-#                 #         ])
-#                 #
-#                 #     jacob = jacobian(f)
-#                 #     return np.array(jacob(state))
-#
-#                 def meas_func(new_state):
-#                     print 'dif:', translation - state[0:3]
-#                     return translation - new_state[0:3]
-#
-#                 def hx_func(new_state):
-#                     hx = np.zeros((3,16))
-#                     hx[:, 0:3] = np.eye(3)
-#                     return hx
-#
-#                 V = np.diag([1, 1, 1])
-#                 # V = np.diag([0.00001])
-#                 # kf.correct(meas_func, hx_func, V, time, measurementname='laser')
-#
-#     except Exception as e:
-#         print e.message
 
 
 def laser_dt_callback(data):
     time = data.header.stamp.to_sec()
 
-    # lv2bl_msg = tf2_buffer.lookup_transform('base_link', 'left_velodyne', rospy.Time(0))
-    # lv2bl_mat = get_transform_matrix_from_ts(lv2bl_msg)
-    lv2bl_mat = np.array([[-0.486485, 0.711672, -0.506809, 0],
-                             [-0.514066, -0.702201, -0.492595, 0],
-                             [-0.706447, 0.0208933, 0.707457, 0],
-                             [        0,         0,        0, 1]])
+    lv2bl_msg = tf2_buffer.lookup_transform('base_link', 'left_velodyne', rospy.Time(0))
+    lv2bl_mat = get_transform_matrix_from_ts(lv2bl_msg)
+
     dp = np.array([data.pose.pose.position.x, data.pose.pose.position.y, data.pose.pose.position.z, 0])
     dp_bl = np.matmul(lv2bl_mat, dp)[0:3]
 
@@ -436,11 +334,6 @@ def laser_dt_callback(data):
             dp_bl[i] = 0
 
     def meas_func(state):
-        # rot_mat = tft.quaternion_matrix((state[7], state[8], state[9], state[6]))[0:3, 0:3].T
-        # dp_predicted = np.matmul(rot_mat, state[16:19] - state[0:3])
-        # print 'dp_predicted', dp_predicted, 'dp_bl', dp_bl[0:3]
-        # return dp_bl[0:3] - dp_predicted
-
         rot_mat = tft.quaternion_matrix((state[7], state[8], state[9], state[6]))[0:3, 0:3].T
         dp_predicted = np.matmul(rot_mat,state[16:19] - state[0:3])
 
@@ -451,25 +344,10 @@ def laser_dt_callback(data):
 
         print 'state dp', dp_predicted, 'dp_bl', dp_bl
         print 'state dq', dq_predicted, 'dq_bl', dq_bl
-        # return np.concatenate([dp_bl - dp_predicted, dq_bl - dq_predicted])
-        return dp_bl - dp_predicted
-    def hx_func(state):
-        # def f(x):
-        #     qw, qx, qy, qz = x[6:10]
-        #
-        #     r = anp.array([
-        #         [qw**2 + qx**2 - qy**2 - qz**2,             2*qx*qy - 2*qw*qz,             2*qx*qz + 2*qw*qy],
-        #         [            2*qx*qy + 2*qw*qz, qw**2 - qx**2 + qy**2 - qz**2,             2*qy*qz - 2*qw*qx],
-        #         [            2*qx*qz - 2*qw*qy,             2*qy*qz + 2*qw*qx, qw**2 - qx**2 - qy**2 + qz**2]
-        #     ]).T
-        #     return anp.matmul(r, x[16:19] - x[0:3])
-        #
-        # jacob = jacobian(f)
-        # print 'state', np.matmul(jacob(state), state)
-        # print 'jacob', np.array(jacob(state))
-        # print '--------------------------------------------\n'
-        # return np.array(jacob(state))
+        return np.concatenate([dp_bl - dp_predicted, dq_bl - dq_predicted])
+        # return dp_bl - dp_predicted
 
+    def hx_func(state):
         qw, qx, qy, qz = state[6:10]
         rw, rx, ry, rz = state[22:26]
         vx, vy, vz = state[16:19] - state[0:3]
@@ -481,89 +359,17 @@ def laser_dt_callback(data):
             [-(2*qx*qz+2*qy*qw), -(2*qy*qz-2*qx*qw), -(1-2*qx**2-2*qy**2), 0,0,0, 2*qy*vx-2*qx*vy, 2*qz*vx-2*qw*vy-4*qx*vz, 2*qw*vx+2*qz*vy-4*qy*vz, 2*qx*vx+2*qy*vy, 0,0,0,0,0,0,
              2 * qx * qz + 2 * qy * qw, 2 * qy * qz - 2 * qx * qw, 1 - 2 * qx ** 2 - 2 * qy ** 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 
-            # [0,0,0,0,0,0, qw, qx,  qy,  qz, 0,0,0,0,0,0, 0,0,0,0,0,0,  rw, rx, ry,  rz, 0,0,0,0,0,0],
-            # [0,0,0,0,0,0, qx, -qw, -qz, qy, 0,0,0,0,0,0, 0,0,0,0,0,0, -rx, rw, rz, -ry, 0,0,0,0,0,0],
-            # [0,0,0,0,0,0, qy, qz, -qw, -qx, 0,0,0,0,0,0, 0,0,0,0,0,0, -ry, -rz, rw, rx, 0,0,0,0,0,0],
-            # [0,0,0,0,0,0, qz, -qy, qx, -qw, 0,0,0,0,0,0, 0,0,0,0,0,0, -rz, ry, -rx, rw, 0,0,0,0,0,0],
+            [0,0,0,0,0,0, qw, qx,  qy,  qz, 0,0,0,0,0,0, 0,0,0,0,0,0,  rw, rx, ry,  rz, 0,0,0,0,0,0],
+            [0,0,0,0,0,0, qx, -qw, -qz, qy, 0,0,0,0,0,0, 0,0,0,0,0,0, -rx, rw, rz, -ry, 0,0,0,0,0,0],
+            [0,0,0,0,0,0, qy, qz, -qw, -qx, 0,0,0,0,0,0, 0,0,0,0,0,0, -ry, -rz, rw, rx, 0,0,0,0,0,0],
+            [0,0,0,0,0,0, qz, -qy, qx, -qw, 0,0,0,0,0,0, 0,0,0,0,0,0, -rz, ry, -rx, rw, 0,0,0,0,0,0],
         ])
         print 'jacob_state', np.matmul(Hx, state)
         return Hx
 
-        # Hx = np.zeros((3, 32))
-        # Hx[:, 0:3] = np.eye(3)
-        # Hx[:, 16:19] = np.eye(3)
-        # return Hx
-
-    # V = np.diag([1, 1, 1, 0.1, 0.1, 0.1, 0.1]) * 0.01
-    V = np.diag([1, 1, 1]) * 1
+    V = np.diag([1, 1, 1, 1, 1, 1, 1]) * 0.001
+    # V = np.diag([1, 1, 1]) * 0.001
     kf.correct_relative(meas_func, hx_func, V, time-0.1, time, measurementname='laser')
-
-
-
-
-
-
-
-
-
-
-
-
-# def laser_dt_callback(data):
-#     time = data.header.stamp.to_sec()
-#
-#     lv2bl_mat = np.array([[-0.486485, 0.711672, -0.506809, 0],
-#                              [-0.514066, -0.702201, -0.492595, 0],
-#                              [-0.706447, 0.0208933, 0.707457, 0],
-#                              [        0,         0,        0, 1]])
-#     dp = np.array([data.pose.pose.position.x, data.pose.pose.position.y, data.pose.pose.position.z, 0])
-#     dp_bl = np.matmul(lv2bl_mat, dp)[0:3]
-#
-#     dr_quat = (data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w)
-#     am0_R_am1 = tft.quaternion_matrix(dr_quat)[0:3, 0:3]
-#     ld_R_am = lv2bl_mat[0:3, 0:3]
-#     ld0_R_ld1 = np.matmul(np.matmul(ld_R_am, am0_R_am1), ld_R_am.T)
-#     dq_bl = quaternion_from_3x3_matrix(ld0_R_ld1)
-#
-#     for i in range(3):
-#         if abs(dp_bl[i]) < 0.1:
-#             dp_bl[i] = 0
-#
-#     global ld_last_pose
-#     if ld_last_pose is None:
-#         ld_last_pose = kf.get_state_as_numpy()
-#     else:
-#         def meas_func(state):
-#             rot_mat = tft.quaternion_matrix((ld_last_pose[7], ld_last_pose[8], ld_last_pose[9], ld_last_pose[6]))[0:3, 0:3]
-#             dp_global = np.matmul(rot_mat, dp_bl)
-#             p_global = ld_last_pose[0:3] + dp_global
-#             print 'dp_global', dp_global
-#             print 'p_global', p_global
-#             print 'dif', p_global - state[0:3]
-#             return p_global - state[0:3]
-#
-#         def hx_func(state):
-#             Hx = np.zeros((3, 16))
-#             Hx[:, 0:3] = np.eye(3)
-#             return Hx
-#
-#         V = np.diag([1, 1, 1]) * 0.1
-#         kf.correct(meas_func, hx_func, V, time, measurementname='laser')
-#
-#         ld_last_pose = kf.get_state_as_numpy()
-#
-#         meas_func(ld_last_pose)
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
