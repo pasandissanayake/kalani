@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import rospy
 import tf.transformations as tft
@@ -319,33 +319,37 @@ def laser_dt_callback(data):
     lv2bl_msg = tf2_buffer.lookup_transform('base_link', 'left_velodyne', rospy.Time(0))
     lv2bl_mat = get_transform_matrix_from_ts(lv2bl_msg)
 
-    dp = np.array([data.pose.pose.position.x, data.pose.pose.position.y, data.pose.pose.position.z, 0])
-    dp_bl = np.matmul(lv2bl_mat, dp)[0:3]
+    dp_velodyne = np.array([data.pose.pose.position.x, data.pose.pose.position.y, data.pose.pose.position.z, 0])
+    dp_laser = np.matmul(lv2bl_mat, dp_velodyne)[0:3]
 
-    dr_quat = (data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w)
-    am0_R_am1 = tft.quaternion_matrix(dr_quat)[0:3, 0:3]
-    ld_R_am = lv2bl_mat[0:3, 0:3]
-    ld0_R_ld1 = np.matmul(np.matmul(ld_R_am, am0_R_am1), ld_R_am.T)
-    dq_bl = quaternion_from_3x3_matrix(ld0_R_ld1)
-    dq_bl = np.array([dq_bl[3], dq_bl[0], dq_bl[1], dq_bl[2]])
+    dq_velodyne = (data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w)
+    lv1_R_lv2 = tft.quaternion_matrix(dq_velodyne)[0:3, 0:3]
+    bl_R_lv = lv2bl_mat[0:3, 0:3]
+    bl1_R_bl2 = np.matmul(np.matmul(bl_R_lv, lv1_R_lv2), bl_R_lv.T)
+    dq_laser = quaternion_from_3x3_matrix(bl1_R_bl2)
 
     for i in range(3):
-        if abs(dp_bl[i]) < 0.1:
-            dp_bl[i] = 0
+        if abs(dp_laser[i]) < 0.1:
+            dp_laser[i] = 0
 
     def meas_func(state):
         rot_mat = tft.quaternion_matrix((state[7], state[8], state[9], state[6]))[0:3, 0:3].T
-        dp_predicted = np.matmul(rot_mat,state[16:19] - state[0:3])
+        dp_state = np.matmul(rot_mat,state[16:19] - state[0:3])
 
-        rot_mat_2 = tft.quaternion_matrix((state[23], state[24], state[25], state[22]))[0:3, 0:3]
-        rot_mat_rel = np.matmul(rot_mat,rot_mat_2)
-        dq_predicted = quaternion_from_3x3_matrix(rot_mat_rel)
-        dq_predicted = np.array([dq_predicted[3], dq_predicted[0], dq_predicted[1], dq_predicted[2]])
+        q_state_1 = (state[7], state[8], state[9], state[6])
+        q_state_2 = (state[23], state[24], state[25], state[22])
+        dq_state = tft.quaternion_multiply(q_state_2, tft.quaternion_conjugate(q_state_1))
 
-        print 'state dp', dp_predicted, 'dp_bl', dp_bl
-        print 'state dq', dq_predicted, 'dq_bl', dq_bl
-        return np.concatenate([dp_bl - dp_predicted, dq_bl - dq_predicted])
-        # return dp_bl - dp_predicted
+        eq = tft.quaternion_multiply(dq_laser, tft.quaternion_conjugate(dq_state))
+        eq = np.concatenate([[eq[3]], eq[0:3]])
+
+        print 'state dp', dp_state
+        print 'laser dp', dp_laser
+        print 'state dq', dq_state
+        print 'laser dq', dq_laser
+        print 'error dp', dp_laser - dp_state
+        print 'error dq', eq
+        return np.concatenate([dp_laser - dp_state, eq])
 
     def hx_func(state):
         qw, qx, qy, qz = state[6:10]
@@ -364,11 +368,10 @@ def laser_dt_callback(data):
             [0,0,0,0,0,0, qy, qz, -qw, -qx, 0,0,0,0,0,0, 0,0,0,0,0,0, -ry, -rz, rw, rx, 0,0,0,0,0,0],
             [0,0,0,0,0,0, qz, -qy, qx, -qw, 0,0,0,0,0,0, 0,0,0,0,0,0, -rz, ry, -rx, rw, 0,0,0,0,0,0],
         ])
-        print 'jacob_state', np.matmul(Hx, state)
+        # print 'jacob_state', np.matmul(Hx, state)
         return Hx
 
-    V = np.diag([1, 1, 1, 1, 1, 1, 1]) * 0.001
-    # V = np.diag([1, 1, 1]) * 0.001
+    V = np.diag([1, 1, 1, 1, 1, 1, 1]) * 0.01
     kf.correct_relative(meas_func, hx_func, V, time-0.1, time, measurementname='laser')
 
 

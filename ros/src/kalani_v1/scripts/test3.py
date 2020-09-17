@@ -1,22 +1,11 @@
+#!/usr/bin/env python2
 
 import numpy as np
-import autograd.numpy as anp
-from autograd import jacobian
+import tf.transformations as tft
 
+p = tft.quaternion_from_euler(0, 0, np.pi/4)
+q = tft.quaternion_from_euler(0, 0, np.pi/2)
+r = tft.quaternion_multiply(q, tft.quaternion_conjugate(p))
 
-
-
-def f(x):
-    qw, qx, qy, qz = x[6:10]
-
-    r = anp.array([
-        [qw ** 2 + qx ** 2 - qy ** 2 - qz ** 2, 2 * qx * qy - 2 * qw * qz, 2 * qx * qz + 2 * qw * qy],
-        [2 * qx * qy + 2 * qw * qz, qw ** 2 - qx ** 2 + qy ** 2 - qz ** 2, 2 * qy * qz - 2 * qw * qx],
-        [2 * qx * qz - 2 * qw * qy, 2 * qy * qz + 2 * qw * qx, qw ** 2 - qx ** 2 - qy ** 2 + qz ** 2]
-    ]).T
-    return anp.matmul(r, x[16:19] - x[0:3])
-
-
-jacob = jacobian(f)
-state = np.concatenate([np.ones(6)*2, [1, 0, 0, 0], np.ones(12) * 5, [1, 0, 0, 0], np.zeros(6)])
-print np.array(jacob(state))
+r_eu = tft.euler_from_quaternion(r)
+print np.array(r_eu) * 180 / np.pi

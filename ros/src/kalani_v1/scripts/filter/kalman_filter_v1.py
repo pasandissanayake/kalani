@@ -370,7 +370,7 @@ class Kalman_Filter_V1():
             st0 = self._state_buffer.get_state(index0)
             st1 = self._state_buffer.get_state(index1)
             state_as_numpy = np.concatenate([st0.values_to_numpy()[0:-2], st1.values_to_numpy()[0:-2]])
-            print 'corrected state', np.matmul(Hx, state_as_numpy)
+            # print 'corrected state', np.matmul(Hx, state_as_numpy)
             print '--------------------------------------------\n'
 
             if index1+1 < buffer_length:
@@ -426,123 +426,6 @@ class Kalman_Filter_V1():
             st_prev.angular_bias.value = wb_prev
             st_prev.covariance = P_prev
             self._state_buffer.update_state(st_prev, i-1)
-
-
-
-
-
-    # def correct_relative(self, meas_func, hx_func, V, time0, time1, measurementname='unspecified'):
-    #     with self._lock:
-    #         oldest = self._state_buffer.get_state(0).state_time
-    #         latest = self._state_buffer.get_state(-1).state_time
-    #         if time0 < oldest:
-    #             print(measurementname, 'measurement is too old. measurement time:', time0, 'filter time range:', oldest, ' to ', latest)
-    #             return
-    #
-    #         index0 = self._state_buffer.get_index_of_closest_state_in_time(time0)
-    #         index1 = self._state_buffer.get_index_of_closest_state_in_time(time1)
-    #         buffer_length = self._state_buffer.get_buffer_length()
-    #
-    #         st0 = self._state_buffer.get_state(index0)
-    #         st1 = self._state_buffer.get_state(index1)
-    #
-    #         p0 = st0.position.value
-    #         v0 = st0.velocity.value
-    #         q0 = st0.orientation.value
-    #         ab0 = st0.accel_bias.value
-    #         wb0 = st0.angular_bias.value
-    #         P0 = st0.covariance
-    #
-    #         p1 = st1.position.value
-    #         v1 = st1.velocity.value
-    #         q1 = st1.orientation.value
-    #         ab1 = st1.accel_bias.value
-    #         wb1 = st1.angular_bias.value
-    #         P1 = st1.covariance
-    #
-    #         Fx_prod = np.eye(15)
-    #         for i in range(index0+1, index1+1):
-    #             st = self._state_buffer.get_state(i)
-    #
-    #             p = st.position.value
-    #             v = st.velocity.value
-    #             q = st.orientation.value
-    #             ab = st.accel_bias.value
-    #             wb = st.angular_bias.value
-    #             am = st.accel_input
-    #             dt = st.state_time - self._state_buffer.get_state(i-1).state_time
-    #
-    #             tf_q = np.concatenate([q[1:4], [q[0]]])
-    #             R_inert_body = tft.quaternion_matrix(tf_q)[0:3, 0:3]
-    #
-    #             Fx = np.eye(15)
-    #             Fx[0:3, 3:6] = dt * np.eye(3)
-    #             Fx[3:6, 6:9] = - skew_symmetric(R_inert_body.dot(am - ab)) * dt
-    #             Fx[3:6, 9:12] = -dt * R_inert_body
-    #             Fx[6:9, 12:15] = -dt * R_inert_body
-    #
-    #             Fx_prod = np.matmul(Fx_prod, Fx)
-    #
-    #         Q_dtheta0 = 0.5 * np.array([
-    #             [-q0[1], -q0[2], -q0[3]],
-    #             [q0[0], q0[3], -q0[2]],
-    #             [-q0[3], q0[0], q0[1]],
-    #             [q0[2], -q0[1], q0[0]]
-    #         ])
-    #
-    #         X_dtheta0 = np.zeros([16, 15])
-    #         X_dtheta0[0:6, 0:6] = np.eye(6)
-    #         X_dtheta0[6:10, 6:9] = Q_dtheta0
-    #         X_dtheta0[10:16, 9:15] = np.eye(6)
-    #
-    #         qw, qx, qy, qz = q0
-    #         G= np.array([
-    #             [qw**2 + qx**2 - qy**2 - qz**2,             2*qx*qy - 2*qw*qz,             2*qx*qz + 2*qw*qy, 0,0,0,0,0,0,0,0,0,0,0,0,0],
-    #             [            2*qx*qy + 2*qw*qz, qw**2 - qx**2 + qy**2 - qz**2,             2*qy*qz - 2*qw*qx, 0,0,0,0,0,0,0,0,0,0,0,0,0],
-    #             [            2*qx*qz - 2*qw*qy,             2*qy*qz + 2*qw*qx, qw**2 - qx**2 - qy**2 + qz**2, 0,0,0,0,0,0,0,0,0,0,0,0,0]
-    #         ])
-    #
-    #         G = np.matmul(G, X_dtheta0)
-    #
-    #         S = P1 - np.matmul(np.matmul(Fx_prod, P0), Fx_prod.T) + np.matmul(np.matmul(G.T, V), G)
-    #         K = np.matmul(P1 - np.matmul(np.matmul(Fx_prod, P0), Fx_prod.T), np.linalg.inv(S))
-    #
-    #         state_as_numpy = np.concatenate([st0.values_to_numpy()[0:-2], st1.values_to_numpy()[0:-2]])
-    #         dx = np.matmul(K, np.matmul(G, meas_func(state_as_numpy)))
-    #         # print 'indices(', index0, index1, ')  dx', dx
-    #
-    #         p1 = p1 + dx[0:3]
-    #         v1 = v1 + dx[3:6]
-    #         q1 = Quaternion(axis_angle=dx[6:9]).quat_mult_left(q1,out='Quaternion').normalize().to_numpy()
-    #         ab1 = ab1 + dx[9:12]
-    #         wb1 = wb1 + dx[12:15]
-    #
-    #         st1.position.value = p1
-    #         st1.position.time = time1
-    #         st1.velocity.value = v1
-    #         st1.velocity.time = time1
-    #         st1.orientation.value = q1
-    #         st1.orientation.time = time1
-    #         st1.accel_bias.value = ab1
-    #         st1.accel_bias.time = time1
-    #         st1.angular_bias.value = wb1
-    #         st1.angular_bias.time = time1
-    #         st1.covariance = P1
-    #         st1.state_time = time1
-    #         st1.initialized = True
-    #         self._state_buffer.update_state(st1, index1)
-    #
-    #         st0 = self._state_buffer.get_state(index0)
-    #         st1 = self._state_buffer.get_state(index1)
-    #         state_as_numpy = np.concatenate([st0.values_to_numpy()[0:-2], st1.values_to_numpy()[0:-2]])
-    #         print 'corrected state', np.matmul(Hx, state_as_numpy)
-    #         print '--------------------------------------------\n'
-    #
-    #         if index1+1 < buffer_length:
-    #             for i in range(index1+1, buffer_length):
-    #                 ist = self._state_buffer.get_state(i)
-    #                 self.predict(ist.accel_input, ist.accel_var, ist.angular_input, ist.angular_var, ist.state_time,
-    #                              i - 1, measurementname + '_correction @ ' + str(time1))
 
 
     def get_state_as_numpy(self):
