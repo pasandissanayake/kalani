@@ -218,6 +218,7 @@ class Kalman_Filter_V1():
             H = np.matmul(Hx,X_dtheta)
             K = np.matmul(np.matmul(P, H.T), np.linalg.inv(np.matmul(np.matmul(H, P), H.T) + V))
             P = np.matmul(np.eye(15) - np.matmul(K, H), P)
+            P = 0.5 * (P + P.T)
             dx = K.dot(meas_func(state_as_numpy))
 
             p = p + dx[0:3]
@@ -407,10 +408,16 @@ class Kalman_Filter_V1():
             Fx[3:6, 9:12] = -dt * R_inert_body
             Fx[6:9, 12:15] = -dt * R_inert_body
 
+            if np.linalg.det(unsmooth_cov) == 0:
+                print 'non-invertible covariance matrix'
+                print unsmooth_cov
+                print '\n\n'
+
             A = np.matmul(P_prev, np.matmul(Fx.T, np.linalg.inv(unsmooth_cov)))
             dx = np.matmul(A, dx)
             new_unsmooth_cov = deepcopy(P_prev)
             P_prev = P_prev + np.matmul(A, np.matmul(P_curr - unsmooth_cov, A.T))
+            P_prev = 0.5 * (P_prev + P_prev.T)
             unsmooth_cov = new_unsmooth_cov
 
             p_prev = p_prev + dx[0:3]
