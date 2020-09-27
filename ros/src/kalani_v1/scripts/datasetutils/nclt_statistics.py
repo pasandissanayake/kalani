@@ -7,8 +7,8 @@ sys.path.append('../')
 from constants import Constants
 
 
-dataset = NCLTData(Constants.NCLT_DATASET_DIRECTORY)
-# dataset = NCLTData('/home/entc/kalani/data/2013-01-10')
+# dataset = NCLTData(Constants.NCLT_DATASET_DIRECTORY)
+dataset = NCLTData('/home/pasan/kalani/data/nclt/2013-01-10')
 
 time = dataset.converted_gnss.time
 gt_interpol_x = interp1d(dataset.groundtruth.time,dataset.groundtruth.x,axis=0, bounds_error=False, fill_value='extrapolate', kind='linear')
