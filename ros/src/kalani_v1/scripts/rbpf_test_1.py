@@ -105,35 +105,23 @@ def matrix_inverse(matrix):
         return np.linalg.inv(matrix)
 
 def multivariate_normal_pdf(points, means, covariances):
-    nPoints = np.ndim(points)
-    nMeans = np.ndim(means)
-    nCovariances = np.ndim(covariances)
-    if nPoints > 1 and nMeans > 1 and nCovariances > 2:
-        print 'many points, many means'
+    if np.ndim(points) > 1:
         results = []
         for i in range(len(points)):
             results.append(multivariate_normal.pdf(points[i], mean=means[i], cov=covariances[i]))
         return np.array(results)
-    elif nPoints > 1 and nMeans < 2 and nCovariances < 3:
-        print 'many points, one mean'
-        results = []
-        for i in range(len(points)):
-            results.append(multivariate_normal.pdf(points[i], mean=means, cov=covariances))
-        return np.array(results)
-    elif nPoints < 2 and nMeans > 1 and nCovariances > 2:
-        print 'one point, many means'
+    elif np.ndim(means) > 1:
         results = []
         for i in range(len(means)):
             results.append(multivariate_normal.pdf(points, mean=means[i], cov=covariances[i]))
         return np.array(results)
     else:
-        print 'one point, one mean'
         return multivariate_normal.pdf(points, mean=means, cov=covariances)
 
 
 class RB_Particle_Filter_V1():
     def __init__(self):
-        self.NO_OF_PARTICLES = 10 * 3
+        self.NO_OF_PARTICLES = 1000 * 3
 
         self._pf_state = np.zeros([self.NO_OF_PARTICLES, 4])
         self._pf_weights = np.ones(self.NO_OF_PARTICLES) * 1 / self.NO_OF_PARTICLES
@@ -232,8 +220,8 @@ class RB_Particle_Filter_V1():
             print 'old correction!'
             return
 
-        H = np.zeros((2,9))
-        H[0:2, 0:2] = np.eye(2)
+        H = np.zeros((3,9))
+        H[0:3, 0:3] = np.eye(3)
 
         y = fix - matrix_vector_multiply(H, self._kf_state)
         S = matrix_matrix_multiply(H, matrix_matrix_multiply(self._kf_covariance, H.T)) + var_fix
@@ -242,25 +230,8 @@ class RB_Particle_Filter_V1():
         self._kf_covariance = 0.5 * (self._kf_covariance + matrix_transpose(self._kf_covariance))
         self._kf_state = self._kf_state + matrix_vector_multiply(K, y)
 
-        pdf = multivariate_normal_pdf(y, np.zeros(2), S[0])
-        print 'S:\n', S[0]
-
-        a, b = np.mgrid[-10:10:.01, -10:10:.01]
-        pos = np.dstack((a, b))
-        rv = multivariate_normal([0, 0], S[0])
-        plt.contour(a + fix[0], b + fix[1], rv.pdf(pos))
-
-        print 'updating weights...'
-        self._pf_weights = self._pf_weights * pdf
-        self._pf_weights = self._pf_weights / np.sum(self._pf_weights)
-
-        max_proba_i = np.argmax(pdf)
-        min_error_i = np.argmin(np.linalg.norm(y, axis=1))
-        print 'proba_max:', y[max_proba_i], 'norm:', np.linalg.norm(y[max_proba_i]), 'pdf:', pdf[max_proba_i], 'new wgt:', self._pf_weights[max_proba_i]
-        print 'error_min:', y[min_error_i], 'norm:', np.linalg.norm(y[min_error_i]), 'pdf:', pdf[min_error_i], 'new wgt:', self._pf_weights[min_error_i]
-
-        # if np.max(self._pf_weights) < 1e-3:
-        if 0 < 1:
+        pdf = multivariate_normal_pdf(fix, fix - y, S)
+        if np.max(self._pf_weights * pdf) < 1e-10:
             print 'resampling...'
             nsamples = np.round(self._pf_weights * self.NO_OF_PARTICLES / np.sum(self._pf_weights))
             # print np.sum(nsamples)
@@ -271,16 +242,11 @@ class RB_Particle_Filter_V1():
             new_pf_state = []
             new_kf_state = []
             new_kf_covariance = []
-            # for i in range(len(nsamples)):
-            #     for j in range(int(nsamples[i])):
-            #         new_pf_state.append(self._pf_state[i])
-            #         new_kf_state.append(self._kf_state[i])
-            #         new_kf_covariance.append(self._kf_covariance[i])
-            idx = np.argmax(nsamples)
-            for i in range(self.NO_OF_PARTICLES):
-                new_pf_state.append(self._pf_state[idx])
-                new_kf_state.append(self._kf_state[idx])
-                new_kf_covariance.append(self._kf_covariance[i])
+            for i in range(len(nsamples)):
+                for j in range(int(nsamples[i])):
+                    new_pf_state.append(self._pf_state[i])
+                    new_kf_state.append(self._kf_state[i])
+                    new_kf_covariance.append(self._kf_covariance[i])
             self._pf_state = np.array(new_pf_state)
 
             euler = euler_from_quaternion(self._pf_state)
@@ -291,6 +257,10 @@ class RB_Particle_Filter_V1():
             self._pf_weights = np.ones(self.NO_OF_PARTICLES) / self.NO_OF_PARTICLES
             self._kf_state = np.array(new_kf_state)
             self._kf_covariance = np.array(new_kf_covariance)
+        else:
+            print 'updating weights...'
+            self._pf_weights = self._pf_weights * pdf
+            self._pf_weights = self._pf_weights / np.sum(self._pf_weights)
 
         self.set_mean_state()
 
@@ -341,7 +311,7 @@ imu_ones = False
 state = []
 particles = []
 gps = []
-for i in range(42):
+for i in range(200):
     t_gps = nclt.converted_gnss.time[i_gps]
     t_imu = imu[i_imu, 0]
 
@@ -379,7 +349,7 @@ for i in range(42):
             gps.append(np.array(fix))
         else:
             print 'correction'
-            pf.correct(fix[0:2], np.ones(2)*400, t_gps)
+            pf.correct(fix, np.ones(3)*2, t_gps)
             state.append(pf.get_state_as_numpy()[0:3])
             particles.append(pf.get_positions_of_all_particles_as_numpy())
             gps.append(np.array(fix))
@@ -407,7 +377,7 @@ a = raw_input()
 for k in range(len(particles)):
     # if k==0 or gps[k, 0] != gps[k-1, 0]: plt.plot(gps[k, 0], gps[k, 1], 's')
     plt.plot(gps[k, 0], gps[k, 1], 's')
-    plt.plot(state[0:k+1, 0], state[0:k+1, 1], linestyle='dashed', marker='o', color='black')
+    plt.plot(state[0:k+1, 0], state[0:k+1, 1], '--')
     plt.plot(particles[k, :,0], particles[k, :,1], '.')
     plt.xlabel(str(k))
     plt.draw()
