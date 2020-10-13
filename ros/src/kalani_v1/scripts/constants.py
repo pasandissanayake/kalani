@@ -29,7 +29,7 @@ class Constants:
     #####################################################
 
     # file locations
-    NCLT_DATASET_DIRECTORY = '/home/entc/kalani/data/nclt/2012-04-29'
+    NCLT_DATASET_DIRECTORY = '/home/pasan/kalani/data/nclt/2012-04-29'
 
     NCLT_GNSS_DATA_FILE_NAME = 'gps.csv'
     NCLT_RTK_GNSS_DATA_FILE_NAME = 'gps_rtk.csv'

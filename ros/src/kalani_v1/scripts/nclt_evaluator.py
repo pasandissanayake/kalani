@@ -21,6 +21,9 @@ pos_cal = np.zeros((3, 3))
 ori_cal = np.zeros((3, 3))
 t = np.zeros(1)
 
+groundtruth_path = Path()
+estimate_path = Path()
+
 
 def log(message):
     rospy.loginfo(Constants.EVALUATOR_NODE_NAME + ' := ' + str(message))
@@ -46,8 +49,7 @@ def publish_covariance(data, publisher, frameid, threesigma):
     publisher.publish(marker)
 
 
-def publish_path(data, publisher, frameid):
-    path = Path()
+def publish_path(path, data, publisher, frameid):
     path.header.stamp = data.header.stamp
     path.header.frame_id = frameid
     pose = PoseStamped()
@@ -89,8 +91,8 @@ def publish_gt(pub, time, position, ori_e):
     msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(ori_q)
     msg.euler.x, msg.euler.y, msg.euler.z = list(ori_e)
     pub.publish(msg)
-    publish_path(msg,gt_path_pub,Constants.WORLD_FRAME)
-    br.sendTransform(position, (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), Constants.GROUNDTRUTH_FRAME, Constants.WORLD_FRAME)
+    publish_path(groundtruth_path, msg,gt_path_pub,Constants.WORLD_FRAME)
+    br.sendTransform(position, (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), '/gt', '/odom')
 
 
 def state_callback(data):
@@ -144,7 +146,7 @@ def state_callback(data):
 
     publish_error(error_pub)
     publish_gt(gt_pub, state[0],gt_interpol[0:3], gt_interpol[3:6])
-    publish_path(data, et_path_pub, Constants.WORLD_FRAME)
+    publish_path(estimate_path, data, et_path_pub, Constants.WORLD_FRAME)
     publish_covariance(data, cov_ellipse_pub, Constants.WORLD_FRAME, pos_cal[:,1])
 
 

@@ -1,34 +1,41 @@
-''' version 1.0.0 - modified to be compatible with python 2 '''
-import tf.transformations as tft
-
 import numpy as np
 import threading
-from rotations_v1 import skew_symmetric, Quaternion
-from state_buffer_v1 import StateBuffer, StateObject
 from copy import deepcopy
 
+import tf.transformations as tft
 
-class Kalman_Filter_V1():
-    def __init__(self, g, aw_var, ww_var):
+from kalman_buffer import KalmanBuffer, KalmanStateObject
+from utilities import *
+
+
+log = Log('kalman_filter')
+
+
+class KalmanFilter():
+    def __init__(self):
+        config = get_config_dict()['kalman_filter']
+
         # State buffer length
-        self.STATE_BUFFER_LENGTH = 50
+        self.STATE_BUFFER_LENGTH = config['buffer_size']
 
         # Allowed maximum gap between any two initial state variables (in seconds)
-        self.STATE_INIT_TIME_THRESHOLD = 1
+        self.STATE_INIT_TIME_THRESHOLD = config['state_init_time_threshold']
 
-        self._state_buffer = StateBuffer(self.STATE_BUFFER_LENGTH)
+        self._g = np.array([0, 0, config['gravity']])
+
+        self._state_buffer = KalmanBuffer(self.STATE_BUFFER_LENGTH)
         self._lock = threading.RLock()
-
-        self._aw_var = aw_var
-        self._ww_var = ww_var
-        self._g = g
 
         # Prediction matrices
         self.Fi = np.zeros([15, 12])
         self.Fi[3:15, :] = np.eye(12)
 
+        # Bias variances
+        self._aw_var = np.ones(3) * 1e-10
+        self._ww_var = np.ones(3) * 1e-10
 
-    def initialize_state(self, p=None, cov_p=None, v=None, cov_v=None, q=None, cov_q=None, ab=None, cov_ab=None, wb=None, cov_wb=None, g=None, time=-1):
+
+    def initialize_state(self, p=None, cov_p=None, v=None, cov_v=None, q=None, cov_q=None, ab=None, cov_ab=None, wb=None, cov_wb=None, time=-1):
         with self._lock:
             if self._state_buffer.get_buffer_length() < 1: self._state_buffer.add_state()
 
@@ -40,7 +47,7 @@ class Kalman_Filter_V1():
                     st.covariance[0:3,0:3] = np.diag(cov_p)
                     self._state_buffer.update_state(st,-1)
                 else:
-                    print('position covariances are not provided')
+                    log.log('position covariances are not provided')
 
             if v is not None:
                 if cov_v is not None:
@@ -49,7 +56,7 @@ class Kalman_Filter_V1():
                     st.covariance[3:6, 3:6] = np.diag(cov_v)
                     self._state_buffer.update_state(st, -1)
                 else:
-                    print('velocity covariances are not provided')
+                    log.log('velocity covariances are not provided')
 
             if q is not None:
                 if cov_q is not None:
@@ -58,7 +65,7 @@ class Kalman_Filter_V1():
                     st.covariance[6:9, 6:9] = np.diag(cov_q)
                     self._state_buffer.update_state(st, -1)
                 else:
-                    print('rotation covariances are not provided')
+                    log.log('rotation covariances are not provided')
 
             if ab is not None:
                 if cov_ab is not None:
@@ -66,8 +73,9 @@ class Kalman_Filter_V1():
                     st.accel_bias.time = time
                     st.covariance[9:12, 9:12] = np.diag(cov_ab)
                     self._state_buffer.update_state(st, -1)
+                    self._aw_var = np.array(cov_ab)
                 else:
-                    print('acceleration bias covariances are not provided')
+                    log.log('acceleration bias covariances are not provided')
 
             if wb is not None:
                 if cov_wb is not None:
@@ -75,8 +83,9 @@ class Kalman_Filter_V1():
                     st.angular_bias.time = time
                     st.covariance[0:3, 0:3] = np.diag(cov_wb)
                     self._state_buffer.update_state(st, -1)
+                    self._ww_var = np.array(cov_wb)
                 else:
-                    print('angular velocity bias covariances are not provided')
+                    log.log('angular velocity bias covariances are not provided')
 
             st = self._state_buffer.get_state(-1)
             timestamps = st.times_to_numpy()
@@ -85,21 +94,21 @@ class Kalman_Filter_V1():
                 st.state_time = time
                 st.initialized = True
                 self._state_buffer.update_state(st, -1)
-                print('state initialized')
+                log.log('state initialized')
             else:
-                print('initial state time stamps:', timestamps)
+                log.log('initial state time stamps:', timestamps)
 
 
     def predict(self, am, var_am, wm, var_wm, time, loadindex=-1, inputname='unspecified'):
         with self._lock:
             st = self._state_buffer.get_state(loadindex)
             if st is None or not st.initialized:
-                print('state not initialized')
+                log.log('state not initialized')
                 return
 
             st_time = st.state_time
             if st_time >= time:
-                print(inputname, 'input is too old. input time:', time, 'filter time:', st_time, 'load index:', loadindex)
+                log.log(inputname, 'input is too old. input time:', time, 'filter time:', st_time, 'load index:', loadindex)
                 return
 
             else:
@@ -113,14 +122,8 @@ class Kalman_Filter_V1():
 
                 P = st.covariance
 
-                # R_inert_body = Quaternion(q[0],q[1],q[2],q[3]).to_mat()
-                tf_q = np.concatenate([q[1:4],[q[0]]])
+                tf_q = quaternion_wxyz2xyzw(q)
                 R_inert_body = tft.quaternion_matrix(tf_q)[0:3,0:3]
-
-                # print 'quater(wxyz):', q
-                # print 'axis angle:', Quaternion(q[0],q[1],q[2],q[3]).to_axis_angle()
-                # print 'euler (rpy):', Quaternion(q[0],q[1],q[2],q[3]).to_euler()
-                # print 'tf euler (rpy):', tft.euler_from_quaternion(tf_q,axes='sxyz')
 
                 Fx = np.eye(15)
                 Fx[0:3, 3:6] = dt * np.eye(3)
@@ -138,19 +141,14 @@ class Kalman_Filter_V1():
 
                 p = p + v * dt + 0.5 * (R_inert_body.dot(am - ab) + self._g) * dt ** 2
                 v = v + (R_inert_body.dot(am - ab) + self._g) * dt
-                q = Quaternion(q[0],q[1],q[2],q[3]).quat_mult_left(Quaternion(axis_angle=dt * (wm - wb)),out='Quaternion').normalize().to_numpy()
+                # q = Quaternion(q[0],q[1],q[2],q[3]).quat_mult_left(Quaternion(axis_angle=dt * (wm - wb)),out='Quaternion').normalize().to_numpy()
+                angle = tft.vector_norm(dt * (wm - wb))
+                axis = tft.unit_vector(dt * (wm - wb))
+                q = quaternion_xyzw2wxyz( tft.quaternion_multiply( quaternion_wxyz2xyzw(q), tft.quaternion_about_axis(angle, axis)) )
                 ab = ab
                 wb = wb
 
-                # print 'am:', am
-                # print 'converted am:', R_inert_body.dot(am)
-                # print 'converted am+g:', R_inert_body.dot(am) + self._g
-                # print 'R:', R_inert_body
-                # print 'converted ve:', v
-                # print 'ab:', ab
-                # print '------------------------------------------------------------\n'
-
-                st = StateObject()
+                st = KalmanStateObject()
                 st.position.value = p
                 st.position.time = time
                 st.velocity.value = v
@@ -180,13 +178,13 @@ class Kalman_Filter_V1():
             oldest = self._state_buffer.get_state(0).state_time
             latest = self._state_buffer.get_state(-1).state_time
             if time < oldest:
-                print(measurementname, 'measurement is too old. measurement time:', time, 'filter time range:', oldest, ' to ', latest)
+                log.log(measurementname, 'measurement is too old. measurement time:', time, 'filter time range:', oldest, ' to ', latest)
                 return
 
             index = self._state_buffer.get_index_of_closest_state_in_time(time)
             buffer_length = self._state_buffer.get_buffer_length()
             if index < 0 or index >= buffer_length:
-                print('index out of range. index:', index, 'state buf length:', buffer_length)
+                log.log('index out of range. index:', index, 'state buf length:', buffer_length)
                 return
 
             st = self._state_buffer.get_state(index)
@@ -223,7 +221,10 @@ class Kalman_Filter_V1():
 
             p = p + dx[0:3]
             v = v + dx[3:6]
-            q = Quaternion(axis_angle=dx[6:9]).quat_mult_left(q,out='Quaternion').normalize().to_numpy()
+            # q = Quaternion(axis_angle=dx[6:9]).quat_mult_left(q,out='Quaternion').normalize().to_numpy()
+            angle = tft.vector_norm(dx[6:9])
+            axis = tft.unit_vector(dx[6:9])
+            q = quaternion_xyzw2wxyz( tft.quaternion_multiply(tft.quaternion_about_axis(angle, axis), quaternion_wxyz2xyzw(q)) )
             ab = ab + dx[9:12]
             wb = wb + dx[12:15]
 
@@ -256,7 +257,7 @@ class Kalman_Filter_V1():
             oldest = self._state_buffer.get_state(0).state_time
             latest = self._state_buffer.get_state(-1).state_time
             if time0 < oldest:
-                print(measurementname, 'measurement is too old. measurement time:', time0, 'filter time range:', oldest, ' to ', latest)
+                log.log(measurementname, 'measurement is too old. measurement time:', time0, 'filter time range:', oldest, ' to ', latest)
                 return
 
             index0 = self._state_buffer.get_index_of_closest_state_in_time(time0)
@@ -345,11 +346,14 @@ class Kalman_Filter_V1():
             K1 = K[15:30, :]
             P1 = P1 - np.matmul(np.matmul(K1, S), K1.T)
             dx = K1.dot(meas_func(state_as_numpy))
-            # print 'indices(', index0, index1, ')  dx', dx
+            # log.log('indices(', index0, index1, ')  dx', dx)
 
             p1 = p1 + dx[0:3]
             v1 = v1 + dx[3:6]
-            q1 = Quaternion(axis_angle=dx[6:9]).quat_mult_left(q1,out='Quaternion').normalize().to_numpy()
+            # q1 = Quaternion(axis_angle=dx[6:9]).quat_mult_left(q1,out='Quaternion').normalize().to_numpy()
+            angle = tft.vector_norm(dx[6:9])
+            axis = tft.unit_vector(dx[6:9])
+            q1 = quaternion_xyzw2wxyz( tft.quaternion_multiply(tft.quaternion_about_axis(angle, axis), quaternion_wxyz2xyzw(q1)) )
             ab1 = ab1 + dx[9:12]
             wb1 = wb1 + dx[12:15]
 
@@ -371,8 +375,8 @@ class Kalman_Filter_V1():
             st0 = self._state_buffer.get_state(index0)
             st1 = self._state_buffer.get_state(index1)
             state_as_numpy = np.concatenate([st0.values_to_numpy()[0:-2], st1.values_to_numpy()[0:-2]])
-            # print 'corrected state', np.matmul(Hx, state_as_numpy)
-            print '--------------------------------------------\n'
+            # log.log('corrected state', np.matmul(Hx, state_as_numpy))
+            log.log('--------------------------------------------\n')
 
             if index1+1 < buffer_length:
                 for i in range(index1+1, buffer_length):
@@ -409,9 +413,9 @@ class Kalman_Filter_V1():
             Fx[6:9, 12:15] = -dt * R_inert_body
 
             if np.linalg.det(unsmooth_cov) == 0:
-                print 'non-invertible covariance matrix'
-                print unsmooth_cov
-                print '\n\n'
+                log.log('non-invertible covariance matrix')
+                log.log(unsmooth_cov)
+                log.log('\n\n')
 
             A = np.matmul(P_prev, np.matmul(Fx.T, np.linalg.inv(unsmooth_cov)))
             dx = np.matmul(A, dx)
@@ -422,7 +426,11 @@ class Kalman_Filter_V1():
 
             p_prev = p_prev + dx[0:3]
             v_prev = v_prev + dx[3:6]
-            q_prev = Quaternion(axis_angle=dx[6:9]).quat_mult_left(q_prev, out='Quaternion').normalize().to_numpy()
+            # q_prev = Quaternion(axis_angle=dx[6:9]).quat_mult_left(q_prev, out='Quaternion').normalize().to_numpy()
+            angle = tft.vector_norm(dx[6:9])
+            axis = tft.unit_vector(dx[6:9])
+            q_prev = quaternion_xyzw2wxyz(
+                tft.quaternion_multiply(tft.quaternion_about_axis(angle, axis), quaternion_wxyz2xyzw(q_prev)))
             ab_prev = ab_prev + dx[9:12]
             wb_prev = wb_prev + dx[12:15]
 

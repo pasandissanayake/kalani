@@ -465,7 +465,7 @@ if __name__ == '__main__':
     bli2ci_static_tf.child_frame_id = 'camera_init'
     bli2ci_static_tf.transform = bl2lv_static_tf.transform
 
-    # aft_mapped to static transformation
+    # aft_mapped to laser_data static transformation
     am2ld_static_tf = TransformStamped()
     am2ld_static_tf.header.stamp = rospy.Time.now()
     am2ld_static_tf.header.frame_id = 'aft_mapped'

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import scipy
 import time
 import copy
+from copy import deepcopy
 from scipy.stats import multivariate_normal
 import tf.transformations as tft
 from datasetutils.nclt_data_conversions import *
@@ -126,6 +127,12 @@ def multivariate_normal_pdf(points, means, covariances):
         for i in range(len(means)):
             results.append(multivariate_normal.pdf(points, mean=means[i], cov=covariances[i]))
         return np.array(results)
+    elif nPoints > 1 and nMeans < 2 and nCovariances > 2:
+        print 'many points, one mean, many covariances'
+        results = []
+        for i in range(len(points)):
+            results.append(multivariate_normal.pdf(points[i], mean=means, cov=covariances[i]))
+        return np.array(results)
     else:
         print 'one point, one mean'
         return multivariate_normal.pdf(points, mean=means, cov=covariances)
@@ -133,10 +140,10 @@ def multivariate_normal_pdf(points, means, covariances):
 
 class RB_Particle_Filter_V1():
     def __init__(self):
-        self.NO_OF_PARTICLES = 10 * 3
+        self.NO_OF_PARTICLES = 5 * 3
 
         self._pf_state = np.zeros([self.NO_OF_PARTICLES, 4])
-        self._pf_weights = np.ones(self.NO_OF_PARTICLES) * 1 / self.NO_OF_PARTICLES
+        self._pf_weights = np.ones(self.NO_OF_PARTICLES) / self.NO_OF_PARTICLES
         self._kf_state = np.zeros([self.NO_OF_PARTICLES, 9])
         self._kf_covariance = np.zeros([self.NO_OF_PARTICLES, 9, 9])
         self._filter_time = -1
@@ -144,7 +151,12 @@ class RB_Particle_Filter_V1():
         self._mean_covariance = np.zeros((9, 9))
         self._mean_filter_time = -1
         self._filter_initialized = False
-        self._g = np.zeros(3)
+        self._g = np.array([0, 0, -9.8])
+
+        self._a, self._b = np.mgrid[-0.1:0.1:0.001, -0.1:0.1:0.001]
+        self._pos = np.dstack((self._a, self._b))
+        self._winners = np.zeros(3)
+        self._corrections = np.zeros(3)
 
 
     def initialize_state(self, p=None, cov_p=None, v=None, cov_v=None, q=None, cov_q=None, ab=None, cov_ab=None, g=None, time=-1, initialized=None):
@@ -203,9 +215,10 @@ class RB_Particle_Filter_V1():
 
         angle = np.linalg.norm(wm * dt)
         axis = wm * dt / angle
+        print angle * 180 / np.pi, axis
         dq = tft.quaternion_about_axis(angle, axis)
         dq = np.full((self.NO_OF_PARTICLES, 4), dq)
-        self._pf_state = quaternion_multiply(dq, self._pf_state)
+        self._pf_state = quaternion_multiply(self._pf_state, dq)
 
         self._kf_state[:, 0:3] = self._kf_state[:, 0:3] + self._kf_state[:, 3:6] * dt + 0.5 * (matrix_vector_multiply(R, am - self._kf_state[:, 6:9]) + self._g) * dt ** 2
         self._kf_state[:, 3:6] = self._kf_state[:, 3:6] + (matrix_vector_multiply(R, am - self._kf_state[:, 6:9]) + self._g) * dt
@@ -235,6 +248,8 @@ class RB_Particle_Filter_V1():
         H = np.zeros((2,9))
         H[0:2, 0:2] = np.eye(2)
 
+        old_kf_state = deepcopy(self._kf_state)
+
         y = fix - matrix_vector_multiply(H, self._kf_state)
         S = matrix_matrix_multiply(H, matrix_matrix_multiply(self._kf_covariance, H.T)) + var_fix
         K = matrix_matrix_multiply(self._kf_covariance, matrix_matrix_multiply(H.T, matrix_inverse(S)))
@@ -242,13 +257,13 @@ class RB_Particle_Filter_V1():
         self._kf_covariance = 0.5 * (self._kf_covariance + matrix_transpose(self._kf_covariance))
         self._kf_state = self._kf_state + matrix_vector_multiply(K, y)
 
-        pdf = multivariate_normal_pdf(y, np.zeros(2), S[0])
+        self._corrections = deepcopy(self._kf_state[:, 0:3])
+
+        pdf = multivariate_normal_pdf(y, np.zeros(2), S)
         print 'S:\n', S[0]
 
-        a, b = np.mgrid[-10:10:.01, -10:10:.01]
-        pos = np.dstack((a, b))
         rv = multivariate_normal([0, 0], S[0])
-        plt.contour(a + fix[0], b + fix[1], rv.pdf(pos))
+        plt.contour(self._a + fix[0], self._b + fix[1], rv.pdf(self._pos))
 
         print 'updating weights...'
         self._pf_weights = self._pf_weights * pdf
@@ -263,28 +278,40 @@ class RB_Particle_Filter_V1():
         if 0 < 1:
             print 'resampling...'
             nsamples = np.round(self._pf_weights * self.NO_OF_PARTICLES / np.sum(self._pf_weights))
-            # print np.sum(nsamples)
+            print 'normalized weights range:', np.min(self._pf_weights / np.sum(self._pf_weights)), np.max(self._pf_weights / np.sum(self._pf_weights))
+            print 'nsamples range:', np.min(nsamples), np.max(nsamples)
+
             if np.sum(nsamples) != self.NO_OF_PARTICLES:
                 deficit = self.NO_OF_PARTICLES - np.sum(nsamples)
                 i = np.argmax(nsamples)
                 nsamples[i] = nsamples[i] + deficit
+
             new_pf_state = []
             new_kf_state = []
             new_kf_covariance = []
+            self._winners = []
+
+            # re-sample proportionate to weight
             # for i in range(len(nsamples)):
             #     for j in range(int(nsamples[i])):
-            #         new_pf_state.append(self._pf_state[i])
-            #         new_kf_state.append(self._kf_state[i])
-            #         new_kf_covariance.append(self._kf_covariance[i])
+            #         new_pf_state.append(deepcopy(self._pf_state[i]))
+            #         new_kf_state.append(deepcopy(self._kf_state[i]))
+            #         new_kf_covariance.append(deepcopy(self._kf_covariance[i]))
+            #         self._winners.append(deepcopy(old_kf_state[i, 0:3]))
+
+            # re-sample by maximum weight
             idx = np.argmax(nsamples)
             for i in range(self.NO_OF_PARTICLES):
                 new_pf_state.append(self._pf_state[idx])
                 new_kf_state.append(self._kf_state[idx])
-                new_kf_covariance.append(self._kf_covariance[i])
+                new_kf_covariance.append(self._kf_covariance[idx])
+                self._winners.append(deepcopy(old_kf_state[idx, 0:3]))
+
             self._pf_state = np.array(new_pf_state)
+            self._winners = np.array(self._winners)
 
             euler = euler_from_quaternion(self._pf_state)
-            noise = np.random.multivariate_normal(np.zeros(3), np.diag([0.01, 0.01, 0.1]), self.NO_OF_PARTICLES)
+            noise = np.random.multivariate_normal(np.zeros(3), np.diag([1, 1, 10]), self.NO_OF_PARTICLES)
             neulers = noise + euler
             self._pf_state = quaternion_from_euler(neulers[:, 0], neulers[:, 1], neulers[:, 2])
 
@@ -319,6 +346,12 @@ class RB_Particle_Filter_V1():
     def get_positions_of_all_particles_as_numpy(self):
         return np.array(self._kf_state[:, 0:3])
 
+    def get_winners(self):
+        return deepcopy(self._winners)
+
+    def get_corrections(self):
+        return deepcopy(self._corrections)
+
 
 
 pf = RB_Particle_Filter_V1()
@@ -334,14 +367,20 @@ for j in range(3):
     imu[:, 2 + i] = imur[:, 1 + i]
     imu[:, 3 + i] = -imur[:, 3 + i]
 
+gt_lim = 1000
+gps_lim = 4
+# plt.plot(nclt.groundtruth.x[0:gt_lim], nclt.groundtruth.y[0:gt_lim], label='groundtruth')
+plt.plot(nclt.converted_gnss.x[0:gps_lim], nclt.converted_gnss.y[0:gps_lim], label='gps', color='violet')
+plt.legend()
+plt.ion()
+plt.show()
+
 i_gps = 0
 i_imu = 0
 prev_time = -1
 imu_ones = False
-state = []
-particles = []
-gps = []
-for i in range(42):
+for i in range(1000):
+    skip_pause = False
     t_gps = nclt.converted_gnss.time[i_gps]
     t_imu = imu[i_imu, 0]
 
@@ -357,13 +396,19 @@ for i in range(42):
         if pf.get_state_as_numpy()[-1] < 1:
             print 'imu init'
             q = get_orientation_from_magnetic_field(mm, fm)
-            pf.initialize_state(q=q, cov_q=np.array([0.001, 0.001, 0.01]), time=t_imu)
+            pf.initialize_state(q=q, cov_q=np.array([0.00001, 0.00001, 0.0001]), time=t_imu)
+            skip_pause = True
         else:
             print 'prediction'
-            pf.predict(fm, np.ones(3)*0.01, wm, t_imu)
-            state.append(pf.get_state_as_numpy()[0:3])
-            particles.append(pf.get_positions_of_all_particles_as_numpy())
-            if len(gps)>0: gps.append(np.array(gps[-1]))
+            pf.predict(fm, np.ones(3)*0.001, wm, t_imu)
+
+            state = pf.get_state_as_numpy()[0:3]
+            particles = pf.get_positions_of_all_particles_as_numpy()
+            plt.plot(state[0], state[1], linestyle='dashed', marker='o', color='black')
+            plt.plot(particles[:, 0], particles[:, 1], '.')
+            plt.xlabel('step: ' + str(i) + ' prediction')
+            plt.draw()
+
         i_imu += 1
         imu_ones = True
     elif imu_ones:
@@ -375,42 +420,39 @@ for i in range(42):
         fix = np.array([nclt.converted_gnss.x[i_gps], nclt.converted_gnss.y[i_gps], nclt.converted_gnss.z[i_gps]])
         if pf.get_state_as_numpy()[-1] < 1:
             print 'gps init'
-            pf.initialize_state(p=fix, cov_p=np.ones(3)*2, v=np.zeros(3), cov_v=np.ones(3)*1, ab=np.zeros(3), cov_ab=np.ones(3)*1, g=np.array([0, 0, -9.8]), time=t_gps, initialized=True)
-            gps.append(np.array(fix))
+            pf.initialize_state(p=fix, cov_p=np.ones(3)*10, v=np.zeros(3), cov_v=np.ones(3)*1, ab=np.zeros(3), cov_ab=np.ones(3)*0.0000001, g=np.array([0, 0, -9.8]), time=t_gps, initialized=True)
+            skip_pause = True
         else:
             print 'correction'
-            pf.correct(fix[0:2], np.ones(2)*400, t_gps)
-            state.append(pf.get_state_as_numpy()[0:3])
+            particles = []
             particles.append(pf.get_positions_of_all_particles_as_numpy())
-            gps.append(np.array(fix))
+            pf.correct(fix[0:2], np.ones(2)*0.0001, t_gps)
+
+            particles.append(pf.get_corrections())
+            particles.append(pf.get_positions_of_all_particles_as_numpy())
+            particles = np.array(particles)
+            for j in range(pf.NO_OF_PARTICLES):
+                plt.plot([particles[0, j, 0], particles[1, j, 0]], [particles[0, j, 1], particles[1, j, 1]], linestyle='dashed', marker='^', color='red')
+                plt.plot([particles[1, j, 0], particles[2, j, 0]], [particles[1, j, 1], particles[2, j, 1]], linestyle='solid', marker='^', color='blue')
+
+            state = pf.get_state_as_numpy()[0:3]
+            plt.plot(state[0], state[1], linestyle='dashed', marker='o', color='black')
+
+            winners = pf.get_winners()
+            plt.scatter(winners[:, 0], winners[:, 1], marker='o', color='red', s=80, facecolors='none')
+
+            plt.plot(fix[0], fix[1], 's')
+            plt.xlabel('step: ' + str(i) + ' correction')
+            plt.draw()
+
         i_gps += 1
 
     if not imu_ones:
         i_gps += 1
-
     # print 'i_gps:', i_gps
     # print 'gps:', np.array([nclt.converted_gnss.x[i_gps], nclt.converted_gnss.y[i_gps], nclt.converted_gnss.z[i_gps]])
     # if len(state)>0: print 'est:', state[-1]
     print '------------------------------------------------------------------------\n'
-
-state = np.array(state)
-gps = np.array(gps)
-particles = np.array(particles)
-plt.plot(nclt.groundtruth.x, nclt.groundtruth.y, label='groundtruth')
-plt.plot(nclt.converted_gnss.x, nclt.converted_gnss.y, label='gps')
-# plt.plot(105,105)
-plt.legend()
-# plt.autoscale(enable=False)
-plt.ion()
-plt.show()
+    if not skip_pause: pause = raw_input('press enter to continue...')
+print 'end of loop'
 a = raw_input()
-for k in range(len(particles)):
-    # if k==0 or gps[k, 0] != gps[k-1, 0]: plt.plot(gps[k, 0], gps[k, 1], 's')
-    plt.plot(gps[k, 0], gps[k, 1], 's')
-    plt.plot(state[0:k+1, 0], state[0:k+1, 1], linestyle='dashed', marker='o', color='black')
-    plt.plot(particles[k, :,0], particles[k, :,1], '.')
-    plt.xlabel(str(k))
-    plt.draw()
-    plt.pause(0.5)
-    # time.sleep(0.01)
-    a = raw_input()
