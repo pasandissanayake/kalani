@@ -1,11 +1,16 @@
 #!/usr/bin/env python2
 
 import numpy as np
-import tf.transformations as tft
 
-p = tft.quaternion_from_euler(0, 0, np.pi/4)
-q = tft.quaternion_from_euler(0, 0, np.pi/2)
-r = tft.quaternion_multiply(q, tft.quaternion_conjugate(p))
+class Foo:
+    def __init__(self, states):
+        for state in states:
+            self.__dict__[state[0]] = np.zeros(state[1])
 
-r_eu = tft.euler_from_quaternion(r)
-print np.array(r_eu) * 180 / np.pi
+states = [
+    ['a', 3],
+    ['b', 4]
+]
+foo = Foo(states)
+foo.a = np.array((2,1,3))
+print foo.a, foo.b

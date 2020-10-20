@@ -11,7 +11,7 @@ from sensor_msgs.msg import MagneticField
 from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
 
-from kalmanfilter import KalmanFilter
+from kalman_filter import KalmanFilter
 from utilities import *
 
 

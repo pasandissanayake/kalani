@@ -242,7 +242,7 @@ class Kalman_Filter_V1():
             st.initialized = True
             self._state_buffer.update_state(st, index)
 
-            # self.backward_smooth(index, dx, unsmooth_cov)
+            self.backward_smooth(index, dx, unsmooth_cov)
 
             if index+1 < buffer_length:
                 for i in range(index+1, buffer_length):
@@ -340,12 +340,24 @@ class Kalman_Filter_V1():
             state_as_numpy = np.concatenate([st0.values_to_numpy()[0:-2], st1.values_to_numpy()[0:-2]])
             Hx = hx_func(state_as_numpy)
             H = np.matmul(Hx,X_dtheta)
+
             S = np.matmul(np.matmul(H, P), H.T) + V
+            # print S
+
             K = np.matmul(np.matmul(P, H.T), np.linalg.inv(S))
             K1 = K[15:30, :]
             P1 = P1 - np.matmul(np.matmul(K1, S), K1.T)
             dx = K1.dot(meas_func(state_as_numpy))
-            # print 'indices(', index0, index1, ')  dx', dx
+
+            dx_big = K.dot(meas_func(state_as_numpy))
+            print 'dx0:'
+            print dx_big[:15]
+            print 'dx1:'
+            print dx_big[15:]
+            print 'dxd:'
+            print dx_big[15:] - dx_big[:15]
+
+            dx = -(dx_big[15:] - dx_big[:15])
 
             p1 = p1 + dx[0:3]
             v1 = v1 + dx[3:6]

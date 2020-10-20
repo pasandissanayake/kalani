@@ -59,6 +59,37 @@ def get_orientation_from_magnetic_field(mm, fm):
     return quat_array
 
 
+def get_position_from_gnss_fix(fix, origin, fixunit='deg', originunit='deg'):
+    '''
+    convert gnss coordinates to local coordinates in ENU frame
+    :param fix: gnss coordinate / coordinate array - [lat, lon]
+    :param origin: gnss coordinate of the origin - [lat, lon]
+    :param fixunit: units of fix ('deg'-->degrees, 'rad'-->radians)
+    :param originunit: units of origin ('deg'-->degrees, 'rad'-->radians)
+    :return: coordinates in local ENU frame
+    '''
+    if fixunit == 'deg':
+        fix = np.deg2rad(fix)
+    else:
+        fix = np.array(fix)
+
+    if originunit == 'deg':
+        origin = np.deg2rad(origin)
+    else:
+        origin = np.array(origin)
+
+    r = 6400000
+    dif = fix - origin
+    if np.ndim(fix) == 2:
+        x = r * np.cos(origin[0]) * np.sin(dif[:, 1])
+        y = r * np.sin(dif[:, 0])
+    else:
+        x = r * np.cos(origin[0]) * np.sin(dif[:, 1])
+        y = r * np.sin(dif[:, 0])
+
+    return np.array([x,y]).T
+
+
 def quaternion_xyzw2wxyz(q):
     '''
     converts quaterenion in xyzw form to wxyz form
@@ -75,6 +106,7 @@ def quaternion_xyzw2wxyz(q):
     # array of quaternions
     elif dims == 2:
         return np.concatenate([[q[:, 3]], q[:, :3].T]).T
+
 
 def quaternion_wxyz2xyzw(q):
     '''

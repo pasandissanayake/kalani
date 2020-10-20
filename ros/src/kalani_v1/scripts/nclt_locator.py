@@ -4,12 +4,17 @@ import rospy
 import tf.transformations as tft
 import tf
 import tf2_ros
+import pcl_ros
 from sensor_msgs.msg import NavSatFix
 from sensor_msgs.msg import Imu
 from sensor_msgs.msg import MagneticField
+from sensor_msgs.msg import PointCloud, PointField
 from sensor_msgs.msg import PointCloud2
+import sensor_msgs.point_cloud2 as pc2
 from geometry_msgs.msg import TransformStamped
+from geometry_msgs.msg import Point32
 from nav_msgs.msg import Odometry
+from std_msgs.msg import Float64MultiArray, Header
 from kalani_v1.msg import State
 
 import numpy as np
@@ -18,17 +23,18 @@ from scipy.optimize import leastsq
 from constants import Constants
 from filter.kalman_filter_v1 import Kalman_Filter_V1
 from datasetutils.nclt_data_conversions import NCLTDataConversions
+import numdifftools as nd
 
 
 nclt_gnss_var = [25.0, 25.0, 100]
 nclt_loam_var = 0.001 * np.ones(3)
-nclt_mag_orientation_var = 0.1 * np.ones(3)
+nclt_mag_orientation_var = 0.001 * np.ones(3)
 
 aw_var = 0.0001
 ww_var = 0.0001
 
-am_var = 0.01
-wm_var = 0.001
+am_var = 0.1
+wm_var = 0.1
 
 g = np.array([0, 0, -9.8])
 
@@ -36,6 +42,9 @@ kf = Kalman_Filter_V1(g, aw_var, ww_var)
 
 # Latest acceleration measured by the IMU, to be used in estimating orientation in mag_callback()
 latest_acceleration = np.zeros(3)
+
+# Previous measurement time for laser_dt_callback()
+laser_dt_prev_time = -1
 
 
 def log(message):
@@ -223,18 +232,30 @@ def mag_callback(data):
 
     if kf.is_initialized():
 
-        def hx_func(state):
-            Hx = np.zeros([4,16])
-            Hx[:,6:10] = np.eye(4)
-            return Hx
+        # def hx_func(state):
+        #     Hx = np.zeros([4,16])
+        #     Hx[:,6:10] = np.eye(4)
+        #     return Hx
 
         def meas_func(state):
             q_ori = np.concatenate([ori[1:4], [ori[0]]])
             q_stt = np.concatenate([state[7:10], [state[6]]])
-            q_err = tft.quaternion_multiply(tft.quaternion_conjugate(q_stt), q_ori)
-            return tfq_2_csq(q_err)
+            # q_err = tft.quaternion_multiply(q_ori, tft.quaternion_conjugate(q_stt))
 
-        V = np.diag(np.ones(4) * 0.01)
+            e_ori = np.array(tft.euler_from_quaternion(q_ori))
+            e_stt = np.array(tft.euler_from_quaternion(q_stt))
+            e_err = e_ori - e_stt
+            return e_err
+
+        def hx_func(state):
+            def q2e(astate):
+                e = tft.euler_from_quaternion((astate[7], astate[8], astate[9], astate[6]))
+                return np.array(e)
+            j = nd.Jacobian(q2e)
+            return j(state)
+
+
+        V = np.diag(np.ones(3) * 1e-1)
         kf.correct(meas_func, hx_func, V, time, measurementname='magnetometer')
         publish_state(state_pub)
         publish_magnetic(converted_mag_pub, ori, time)
@@ -260,11 +281,64 @@ def mag_callback(data):
 
 
 def laser_dt_callback(data):
-    pass
+    time = data.header.stamp.to_sec()
+    dx = data.pose.pose.position.x
+    dy = data.pose.pose.position.y
+    dz = data.pose.pose.position.z
+    dp_laser = np.array([dx, dy, dz])
+
+    global laser_dt_prev_time
+    if laser_dt_prev_time == -1:
+        laser_dt_prev_time = time
+    else:
+        def h(state):
+            return state[16:19] - state[0:3]
+
+        def meas_func(state):
+            dp_state = h(state)
+            error = np.array(dp_laser - dp_state)
+
+            print 'dp_laser:', dp_laser
+            print 'dp_state:', dp_state
+            print 'error:', error
+
+            return error
+
+        def hx_func(state):
+            jh = nd.Jacobian(h)
+            return jh(state)
+
+        V = np.diag(np.ones(3) * 10000)
+
+        kf.correct_relative(meas_func, hx_func, V, laser_dt_prev_time, time, measurementname='laser_dt')
 
 
 def laser_callback(data):
-    pointcloud_pub.publish(data)
+    points = np.array(data.data)
+    num_values = points.shape[0]
+    num_fields = 5
+    num_points = num_values / num_fields
+
+    pc2_msg = PointCloud2()
+    pc2_msg.header.stamp = rospy.Time.now()
+    pc2_msg.header.frame_id = 'base_link'
+    pc2_msg.height = 1
+    float_size = 4
+    pc2_msg.width = num_values * float_size
+    pc2_msg.fields = [
+        PointField('x', 0, PointField.FLOAT32, 1),
+        PointField('y', 4, PointField.FLOAT32, 1),
+        PointField('z', 8, PointField.FLOAT32, 1),
+        PointField('intensity', 12, PointField.FLOAT32, 1),
+        PointField('l', 16, PointField.FLOAT32, 1),
+    ]
+    pc2_msg.is_bigendian = False
+    pc2_msg.point_step = num_fields * float_size
+    pc2_msg.row_step = pc2_msg.point_step * num_points
+    pc2_msg.is_dense = False
+    pc2_msg.width = num_points
+    pc2_msg.data = np.asarray(points, np.float32).tostring()
+    pointcloud_pub.publish(pc2_msg)
 
 
 if __name__ == '__main__':
@@ -272,7 +346,8 @@ if __name__ == '__main__':
     log('Node initialized.')
     rospy.Subscriber('raw_data/gnss_fix', NavSatFix, gnss_callback, queue_size=1)
     rospy.Subscriber('raw_data/imu', Imu, imu_callback, queue_size=1)
-    rospy.Subscriber('raw_data/mag', MagneticField, mag_callback, queue_size=1)
+    rospy.Subscriber('raw_data/magnetometer', MagneticField, mag_callback, queue_size=1)
+    rospy.Subscriber('/velodyne_packet', Float64MultiArray, laser_callback, queue_size=1)
     rospy.Subscriber('/laser_odom_dt', Odometry, laser_dt_callback, queue_size=1)
 
     state_pub = rospy.Publisher(Constants.STATE_TOPIC, State, queue_size=1)

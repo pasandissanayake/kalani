@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   rospy_tutorials
   tf
+  pcl_ros
 
   message_generation
   std_msgs

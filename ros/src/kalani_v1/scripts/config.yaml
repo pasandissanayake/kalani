@@ -84,7 +84,7 @@ kaist_dataset:
   # sequence specific info
   urban17:
     time_start_motion: 1335704128.61069  # in seconds
-    map_origin_gnss_coordinates:
+    map_origin_gnss_coordinates: # in degrees
       lat: 478787
       lon: 12121
       alt: 0
