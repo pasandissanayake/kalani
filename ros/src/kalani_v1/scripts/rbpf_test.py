@@ -256,7 +256,8 @@ class RB_Particle_Filter_V1():
         plt.contour(self._a + fix[0], self._b + fix[1], rv.pdf(self._pos))
 
         print 'updating weights...'
-        self._pf_weights = self._pf_weights * pdf
+        # self._pf_weights = self._pf_weights * pdf
+        self._pf_weights = pdf
         self._pf_weights = self._pf_weights / np.sum(self._pf_weights)
 
         max_proba_i = np.argmax(pdf)
@@ -267,27 +268,42 @@ class RB_Particle_Filter_V1():
         # if np.max(self._pf_weights) < 1e-3:
         if 0 < 1:
             print 'resampling...'
-            nsamples = np.round(self._pf_weights * self.NO_OF_PARTICLES / np.sum(self._pf_weights))
-            print 'normalized weights range:', np.min(self._pf_weights / np.sum(self._pf_weights)), np.max(self._pf_weights / np.sum(self._pf_weights))
-            print 'nsamples range:', np.min(nsamples), np.max(nsamples)
-
-            if np.sum(nsamples) != self.NO_OF_PARTICLES:
-                deficit = self.NO_OF_PARTICLES - np.sum(nsamples)
-                i = np.argmax(nsamples)
-                nsamples[i] = nsamples[i] + deficit
 
             new_pf_state = []
             new_kf_state = []
             new_kf_covariance = []
             self._winners = []
 
+            r = np.random.rand() / self.NO_OF_PARTICLES
+            c = self._pf_weights[0]
+            i = 0
+            for m in range(self.NO_OF_PARTICLES):
+                u = r + (m-1) / self.NO_OF_PARTICLES
+                while u > c:
+                    i += 1
+                    c += self._pf_weights[i]
+                new_kf_state.append(deepcopy(self._kf_state[i]))
+                new_kf_covariance.append(deepcopy(self._kf_covariance[i]))
+                new_pf_state.append(deepcopy(self._pf_state[i]))
+                self._winners.append(deepcopy(old_kf_state[i, 0:3]))
+
+
+            # nsamples = np.round(self._pf_weights * self.NO_OF_PARTICLES / np.sum(self._pf_weights))
+            # print 'normalized weights range:', np.min(self._pf_weights / np.sum(self._pf_weights)), np.max(self._pf_weights / np.sum(self._pf_weights))
+            # print 'nsamples range:', np.min(nsamples), np.max(nsamples)
+            #
+            # if np.sum(nsamples) != self.NO_OF_PARTICLES:
+            #     deficit = self.NO_OF_PARTICLES - np.sum(nsamples)
+            #     i = np.argmax(nsamples)
+            #     nsamples[i] = nsamples[i] + deficit
+
             # re-sample proportionate to weight
-            for i in range(len(nsamples)):
-                for j in range(int(nsamples[i])):
-                    new_pf_state.append(deepcopy(self._pf_state[i]))
-                    new_kf_state.append(deepcopy(self._kf_state[i]))
-                    new_kf_covariance.append(deepcopy(self._kf_covariance[i]))
-                    self._winners.append(deepcopy(old_kf_state[i, 0:3]))
+            # for i in range(len(nsamples)):
+            #     for j in range(int(nsamples[i])):
+            #         new_pf_state.append(deepcopy(self._pf_state[i]))
+            #         new_kf_state.append(deepcopy(self._kf_state[i]))
+            #         new_kf_covariance.append(deepcopy(self._kf_covariance[i]))
+            #         self._winners.append(deepcopy(old_kf_state[i, 0:3]))
 
             # re-sample by maximum weight
             # idx = np.argmax(nsamples)
@@ -301,7 +317,7 @@ class RB_Particle_Filter_V1():
             self._winners = np.array(self._winners)
 
             euler = euler_from_quaternion(self._pf_state)
-            noise = np.random.multivariate_normal(np.zeros(3), np.diag([0.01, 0.01, 1]), self.NO_OF_PARTICLES)
+            noise = np.random.multivariate_normal(np.zeros(3), np.diag([0.001, 0.001, 0.01]), self.NO_OF_PARTICLES)
             neulers = noise + euler
             self._pf_state = quaternion_from_euler(neulers[:, 0], neulers[:, 1], neulers[:, 2])
 
@@ -346,9 +362,9 @@ class RB_Particle_Filter_V1():
 
 pf = RB_Particle_Filter_V1()
 
-nclt = NCLTData('/home/pasan/kalani/data/nclt/2013-01-10')
+nclt = NCLTData('/home/pasan/kalani-data/nclt/2013-01-10')
 
-imur = np.loadtxt('/home/pasan/kalani/data/nclt/2013-01-10/ms25.csv', delimiter=',')
+imur = np.loadtxt('/home/pasan/kalani-data/nclt/2013-01-10/ms25.csv', delimiter=',')
 imu = np.zeros((len(imur), 10))
 imu[:, 0] = imur[:, 0] * 1e-6
 for j in range(3):

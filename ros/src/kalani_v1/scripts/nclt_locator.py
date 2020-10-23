@@ -33,8 +33,8 @@ nclt_mag_orientation_var = 0.001 * np.ones(3)
 aw_var = 0.0001
 ww_var = 0.0001
 
-am_var = 0.1
-wm_var = 0.1
+am_var = 0.01
+wm_var = 0.01
 
 g = np.array([0, 0, -9.8])
 
@@ -159,23 +159,34 @@ def gnss_callback(data):
 
     if gnss.fix_mode == 3:
         if kf.is_initialized():
+
+            # use all x, y and z
             def hx_func(state):
                 Hx = np.zeros([3, 16])
                 Hx[:, 0:3] = np.eye(3)
                 return Hx
-
             def meas_func(state):
                 return fix - state[0:3]
-
             V = np.diag(nclt_gnss_var)
-            kf.correct(meas_func, hx_func, V, time, measurementname='gnss')
 
+            # # use x, y only even z is available
+            # def hx_func(state):
+            #     Hx = np.zeros([2, 16])
+            #     Hx[:, 0:2] = np.eye(2)
+            #     return Hx
+            # def meas_func(state):
+            #     return fix[0:2] - state[0:2]
+            # V = np.diag(nclt_gnss_var[0:2])
+
+            kf.correct(meas_func, hx_func, V, time, measurementname='gnss')
             publish_state(state_pub)
             publish_gnss(converted_gnss_pub, time, fix)
 
         else:
+            fix = np.array([107.724666287, 75.8293395278, 3.27289462581])
             p = fix
-            cov_p = nclt_gnss_var
+            # cov_p = nclt_gnss_var
+            cov_p = np.ones(3) * 0.001
 
             v = np.zeros(3)
             cov_v = np.ones(3) * 0.001
@@ -308,9 +319,11 @@ def laser_dt_callback(data):
             jh = nd.Jacobian(h)
             return jh(state)
 
-        V = np.diag(np.ones(3) * 10000)
+        V = np.diag(np.ones(3) * 0.02)
 
-        kf.correct_relative(meas_func, hx_func, V, laser_dt_prev_time, time, measurementname='laser_dt')
+        print 'ld_prev_time:', laser_dt_prev_time, 'ld_new_time:', time
+        # kf.correct_relative(meas_func, hx_func, V, laser_dt_prev_time, time, measurementname='laser_dt')
+        laser_dt_prev_time = time
 
 
 def laser_callback(data):
@@ -341,10 +354,21 @@ def laser_callback(data):
     pointcloud_pub.publish(pc2_msg)
 
 
+def gnss_mod_callback(data):
+    time = data.header.stamp.to_sec()
+    if time > 1357847254.9 and time < 1357847287.7:
+        pass
+    else:
+        gnss_mod_pub.publish(data)
+
+
 if __name__ == '__main__':
     rospy.init_node(Constants.LOCATOR_NODE_NAME, anonymous=True)
     log('Node initialized.')
-    rospy.Subscriber('raw_data/gnss_fix', NavSatFix, gnss_callback, queue_size=1)
+    rospy.Subscriber('raw_data/gnss_fix', NavSatFix, gnss_mod_callback, queue_size=1)
+    rospy.Subscriber('raw_data/gnss_fix_mod', NavSatFix, gnss_callback, queue_size=1)
+
+
     rospy.Subscriber('raw_data/imu', Imu, imu_callback, queue_size=1)
     rospy.Subscriber('raw_data/magnetometer', MagneticField, mag_callback, queue_size=1)
     rospy.Subscriber('/velodyne_packet', Float64MultiArray, laser_callback, queue_size=1)
@@ -354,6 +378,8 @@ if __name__ == '__main__':
     converted_gnss_pub = rospy.Publisher('/converted_data/gnss', State, queue_size=1)
     converted_mag_pub = rospy.Publisher('/converted_data/magnetic', State, queue_size=1)
     pointcloud_pub = rospy.Publisher('/raw_data/velodyne_points', PointCloud2, queue_size=1)
+
+    gnss_mod_pub = rospy.Publisher('raw_data/gnss_fix_mod', NavSatFix, queue_size=1)
 
     tf2_broadcaster = tf2_ros.TransformBroadcaster()
     tf2_static_broadcaster = tf2_ros.StaticTransformBroadcaster()

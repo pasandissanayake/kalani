@@ -61,7 +61,7 @@ def publish_path(path, data, publisher, frameid):
     publisher.publish(path)
 
 
-def publish_error(pub):
+def publish_error(pub, e_pub):
     msg = Error()
     msg.header.stamp = rospy.Time.from_sec(t[0])
     msg.position.x, msg.position.y, msg.position.z = pos_cal[0:3, 0]
@@ -81,6 +81,12 @@ def publish_error(pub):
     msg.ya_eb_d = [ori_cal[2, 2]]
 
     pub.publish(msg)
+
+    msg = Error()
+    msg.header.stamp = rospy.Time.from_sec(t[0])
+    msg.position.x = np.sqrt(np.sum(pos_cal[0:2, 0]**2))
+    msg.position.y = np.sqrt(np.sum(pos_cal[0:2, 1]**2))
+    e_pub.publish(msg)
 
 
 def publish_gt(pub, time, position, ori_e):
@@ -144,7 +150,7 @@ def state_callback(data):
         ori_cal[i, 1] = 3 * p_cov_euler_std[:, i]
         ori_cal[i, 2] = -3 * p_cov_euler_std[:, i]
 
-    publish_error(error_pub)
+    publish_error(error_pub, eucledian_error_pub)
     publish_gt(gt_pub, state[0],gt_interpol[0:3], gt_interpol[3:6])
     publish_path(estimate_path, data, et_path_pub, Constants.WORLD_FRAME)
     publish_covariance(data, cov_ellipse_pub, Constants.WORLD_FRAME, pos_cal[:,1])
@@ -152,12 +158,19 @@ def state_callback(data):
 
 def gnss_callback(data):
     time = data.header.stamp.to_sec()
-    fix = np.array([data.position.x, data.position.y, data.position.z])
+    fix = np.array([data.position.x, data.position.y, 0])
     gt_interpol = gt_function(time)
+    error = (gt_interpol[0:3] - fix)
+
     msg = Error()
     msg.header.stamp = rospy.Time.from_sec(time)
-    msg.position.x, msg.position.y, msg.position.z = (gt_interpol[0:3] - fix).tolist()
+    msg.position.x, msg.position.y, msg.position.z = error.tolist()
     gnss_error_pub.publish(msg)
+
+    msg = Error()
+    msg.header.stamp = rospy.Time.from_sec(time)
+    msg.position.x = np.sqrt(np.sum(error[0:2]**2))
+    gnss_euc_error_pub.publish(msg)
 
 
 if __name__ == '__main__':
@@ -172,16 +185,20 @@ if __name__ == '__main__':
         log('Interpolation finished.')
 
         rospy.Subscriber(Constants.STATE_TOPIC, State, state_callback, queue_size=1)
-        rospy.Subscriber(Constants.CONVERTED_GNSS_DATA_TOPIC, State, gnss_callback, queue_size=1)
+        rospy.Subscriber('/converted_data/gnss', State, gnss_callback, queue_size=1)
         # rospy.Subscriber(Constants.CONVERTED_MAGNETIC_DATA_TOPIC, State, magnetic_callback, queue_size=1)
 
         br = tf.TransformBroadcaster()
         gt_pub = rospy.Publisher(Constants.CONVERTED_GROUNDTRUTH_DATA_TOPIC, State, queue_size=1)
         error_pub = rospy.Publisher(Constants.ERROR_TOPIC, Error, queue_size=1)
         gnss_error_pub = rospy.Publisher('gnss_error', Error, queue_size=1)
+        gnss_euc_error_pub = rospy.Publisher('gnss_euc_error', Error, queue_size=1)
+        eucledian_error_pub = rospy.Publisher('eucledian_error', Error, queue_size=1)
         et_path_pub = rospy.Publisher('estimate_path', Path, queue_size=10)
         gt_path_pub = rospy.Publisher('groundtruth_path', Path, queue_size=10)
         cov_ellipse_pub = rospy.Publisher('cov_ellipse', Marker, queue_size=10)
+
+        np.savetxt('apple', np.array([0]), delimiter=',')
 
         log('Evaluator ready.')
         rospy.spin()

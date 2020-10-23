@@ -29,15 +29,17 @@ def the_callback(data):
 
     print 'received gnss'
 
-    time = rospy.Time.now().to_sec() + 1
+    time = data.header.stamp.to_sec()
     new_index = np.argmin(np.abs(gt.time - time))
+
+    n = np.random.multivariate_normal(np.zeros(3), np.eye(3) * 0.01)
 
     msg = Odometry()
     msg.header.stamp = rospy.Time.from_sec(gt.time[new_index])
     msg.header.frame_id = 'world'
-    msg.pose.pose.position.x = gt.x[new_index] - gt.x[prev_index]
-    msg.pose.pose.position.y = gt.y[new_index] - gt.y[prev_index]
-    msg.pose.pose.position.z = gt.z[new_index] - gt.z[prev_index]
+    msg.pose.pose.position.x = gt.x[new_index] - gt.x[prev_index] + n[0]
+    msg.pose.pose.position.y = gt.y[new_index] - gt.y[prev_index] + n[1]
+    msg.pose.pose.position.z = gt.z[new_index] - gt.z[prev_index] + n[2]
 
     dp_pub.publish(msg)
 

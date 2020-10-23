@@ -227,6 +227,7 @@ class Kalman_Filter_V1():
             ab = ab + dx[9:12]
             wb = wb + dx[12:15]
 
+            time = st.state_time
             st.position.value = p
             st.position.time = time
             st.velocity.value = v
@@ -255,6 +256,7 @@ class Kalman_Filter_V1():
         with self._lock:
             oldest = self._state_buffer.get_state(0).state_time
             latest = self._state_buffer.get_state(-1).state_time
+
             if time0 < oldest:
                 print(measurementname, 'measurement is too old. measurement time:', time0, 'filter time range:', oldest, ' to ', latest)
                 return
@@ -265,6 +267,8 @@ class Kalman_Filter_V1():
 
             st0 = self._state_buffer.get_state(index0)
             st1 = self._state_buffer.get_state(index1)
+
+            print 'time0:', st0.state_time, 'time1', st1.state_time
 
             p0 = st0.position.value
             v0 = st0.velocity.value
@@ -301,6 +305,7 @@ class Kalman_Filter_V1():
                 Fx[3:6, 9:12] = -dt * R_inert_body
                 Fx[6:9, 12:15] = -dt * R_inert_body
 
+                # Fx_prod should be Fx_(k+m) Fx_(k+m-1) .... Fx_(k+2) Fx_(k+1)
                 Fx_prod = np.matmul(Fx_prod, Fx)
 
             P = np.zeros((30, 30))
@@ -338,6 +343,7 @@ class Kalman_Filter_V1():
             X_dtheta[16:32, 15:30] = X_dtheta1
 
             state_as_numpy = np.concatenate([st0.values_to_numpy()[0:-2], st1.values_to_numpy()[0:-2]])
+            old_state = deepcopy(state_as_numpy)
             Hx = hx_func(state_as_numpy)
             H = np.matmul(Hx,X_dtheta)
 
@@ -347,17 +353,19 @@ class Kalman_Filter_V1():
             K = np.matmul(np.matmul(P, H.T), np.linalg.inv(S))
             K1 = K[15:30, :]
             P1 = P1 - np.matmul(np.matmul(K1, S), K1.T)
-            dx = K1.dot(meas_func(state_as_numpy))
+            error = meas_func(state_as_numpy)
+            dx = K1.dot(error)
 
-            dx_big = K.dot(meas_func(state_as_numpy))
+            dx_big = K.dot(error)
+            dx = (dx_big[15:] - dx_big[:15])
             print 'dx0:'
             print dx_big[:15]
             print 'dx1:'
             print dx_big[15:]
             print 'dxd:'
             print dx_big[15:] - dx_big[:15]
-
-            dx = -(dx_big[15:] - dx_big[:15])
+            print 'dx:'
+            print dx
 
             p1 = p1 + dx[0:3]
             v1 = v1 + dx[3:6]
@@ -365,6 +373,7 @@ class Kalman_Filter_V1():
             ab1 = ab1 + dx[9:12]
             wb1 = wb1 + dx[12:15]
 
+            time1 = st1.state_time
             st1.position.value = p1
             st1.position.time = time1
             st1.velocity.value = v1
@@ -380,10 +389,13 @@ class Kalman_Filter_V1():
             st1.initialized = True
             self._state_buffer.update_state(st1, index1)
 
+            print 'after correction:'
             st0 = self._state_buffer.get_state(index0)
             st1 = self._state_buffer.get_state(index1)
             state_as_numpy = np.concatenate([st0.values_to_numpy()[0:-2], st1.values_to_numpy()[0:-2]])
-            # print 'corrected state', np.matmul(Hx, state_as_numpy)
+            meas_func(state_as_numpy)
+            print 'old position:', old_state[16:19]
+            print 'new position:', state_as_numpy[16:19]
             print '--------------------------------------------\n'
 
             if index1+1 < buffer_length:
