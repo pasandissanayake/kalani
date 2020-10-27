@@ -84,8 +84,8 @@ def get_position_from_gnss_fix(fix, origin, fixunit='deg', originunit='deg'):
         x = r * np.cos(origin[0]) * np.sin(dif[:, 1])
         y = r * np.sin(dif[:, 0])
     else:
-        x = r * np.cos(origin[0]) * np.sin(dif[:, 1])
-        y = r * np.sin(dif[:, 0])
+        x = r * np.cos(origin[0]) * np.sin(dif[1])
+        y = r * np.sin(dif[0])
 
     return np.array([x,y]).T
 

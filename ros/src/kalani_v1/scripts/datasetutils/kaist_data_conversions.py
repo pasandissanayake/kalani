@@ -176,10 +176,10 @@ class KAISTData:
 
     def __init__(self, data_directory, gt=True, gnss=True):
         if gt:
-            gt_array = np.loadtxt(data_directory + '/' + 'global_pose.csv', delimiter=',')
+            gt_array = np.loadtxt(data_directory + '/pose/' + 'global_pose.csv', delimiter=',')
             self.groundtruth = KAISTDataConversions.groundtruth_numpy_to_converted(gt_array)
 
         if gnss:
-            gnss_array = np.loadtxt(data_directory + '/' + 'sensor_data/gps.csv', delimiter=',')
+            gnss_array = np.loadtxt(data_directory + '/' + 'data/gps.csv', delimiter=',')
             self.converted_gnss = KAISTDataConversions.gnss_numpy_to_converted(gnss_array, 'deg')
 
