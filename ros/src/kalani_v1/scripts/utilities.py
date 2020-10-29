@@ -23,7 +23,7 @@ def get_config_dict():
     '''
     :returns: dictionary containing configuration values, loaded from config.yaml file
     '''
-    with open('config.yaml') as f:
+    with open('/home/pasan/kalani/ros/src/kalani_v1/scripts/config.yaml') as f:
         return yaml.load(f, Loader=yaml.Loader)
 
 

@@ -1,6 +1,12 @@
 import numpy as np
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
+import os
+import struct
+
+import pcl
+import sensor_msgs.point_cloud2 as pc2
+from sensor_msgs.msg import PointCloud2, PointField
 
 from utilities import *
 
@@ -8,53 +14,92 @@ log = Log(prefix='kaist_datahandle')
 config = get_config_dict()['kaist_dataset']
 
 class Vector:
-    def __init__(self, length):
-        self.x = np.zeros(length)
-        self.y = np.zeros(length)
-        self.z = np.zeros(length)
+    def __init__(self):
+        self.x = np.zeros(0)
+        self.y = np.zeros(0)
+        self.z = np.zeros(0)
 
 
 class GroundTruth:
-    def __init__(self, length):
-        self.length = length
-        self.time = np.zeros(length)
-        self.x = np.zeros(length)
-        self.y = np.zeros(length)
-        self.z = np.zeros(length)
-        self.r = np.zeros(length)
-        self.p = np.zeros(length)
-        self.h = np.zeros(length)
-        self.interp_x = None
-        self.interp_y = None
-        self.interp_z = None
-        self.interp_r = None
-        self.interp_p = None
-        self.interp_h = None
+    def __init__(self):
+        self.time = np.zeros(2)
+        self.x = np.zeros(2)
+        self.y = np.zeros(2)
+        self.z = np.zeros(2)
+        self.r = np.zeros(2)
+        self.p = np.zeros(2)
+        self.h = np.zeros(2)
+        self.interp_x = interp1d(self.time, self.x)
+        self.interp_y = interp1d(self.time, self.y)
+        self.interp_z = interp1d(self.time, self.z)
+        self.interp_r = interp1d(self.time, self.r)
+        self.interp_p = interp1d(self.time, self.p)
+        self.interp_h = interp1d(self.time, self.h)
 
 
 class GNSS:
-    def __init__(self, length):
-        self.length = length
-        self.time = np.zeros(length)
-        self.x = np.zeros(length)
-        self.y = np.zeros(length)
-        self.covariance = np.zeros([length, 4])
+    def __init__(self):
+        self.time = np.zeros(0)
+        self.x = np.zeros(0)
+        self.y = np.zeros(0)
+        self.covariance = np.zeros([4, 4])
 
 
 class IMU:
-    def __init__(self, length):
-        self.length = length
-        self.time = np.zeros(length)
-        self.acceleration = Vector(length)
-        self.angular_rate = Vector(length)
-        self.magnetic_field = Vector(length)
+    def __init__(self):
+        self.time = np.zeros(0)
+        self.acceleration = Vector()
+        self.angular_rate = Vector()
+        self.magnetic_field = Vector()
 
 
 class Altitude:
-    def __init__(self, length):
-        self.length = length
-        self.time = np.zeros(length)
-        self.z = np.zeros(length)
+    def __init__(self):
+        self.time = np.zeros(0)
+        self.z = np.zeros(0)
+
+
+class LaserScan:
+    def __init__(self):
+        self._directory = ''
+        self._file_list = []
+        self.time = np.zeros(0)
+
+    def set_directory(self, directory):
+        self._directory = directory
+        self._file_list = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+        self._file_list.sort()
+        self.time = np.array([int(t[:-4]) / 1e9 for t in self._file_list])
+
+    def get_points(self, time, format='XYZI', nearesttimestamp=True):
+            if nearesttimestamp:
+                idx = np.argmin(np.abs(self.time - time))
+            else:
+                idx = np.where(self.time == time)[1][0]
+            pointsfile = '{}/{}'.format(self._directory, self._file_list[idx])
+            if os.path.isfile(pointsfile):
+                f = open(pointsfile, "rb")
+                s = f.read()
+                no_of_floats = len(s) / 4
+                no_of_points = no_of_floats / 4
+                w = np.reshape(struct.unpack('f' * no_of_floats, s), (-1,4)).astype(np.float32)
+                if format=='XYZI':
+                    return no_of_points, w
+                else:
+                    return no_of_points, w[:, :3]
+            else:
+                log.log('LaserScan get_points() file not found. File name: {}'.format(pointsfile))
+                return None
+
+    def get_point_cloud2(self, header, format='XYZI', nearesttimestamp=True):
+        c, p = self.get_points(header.stamp.to_sec(), format, nearesttimestamp)
+        fields = [
+            PointField('x', 0, PointField.FLOAT32, 1),
+            PointField('y', 4, PointField.FLOAT32, 1),
+            PointField('z', 8, PointField.FLOAT32, 1),
+            PointField('intensity', 12, PointField.FLOAT32, 1),
+        ]
+        return pc2.create_cloud(header, fields, p)
 
 
 class Calibrations:
@@ -67,27 +112,31 @@ class Calibrations:
 class KAISTData:
 
     def __init__(self):
-        self.groundtruth = None
-        self.gnss = None
-        self.imu = None
-        self.altitude = None
+        self.groundtruth = GroundTruth()
+        self.gnss = GNSS()
+        self.imu = IMU()
+        self.altitude = Altitude()
+        self.vlpLeft = LaserScan()
         self.calibrations = Calibrations()
+
+        self._GNSS_FLAG = False
+        self._IMU_FLAG = False
+        self._ALTITUDE_FLAG = False
+        self._VLP_LEFT_FLAG = False
 
     def load_groundtruth_from_numpy(self, gt_array):
         if np.ndim(gt_array) != 2:
             log.log('Groundtruth array dimension mismatch.')
-            self.groundtruth = None
-
-        groundtruth = GroundTruth(len(gt_array))
+            return 
 
         # groundtruth time from ns to s
-        groundtruth.time = gt_array[:,0] / 1e9
+        self.groundtruth.time = gt_array[:,0] / 1e9
         # set starting groundtruth point as (0, 0, 0)
         # groundtruth position is already in ENU frame
         # So, nothing to convert
-        groundtruth.x = gt_array[:, 4] - gt_array[0, 4]
-        groundtruth.y = gt_array[:, 8] - gt_array[0, 8]
-        groundtruth.z = gt_array[:, 12] - gt_array[0, 12]
+        self.groundtruth.x = gt_array[:, 4] - gt_array[0, 4]
+        self.groundtruth.y = gt_array[:, 8] - gt_array[0, 8]
+        self.groundtruth.z = gt_array[:, 12] - gt_array[0, 12]
 
         # convert rotation matrix to obtain groundtruth euler angles
         eulers = np.zeros([len(gt_array),3])
@@ -96,49 +145,42 @@ class KAISTData:
             eulers[i] = tft.euler_from_matrix(r_mat, axes='sxyz')
         # Groundtruth orientation is originally in NWU frame
         # conversions for euler angles
-        groundtruth.r = -eulers[:, 1]
-        groundtruth.p = eulers[:, 0]
-        groundtruth.h = eulers[:, 2] - np.pi / 2
+        self.groundtruth.r = -eulers[:, 1]
+        self.groundtruth.p = eulers[:, 0]
+        self.groundtruth.h = eulers[:, 2] - np.pi / 2
 
-        groundtruth.interp_x = interp1d(groundtruth.time, groundtruth.x, axis=0, bounds_error=False, fill_value=groundtruth.x[0], kind='linear')
-        groundtruth.interp_y = interp1d(groundtruth.time, groundtruth.y, axis=0, bounds_error=False, fill_value=groundtruth.y[0], kind='linear')
-        groundtruth.interp_z = interp1d(groundtruth.time, groundtruth.z, axis=0, bounds_error=False, fill_value=groundtruth.z[0], kind='linear')
-        groundtruth.interp_r = interp1d(groundtruth.time, groundtruth.r, axis=0, bounds_error=False, fill_value=groundtruth.r[0], kind='linear')
-        groundtruth.interp_p = interp1d(groundtruth.time, groundtruth.p, axis=0, bounds_error=False, fill_value=groundtruth.p[0], kind='linear')
-        groundtruth.interp_h = interp1d(groundtruth.time, groundtruth.h, axis=0, bounds_error=False, fill_value=groundtruth.h[0], kind='linear')
-
-        self.groundtruth = groundtruth
+        self.groundtruth.interp_x = interp1d(self.groundtruth.time, self.groundtruth.x, axis=0, bounds_error=False, fill_value=self.groundtruth.x[0], kind='linear')
+        self.groundtruth.interp_y = interp1d(self.groundtruth.time, self.groundtruth.y, axis=0, bounds_error=False, fill_value=self.groundtruth.y[0], kind='linear')
+        self.groundtruth.interp_z = interp1d(self.groundtruth.time, self.groundtruth.z, axis=0, bounds_error=False, fill_value=self.groundtruth.z[0], kind='linear')
+        self.groundtruth.interp_r = interp1d(self.groundtruth.time, self.groundtruth.r, axis=0, bounds_error=False, fill_value=self.groundtruth.r[0], kind='linear')
+        self.groundtruth.interp_p = interp1d(self.groundtruth.time, self.groundtruth.p, axis=0, bounds_error=False, fill_value=self.groundtruth.p[0], kind='linear')
+        self.groundtruth.interp_h = interp1d(self.groundtruth.time, self.groundtruth.h, axis=0, bounds_error=False, fill_value=self.groundtruth.h[0], kind='linear')
 
     def load_gnss_from_numpy(self, gnss_array, origin):
         if np.ndim(gnss_array) != 2:
             log.log('GNSS array dimension mismatch.')
-            self.gnss = None
+            return
 
-        gnss = GNSS(len(gnss_array))
         # gnss timestamp conversion (ns to s)
-        gnss.time = gnss_array[:, 0] / 1e9
+        self.gnss.time = gnss_array[:, 0] / 1e9
 
         lat = gnss_array[:, 1]
         lon = gnss_array[:, 2]
 
         # convert lattitudes and longitudes (in degrees) to ENU frame coordinates
         position = get_position_from_gnss_fix(np.array([lat, lon]).T, origin, fixunit='deg', originunit='deg')
-        gnss.x = position[:, 0]
-        gnss.y = position[:, 1]
+        self.gnss.x = position[:, 0]
+        self.gnss.y = position[:, 1]
 
-        gnss.covariance = np.array([gnss_array[:, 4], gnss_array[:, 5], gnss_array[:, 7], gnss_array[:, 8]]).T
-
-        self.gnss = gnss
+        self.gnss.covariance = np.array([gnss_array[:, 4], gnss_array[:, 5], gnss_array[:, 7], gnss_array[:, 8]]).T
 
     def load_imu_from_numpy(self, imu_array):
         if np.ndim(imu_array) != 2:
             log.log('IMU array dimension mismatch.')
-            self.imu = None
-
-        imu = IMU(len(imu_array))
+            return
 
         # imu timestamp correction (ns to s)
-        imu.time = imu_array[:, 0] / 1e9
+        self.imu.time = imu_array[:, 0] / 1e9
 
         # imu frame:
         # x--> towards front of the vehicle
@@ -148,32 +190,29 @@ class KAISTData:
         # calibration matrix
 
         # imu angular rates (originally in rad s-1, so nothing to convert)
-        imu.angular_rate.x = imu_array[:, 8]
-        imu.angular_rate.y = imu_array[:, 9]
-        imu.angular_rate.z = imu_array[:, 10]
+        self.imu.angular_rate.x = imu_array[:, 8]
+        self.imu.angular_rate.y = imu_array[:, 9]
+        self.imu.angular_rate.z = imu_array[:, 10]
 
         # imu accelerations (originally in ms-2, so nothing to convert)
-        imu.acceleration.x = imu_array[:, 11]
-        imu.acceleration.y = imu_array[:, 12]
-        imu.acceleration.z = imu_array[:, 13]
+        self.imu.acceleration.x = imu_array[:, 11]
+        self.imu.acceleration.y = imu_array[:, 12]
+        self.imu.acceleration.z = imu_array[:, 13]
 
         # imu magnetic field (original units: gauss, converted to Tesla)
-        imu.magnetic_field.x = imu_array[:, 14] * 1e-4
-        imu.magnetic_field.y = imu_array[:, 15] * 1e-4
-        imu.magnetic_field.z = imu_array[:, 16] * 1e-4
-
-        self.imu = imu
+        self.imu.magnetic_field.x = imu_array[:, 14] * 1e-4
+        self.imu.magnetic_field.y = imu_array[:, 15] * 1e-4
+        self.imu.magnetic_field.z = imu_array[:, 16] * 1e-4
 
     def load_altitude_from_numpy(self, altitude_array, origin):
         if np.ndim(altitude_array) != 2:
             log.log('Altitude array dimension mismatch.')
-            self.altitude = None
-        altitude = Altitude(len(altitude_array))
+            return
+
         # altitude time conversion (ns to s)
         # altitude originally in meters, so no unit conversions
-        altitude.time = altitude_array[:, 0] / 1e9
-        altitude.z = altitude_array[:, 1] - origin
-        self.altitude = altitude
+        self.altitude.time = altitude_array[:, 0] / 1e9
+        self.altitude.z = altitude_array[:, 1] - origin
 
     @staticmethod
     def vector_nwu_to_enu(vector):
@@ -226,18 +265,18 @@ class KAISTData:
         ov_R_leftvlp = np.matmul(ov_R_tv, tv_R_leftvlp)
         self.calibrations.VEHICLE_R_LEFTVLP = ov_R_leftvlp
 
-    def load_data(self, data_root=None, sequence=None, groundtruth=True, imu=True, gnss=True, altitude=True):
-        config = get_config_dict()['kaist_dataset']
+    def load_data(self, data_root=None, sequence=None, groundtruth=True, imu=True, gnss=True, altitude=True, vlpleft=True):
+        kaist_config = get_config_dict()['kaist_dataset']
 
         if data_root is None:
-            data_root = config['data_root']
+            data_root = kaist_config['data_root']
         if sequence is None:
-            sequence = config['sequence']
+            sequence = kaist_config['sequence']
 
-        groundtruth_file = '{}/{}/{}'.format(data_root, sequence, config['file_name_groundtruth'])
-        imu_file = '{}/{}/{}'.format(data_root, sequence, config['file_name_imu'])
-        gnss_file = '{}/{}/{}'.format(data_root, sequence, config['file_name_gnss'])
-        altimeter_file = '{}/{}/{}'.format(data_root, sequence, config['file_name_altimeter'])
+        groundtruth_file = '{}/{}/{}'.format(data_root, sequence, kaist_config['file_name_groundtruth'])
+        imu_file = '{}/{}/{}'.format(data_root, sequence, kaist_config['file_name_imu'])
+        gnss_file = '{}/{}/{}'.format(data_root, sequence, kaist_config['file_name_gnss'])
+        altimeter_file = '{}/{}/{}'.format(data_root, sequence, kaist_config['file_name_altimeter'])
 
         if groundtruth:
             gt_array = np.loadtxt(groundtruth_file, delimiter=',')
@@ -245,13 +284,29 @@ class KAISTData:
         if imu:
             imu_array = np.loadtxt(imu_file, delimiter=',')
             self.load_imu_from_numpy(imu_array)
+            self._IMU_FLAG = True
         if gnss:
             gnss_array = np.loadtxt(gnss_file, delimiter=',')
-            origin = np.array([config[sequence]['map_origin_gnss_coordinates']['lat'], config[sequence]['map_origin_gnss_coordinates']['lon']])
+            origin = np.array([kaist_config[sequence]['map_origin_gnss_coordinates']['lat'], kaist_config[sequence]['map_origin_gnss_coordinates']['lon']])
             self.load_gnss_from_numpy(gnss_array, origin)
+            self._GNSS_FLAG = True
         if altitude:
             altitude_array = np.loadtxt(altimeter_file, delimiter=',')
-            origin = config[sequence]['map_origin_gnss_coordinates']['alt']
+            origin = kaist_config[sequence]['map_origin_gnss_coordinates']['alt']
             self.load_altitude_from_numpy(altitude_array, origin)
+            self._ALTITUDE_FLAG = True
+        if vlpleft:
+            directory = '{}/{}/{}'.format(data_root, sequence, kaist_config['dir_left_lidar'])
+            self.vlpLeft.set_directory(directory)
+            self._VLP_LEFT_FLAG = True
+
+    class Player:
+        def __init__(self, data_objects):
+            self._no_of_data_objects = len(data_objects)
+            self._data_objects = data_objects
+            self._time_stamp_indices = [0] * self._no_of_data_objects
+            self._current_times = [-1] * self._no_of_data_objects
+            for i in range(self._no_of_data_objects):
+                self._current_times[i] = self._data_objects[i].time[0]
 
 
