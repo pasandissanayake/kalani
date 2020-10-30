@@ -124,6 +124,11 @@ class KAISTData:
         self._ALTITUDE_FLAG = False
         self._VLP_LEFT_FLAG = False
 
+        self.GNSS_CLASS_NAME = self.gnss.__class__.__name__
+        self.IMU_CLASS_NAME = self.imu.__class__.__name__
+        self.ALTITUDE_CLASS_NAME = self.altitude.__class__.__name__
+        self.VLP_LEFT_CLASS_NAME = self.vlpLeft.__class__.__name__
+
     def load_groundtruth_from_numpy(self, gt_array):
         if np.ndim(gt_array) != 2:
             log.log('Groundtruth array dimension mismatch.')
@@ -280,18 +285,22 @@ class KAISTData:
 
         if groundtruth:
             gt_array = np.loadtxt(groundtruth_file, delimiter=',')
+            gt_array = gt_array[np.argsort(gt_array[:,0])]
             self.load_groundtruth_from_numpy(gt_array)
         if imu:
             imu_array = np.loadtxt(imu_file, delimiter=',')
+            imu_array = imu_array[np.argsort(imu_array[:,0])]
             self.load_imu_from_numpy(imu_array)
             self._IMU_FLAG = True
         if gnss:
             gnss_array = np.loadtxt(gnss_file, delimiter=',')
+            gnss_array = gnss_array[np.argsort(gnss_array[:, 0])]
             origin = np.array([kaist_config[sequence]['map_origin_gnss_coordinates']['lat'], kaist_config[sequence]['map_origin_gnss_coordinates']['lon']])
             self.load_gnss_from_numpy(gnss_array, origin)
             self._GNSS_FLAG = True
         if altitude:
             altitude_array = np.loadtxt(altimeter_file, delimiter=',')
+            altitude_array = altitude_array[np.argsort(altitude_array[:, 0])]
             origin = kaist_config[sequence]['map_origin_gnss_coordinates']['alt']
             self.load_altitude_from_numpy(altitude_array, origin)
             self._ALTITUDE_FLAG = True
@@ -301,12 +310,46 @@ class KAISTData:
             self._VLP_LEFT_FLAG = True
 
     class Player:
-        def __init__(self, data_objects):
+        def __init__(self, data_objects, starttime=None):
             self._no_of_data_objects = len(data_objects)
             self._data_objects = data_objects
             self._time_stamp_indices = [0] * self._no_of_data_objects
-            self._current_times = [-1] * self._no_of_data_objects
+            self._time_stamps = [-1] * self._no_of_data_objects
+            self._data_object_flags = []
             for i in range(self._no_of_data_objects):
-                self._current_times[i] = self._data_objects[i].time[0]
+                if starttime is None:
+                    self._time_stamps[i] = self._data_objects[i].time[0]
+                else:
+                    self._time_stamp_indices[i] = np.argmax(self._data_objects[i].time >= starttime)
+                    self._time_stamps[i] = self._data_objects[i].time[self._time_stamp_indices[i]]
+                self._data_object_flags.append(self._data_objects[i].__class__.__name__)
 
+        def next(self):
+            if len(self._data_objects) < 1:
+                return None
+            i = np.argmin(self._time_stamps)
+            idx = self._time_stamp_indices[i]
+            retun_tup = (self._data_object_flags[i], idx, self._time_stamps[i])
+            if idx == len(self._data_objects[i].time) - 1:
+                self._data_objects.pop(i)
+                self._data_object_flags.pop(i)
+                self._time_stamp_indices.pop(i)
+                self._time_stamps.pop(i)
+            else:
+                prev_time_stamp = self._time_stamps[i]
+                while self._time_stamp_indices[i] < len(self._data_objects[i].time) and self._time_stamps[i] <= prev_time_stamp:
+                    self._time_stamp_indices[i] += 1
+                    self._time_stamps[i] = self._data_objects[i].time[self._time_stamp_indices[i]]
+            return retun_tup
 
+    def get_player(self, starttime=None):
+        data_objects = []
+        if self._GNSS_FLAG:
+            data_objects.append(self.gnss)
+        if self._IMU_FLAG:
+            data_objects.append(self.imu)
+        if self._ALTITUDE_FLAG:
+            data_objects.append(self.altitude)
+        if self._VLP_LEFT_FLAG:
+            data_objects.append(self.vlpLeft)
+        return self.Player(data_objects, starttime=starttime)

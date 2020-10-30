@@ -2,6 +2,7 @@ from __future__ import print_function
 import __builtin__
 import yaml
 import numpy as np
+import time
 from scipy.optimize import leastsq
 
 import tf.transformations as tft
@@ -17,6 +18,39 @@ class Log:
     def log(self, *args, **kwargs):
         __builtin__.print(self._prefix, end=' := ')
         return __builtin__.print(*args, **kwargs)
+
+
+class Stopwatch:
+    '''
+        class to measure timing
+    '''
+    def __init__(self):
+        self._start_time = -1
+        self._stopped = True
+        self._log = Log('Stopwatch')
+
+    def start(self):
+        if self._stopped:
+            self._start_time = time.time()
+            self._stopped = False
+        else:
+            self._log.log('Already running.')
+
+    def lap(self):
+        if self._stopped:
+            self._log.log('Stopwatch has stopped.')
+            return 0
+        else:
+            return time.time() - self._start_time
+
+    def stop(self):
+        if self._stopped:
+            self._log.log('Stopwatch has stopped.')
+            return_val = 0
+        else:
+            return_val = time.time() - self._start_time
+        del self
+        return return_val
 
 
 def get_config_dict():

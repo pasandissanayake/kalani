@@ -14,6 +14,7 @@ from kaist_datahandle import KAISTData
 import pcl
 from pcl import pcl_visualization
 import sensor_msgs.point_cloud2 as pc2
+from nav_msgs.msg import Odometry
 from sensor_msgs.msg import PointCloud2, PointField
 import thread
 
@@ -69,36 +70,56 @@ import thread
 # data = data.astype(np.float32)
 # print '# '
 
-def publish_pointclouds():
-    i = 0
-    while i < len(kd.vlpLeft.time):
-        scan_time = kd.vlpLeft.time[i]
-        pc_msg = PointCloud2()
-        pc_msg.header.stamp = rospy.Time.from_sec(scan_time)
-        pc_msg.header.frame_id = '/aft_mapped'
-        pc_msg = kd.vlpLeft.get_point_cloud2(pc_msg.header)
-        pub.publish(pc_msg)
-        print '{} published'.format(scan_time)
-        time.sleep(0.5)
-        i += 1
+current_time = -1
+
+def timer():
+    print 'timer started.'
+    prev_time = time.time()
+    while True:
+        duration = time.time() - prev_time
+        if duration > 0.0001:
+            global current_time
+            current_time += duration
+            prev_time += duration
+        time.sleep(0.00001)
+
+def publish_data():
+    print 'publisher started.'
+    next = pl.next()
+    global current_time
+    current_time = next[2]
+    thread.start_new_thread(timer, ())
+    while next is not None:
+        if current_time > next[2]:
+            name = next[0]
+            if name == kd.GNSS_CLASS_NAME:
+                msg = Odometry()
+                msg.header.stamp = rospy.Time.from_sec(next[2])
+                msg.header.frame_id = '/gnss'
+                msg.pose.pose.position.x = kd.gnss.x[next[1]]
+                msg.pose.pose.position.y = kd.gnss.y[next[1]]
+                pub_gnss.publish(msg)
+            next = pl.next()
 
 if __name__ == '__main__':
     rospy.init_node('applebee', anonymous=True)
-    print 'Node initialized.'
+    print 'node initialized.'
 
     pub = rospy.Publisher('/raw_data/velodyne_points', PointCloud2, queue_size=1)
+    pub_gnss = rospy.Publisher('/gnss', Odometry, queue_size=1)
 
-    start = time.time()
+    loading_start = time.time()
     kd = KAISTData()
-    kd.load_data()
-    print 'time elapsed: {} s'.format(time.time() - start)
-
+    kd.load_data(groundtruth=False)
+    print 'time elapsed: {} s'.format(time.time() - loading_start)
+    pl = kd.get_player()
     try:
-        thread.start_new_thread(publish_pointclouds,())
+        thread.start_new_thread(publish_data, ())
     except Exception as e:
         print 'thread error: {}'.format(e.message)
 
     rospy.spin()
+
     # p1 = pcl.PointCloud_PointXYZI(p1)
     # v = pcl_visualization.CloudViewing()
     # v.ShowGrayCloud(p1)
