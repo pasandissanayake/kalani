@@ -28,13 +28,13 @@ import numdifftools as nd
 
 nclt_gnss_var = [25.0, 25.0, 100]
 nclt_loam_var = 0.001 * np.ones(3)
-nclt_mag_orientation_var = 0.001 * np.ones(3)
+nclt_mag_orientation_var = 0.1 * np.ones(3)
 
 aw_var = 0.0001
 ww_var = 0.0001
 
 am_var = 0.01
-wm_var = 0.01
+wm_var = 0.001
 
 g = np.array([0, 0, -9.8])
 
@@ -319,10 +319,10 @@ def laser_dt_callback(data):
             jh = nd.Jacobian(h)
             return jh(state)
 
-        V = np.diag(np.ones(3) * 0.02)
+        V = np.diag(np.ones(3) * 0.1)
 
         print 'ld_prev_time:', laser_dt_prev_time, 'ld_new_time:', time
-        # kf.correct_relative(meas_func, hx_func, V, laser_dt_prev_time, time, measurementname='laser_dt')
+        kf.correct_relative(meas_func, hx_func, V, laser_dt_prev_time, time, measurementname='laser_dt')
         laser_dt_prev_time = time
 
 

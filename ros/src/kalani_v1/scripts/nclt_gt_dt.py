@@ -15,6 +15,7 @@ from sensor_msgs.msg import NavSatFix, Imu
 
 ds = NCLTData(Constants.NCLT_DATASET_DIRECTORY)
 gt = ds.groundtruth
+od = ds.odom
 prev_index = 0
 
 # idx = np.argmin(np.abs(gt.time - gt.time[prev_index] - 1))
@@ -30,16 +31,23 @@ def the_callback(data):
     print 'received gnss'
 
     time = data.header.stamp.to_sec()
-    new_index = np.argmin(np.abs(gt.time - time))
+    # new_index = np.argmin(np.abs(gt.time - time))
+    new_index = np.argmin(np.abs(od.time - time))
 
     n = np.random.multivariate_normal(np.zeros(3), np.eye(3) * 0.01)
 
     msg = Odometry()
-    msg.header.stamp = rospy.Time.from_sec(gt.time[new_index])
     msg.header.frame_id = 'world'
-    msg.pose.pose.position.x = gt.x[new_index] - gt.x[prev_index] + n[0]
-    msg.pose.pose.position.y = gt.y[new_index] - gt.y[prev_index] + n[1]
-    msg.pose.pose.position.z = gt.z[new_index] - gt.z[prev_index] + n[2]
+
+    # msg.header.stamp = rospy.Time.from_sec(gt.time[new_index])
+    # msg.pose.pose.position.x = gt.x[new_index] - gt.x[prev_index] + n[0]
+    # msg.pose.pose.position.y = gt.y[new_index] - gt.y[prev_index] + n[1]
+    # msg.pose.pose.position.z = gt.z[new_index] - gt.z[prev_index] + n[2]
+
+    msg.header.stamp = rospy.Time.from_sec(od.time[new_index])
+    msg.pose.pose.position.x = od.x[new_index] - od.x[prev_index] # + n[0]
+    msg.pose.pose.position.y = od.y[new_index] - od.y[prev_index] # + n[1]
+    msg.pose.pose.position.z = od.z[new_index] - od.z[prev_index] # + n[2]
 
     dp_pub.publish(msg)
 

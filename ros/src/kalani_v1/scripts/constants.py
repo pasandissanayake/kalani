@@ -36,6 +36,7 @@ class Constants:
     NCLT_RTK_GNSS_DATA_FILE_NAME = 'gps_rtk.csv'
     NCLT_AHRS_DATA_FILE_NAME = 'ms25.csv'
     NCLT_GROUNDTRUTH_DATA_FILE_NAME = 'groundtruth.csv'
+    NCLT_ODOMETER_DATA_FILE_NAME = 'odometry_mu_100hz.csv'
     NCLT_SENSOR_DATA_ROSBAG_FILE_NAME = 'sensor_data.bag'
 
     NCLT_GNSS_DATA_PATH = NCLT_DATASET_DIRECTORY + '/' + NCLT_GNSS_DATA_FILE_NAME

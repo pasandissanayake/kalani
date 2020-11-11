@@ -4,7 +4,7 @@
 \usepackage{xcolor}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
-\graphicspath{{./images}}
+\graphicspath{{./images/}}
 
 \title{Precise vehicle localization using fusion of multiple sensors for self-driving}
 \date{April 2020}
@@ -75,7 +75,6 @@ Then some operations on \textbf{q} can be defined as given in Figure \ref{fig-qu
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
 \section{ENU frame as the inertial frame, state vector excluding \textbf{g} and \textbf{n}}
 
 In this approach we use,
@@ -185,7 +184,6 @@ The quaternion components are approximated by fitting a least-square-error line 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
 \section{Initial body frame as inertial frame, full state vector}
 
 In this approach we use,
@@ -212,6 +210,24 @@ State vectors are initialized in the following manner.
     \boldsymbol{a_b},\boldsymbol{\omega_b}&=\text{from data given by the manufacturer/ previous estimate, if available}
 \end{align}{}
 Here, $\boldsymbol{y}$ is the GNSS reading at the starting point and $\boldsymbol{y_0}$ is the GNSS coordinate of the origin of $\mathcal{F}_{inert}$. Note that $C_{inert,gnss}$ (and therefore $C_{gnss,inert}$) depends on \textbf{g} and \textbf{n}.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{GNSS measurement auto-regressive model}
+As the GNSS measurement error (with respect to the ground truth) shows non-zero higher order correlations, it is modeled as a first order auto-regressive process [Zui Tao. Autonomous road vehicles localization using satellites, lane markings and vision, 2016]. Let the GNSS measurement, ground truth and the gnss error at time $k$ be $x_k,\hat{x}_k \text{ and }e_k$ respectively. Then,
+\begin{align}
+    e_{k+1} &= a_1e_k + \omega_{k+1} \\
+    (x_{k+1}-\hat{x}_{k+1}) &= a_1(x_k-\hat{x}_k) + \omega_{k+1} \\
+    \hat{x}_{k+1} &= x_{k+1} - a_1(x_k-\hat{x}_k)-\omega_{k+1}
+\end{align}
+Here, $\omega_{k}$ is a gaussian white noise term with variance equal to that of the receiver. Although, in the above mentioned paper, they are using a separate states for estimating the GNSS error terms, we intend to simply calculate the parameters ($a_1$) using statistical methods and use the above result to generate a corrected version (with zero correlation) of the measurement. 
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{KAIST Urban dataset}
 
 
 
