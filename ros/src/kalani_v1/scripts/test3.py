@@ -5,6 +5,7 @@ from scipy.interpolate import interp1d
 from datasetutils.nclt_data_conversions import *
 from matplotlib import pyplot as plt
 from constants import Constants
+import tf.transformations as tft
 from kaist_datahandle import *
 
 class Foo:
@@ -20,26 +21,26 @@ foo = Foo(states)
 foo.a = np.array((2,1,3))
 print foo.a, foo.b
 
-nds = NCLTData(Constants.NCLT_DATASET_DIRECTORY)
-a = np.array([nds.groundtruth.x, nds.groundtruth.y]).T
-ngt = interp1d(nds.groundtruth.time, a, axis=0, bounds_error=False, fill_value='extrapolate', kind='linear')
-
-ner = np.array([ngt(nds.converted_gnss.time)[:,0] - nds.converted_gnss.x, ngt(nds.converted_gnss.time)[:,1] - nds.converted_gnss.y]).T
-
-
-kds = KAISTData()
-kds.load_data(groundtruth=True, imu=False, gnss=True, altitude=False, vlpleft=False)
-
-ker = np.array([kds.groundtruth.interp_x(kds.gnss.time)-kds.gnss.x, kds.groundtruth.interp_y(kds.gnss.time)-kds.gnss.y]).T
+# nds = NCLTData(Constants.NCLT_DATASET_DIRECTORY)
+# a = np.array([nds.groundtruth.x, nds.groundtruth.y]).T
+# ngt = interp1d(nds.groundtruth.time, a, axis=0, bounds_error=False, fill_value='extrapolate', kind='linear')
+#
+# ner = np.array([ngt(nds.converted_gnss.time)[:,0] - nds.converted_gnss.x, ngt(nds.converted_gnss.time)[:,1] - nds.converted_gnss.y]).T
+#
+#
+# kds = KAISTData()
+# kds.load_data(groundtruth=True, imu=False, gnss=True, altitude=False, vlpleft=False)
+#
+# ker = np.array([kds.groundtruth.interp_x(kds.gnss.time)-kds.gnss.x, kds.groundtruth.interp_y(kds.gnss.time)-kds.gnss.y]).T
 
 
 # GNSS error first difference plots
 
-fig, (ax1, ax2) = plt.subplots(2,1)
-
-ax1.plot(nds.converted_gnss.time[:-1]-nds.converted_gnss.time[0], np.diff(ner[:, 0]))
-ax1.legend()
-ax1.grid()
+# fig, (ax1, ax2) = plt.subplots(2,1)
+#
+# ax1.plot(nds.converted_gnss.time[:-1]-nds.converted_gnss.time[0], np.diff(ner[:, 0]))
+# ax1.legend()
+# ax1.grid()
 
 
 
@@ -59,4 +60,34 @@ ax1.grid()
 # ax2.legend()
 # ax2.grid()
 
-plt.show()
+# plt.show()
+
+d = np.zeros((4, 4))
+a = 0
+e = np.array([
+    [1, 1, 1],
+    [1, 1, 1],
+    [1, 1, 1],
+    [1, 1, 1]
+])
+w = np.array([1, 1, 2, 2])
+w = w / np.linalg.norm(w)
+print "w: ", w
+for i in range(len(w)):
+    a = a + w[i] * e[i, :]
+
+    q = tft.quaternion_from_euler(e[i,0], e[i,1], e[i,2], axes='sxyz')
+    d = d + w[i] * (4 * np.outer(q, q) - np.eye(4))
+
+vals, vecs = np.linalg.eig(d)
+index = np.argmax((vals))
+q = vecs[:, index]
+
+print "direct euler: ", a
+print "indire euler: ", tft.euler_from_quaternion(q, axes='sxyz')
+
+for i in range(4):
+    vec = vecs[:,i]
+    print "val: ", vals[i]
+    print "vec: ", vec, "norm: ", np.linalg.norm(vec)
+    print "eul: ", tft.euler_from_quaternion(vec), "\n"

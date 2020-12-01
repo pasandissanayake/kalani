@@ -1,9 +1,9 @@
 # Fdb version 3
-["pdflatex"] 1604671042 "/home/pasan/kalani/tex/derivations/derivations.tex" "/home/pasan/kalani/tex/derivations/derivations.pdf" "derivations" 1604671043
+["pdflatex"] 1606015125 "/home/pasan/kalani/tex/derivations/derivations.tex" "/home/pasan/kalani/tex/derivations/derivations.pdf" "derivations" 1606015126
   "./images/coordinate-frames.JPG" 1602818954 17664 a2634c1fb6439af3c2084065dac69f5a ""
   "./images/quaternion-operations.png" 1602818954 88706 3d7e9f4f5d35d6b3cca014f6b0e68188 ""
-  "/home/pasan/kalani/tex/derivations/derivations.aux" 1604671043 1649 9d0bb4142555c9cb1379f9eadcac85ac ""
-  "/home/pasan/kalani/tex/derivations/derivations.tex" 1604671040 12771 f06a81583d7dcc48a4532b0cd27da820 ""
+  "/home/pasan/kalani/tex/derivations/derivations.aux" 1606015126 1855 195fb8b4dd14057b817fe0d3e4e90bb1 ""
+  "/home/pasan/kalani/tex/derivations/derivations.tex" 1606015124 13418 526c9b74841e902f2b6d95a0e4e6d82a ""
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1246382020 1120 1e8878807317373affa7f7bba4cf2f6a ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy7.tfm" 1246382020 1120 7f9f170e8aa57527ad6c49feafd45d54 ""
@@ -82,13 +82,13 @@
   "/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1602836817 4811913 0be9a7e86c70a26e5e3042966bcd7097 ""
   "/usr/local/texlive/2020/texmf-var/web2c/pdftex/pdflatex.fmt" 1602836847 2432484 1fa5f6d110a13268750034491870bebc ""
   "/usr/local/texlive/2020/texmf.cnf" 1602836804 455 5b996dcaa0eb4ef14a83b026bc0a008c ""
-  "derivations.aux" 1604671043 1649 9d0bb4142555c9cb1379f9eadcac85ac "pdflatex"
-  "derivations.tex" 1604671040 12771 f06a81583d7dcc48a4532b0cd27da820 ""
+  "derivations.aux" 1606015126 1855 195fb8b4dd14057b817fe0d3e4e90bb1 "pdflatex"
+  "derivations.tex" 1606015124 13418 526c9b74841e902f2b6d95a0e4e6d82a ""
   "images/coordinate-frames.JPG" 1602818954 17664 a2634c1fb6439af3c2084065dac69f5a ""
   "images/quaternion-operations.png" 1602818954 88706 3d7e9f4f5d35d6b3cca014f6b0e68188 ""
   (generated)
-  "derivations.pdf"
   "derivations.aux"
-  "/home/pasan/kalani/tex/derivations/derivations.pdf"
+  "derivations.pdf"
   "derivations.log"
   "/home/pasan/kalani/tex/derivations/derivations.log"
+  "/home/pasan/kalani/tex/derivations/derivations.pdf"

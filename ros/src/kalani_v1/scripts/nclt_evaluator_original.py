@@ -17,10 +17,6 @@ from datasetutils.nclt_data_conversions import NCLTData
 
 gt = []
 gt_function = []
-
-gnss_euclidian_error = []
-estimate_euclidean_error = []
-
 pos_cal = np.zeros((3, 3))
 ori_cal = np.zeros((3, 3))
 t = np.zeros(1)
@@ -32,21 +28,6 @@ estimate_path = Path()
 def log(message):
     rospy.loginfo(Constants.EVALUATOR_NODE_NAME + ' := ' + str(message))
 
-
-def print_rms_euclidean_error():
-    if len(estimate_euclidean_error)>0:
-        e_error = np.array(estimate_euclidean_error)
-        e_error_rms = np.sqrt(np.average(e_error))
-    else:
-        e_error_rms = 'None'
-
-    if len(gnss_euclidian_error)>0:
-        g_error = np.array(gnss_euclidian_error)
-        g_error_rms = np.sqrt(np.average(g_error))
-    else:
-        g_error_rms = 'None'
-
-    print 'RMS Errors: Estimate - {} m, GNSS - {} m'.format(e_error_rms, g_error_rms)
 
 def publish_covariance(data, publisher, frameid, threesigma):
     marker = Marker()
@@ -103,8 +84,8 @@ def publish_error(pub, e_pub):
 
     msg = Error()
     msg.header.stamp = rospy.Time.from_sec(t[0])
-    msg.position.x = np.sqrt(np.sum(pos_cal[0:3, 0]**2))
-    msg.position.y = np.sqrt(np.sum(pos_cal[0:3, 1]**2))
+    msg.position.x = np.sqrt(np.sum(pos_cal[0:2, 0]**2))
+    msg.position.y = np.sqrt(np.sum(pos_cal[0:2, 1]**2))
     e_pub.publish(msg)
 
 
@@ -169,14 +150,10 @@ def state_callback(data):
         ori_cal[i, 1] = 3 * p_cov_euler_std[:, i]
         ori_cal[i, 2] = -3 * p_cov_euler_std[:, i]
 
-    estimate_euclidean_error.append(np.sum(pos_cal[0:3,0] ** 2))
-
     publish_error(error_pub, eucledian_error_pub)
     publish_gt(gt_pub, state[0],gt_interpol[0:3], gt_interpol[3:6])
     publish_path(estimate_path, data, et_path_pub, Constants.WORLD_FRAME)
     publish_covariance(data, cov_ellipse_pub, Constants.WORLD_FRAME, pos_cal[:,1])
-
-    print_rms_euclidean_error()
 
 
 def gnss_callback(data):
@@ -185,8 +162,6 @@ def gnss_callback(data):
     gt_interpol = gt_function(time)
     error = (gt_interpol[0:3] - fix)
 
-    gnss_euclidian_error.append(np.sum(error[0:3]**2))
-
     msg = Error()
     msg.header.stamp = rospy.Time.from_sec(time)
     msg.position.x, msg.position.y, msg.position.z = error.tolist()
@@ -194,7 +169,7 @@ def gnss_callback(data):
 
     msg = Error()
     msg.header.stamp = rospy.Time.from_sec(time)
-    msg.position.x = np.sqrt(np.sum(error[0:3]**2))
+    msg.position.x = np.sqrt(np.sum(error[0:2]**2))
     gnss_euc_error_pub.publish(msg)
 
 

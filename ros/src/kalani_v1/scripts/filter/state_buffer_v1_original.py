@@ -23,9 +23,8 @@ class StateObject:
         self.orientation =  ValueTimePair(np.array([1,0,0,0]), -1)
         self.accel_bias =  ValueTimePair(np.zeros(3), -1)
         self.angular_bias =  ValueTimePair(np.zeros(3), -1)
-        self.gnss_bias = ValueTimePair(np.zeros(2), -1)
 
-        self.covariance = np.zeros((17,17))
+        self.covariance = np.zeros((15,15))
 
         self.accel_input = np.zeros(3)
         self.accel_var = 0
@@ -38,11 +37,11 @@ class StateObject:
     def values_to_numpy(self):
         return np.concatenate(
             [self.position.value, self.velocity.value, self.orientation.value, self.accel_bias.value,
-             self.angular_bias.value, self.gnss_bias.value, [self.state_time, float(self.initialized)]])
+             self.angular_bias.value, [self.state_time, float(self.initialized)]])
 
     def times_to_numpy(self):
         return np.array([self.position.time, self.velocity.time, self.orientation.time,
-                      self.accel_bias.time, self.angular_bias.time, self.gnss_bias.time])
+                      self.accel_bias.time, self.angular_bias.time])
 
 
 class StateBuffer:

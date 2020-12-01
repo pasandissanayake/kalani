@@ -4,7 +4,8 @@ import tf.transformations as tft
 import numpy as np
 import threading
 from rotations_v1 import skew_symmetric, Quaternion
-from state_buffer_v1 import StateBuffer, StateObject
+from state_buffer_v1_original import StateBuffer, StateObject
+# from state_buffer_v1 import StateBuffer, StateObject
 from copy import deepcopy
 
 
@@ -24,11 +25,11 @@ class Kalman_Filter_V1():
         self._g = g
 
         # Prediction matrices
-        self.Fi = np.zeros([17, 12])
+        self.Fi = np.zeros([15, 12])
         self.Fi[3:15, :] = np.eye(12)
 
 
-    def initialize_state(self, p=None, cov_p=None, v=None, cov_v=None, q=None, cov_q=None, ab=None, cov_ab=None, wb=None, cov_wb=None, gb=None, cov_gb=None, g=None, time=-1):
+    def initialize_state(self, p=None, cov_p=None, v=None, cov_v=None, q=None, cov_q=None, ab=None, cov_ab=None, wb=None, cov_wb=None, g=None, time=-1):
         with self._lock:
             if self._state_buffer.get_buffer_length() < 1: self._state_buffer.add_state()
 
@@ -73,16 +74,7 @@ class Kalman_Filter_V1():
                 if cov_wb is not None:
                     st.angular_bias.value = np.array(wb)
                     st.angular_bias.time = time
-                    st.covariance[12:15, 12:15] = np.diag(cov_wb)
-                    self._state_buffer.update_state(st, -1)
-                else:
-                    print('angular velocity bias covariances are not provided')
-
-            if gb is not None:
-                if cov_gb is not None:
-                    st.gnss_bias.value = np.array(gb)
-                    st.gnss_bias.time = time
-                    st.covariance[15:17, 15:17] = np.diag(cov_gb)
+                    st.covariance[0:3, 0:3] = np.diag(cov_wb)
                     self._state_buffer.update_state(st, -1)
                 else:
                     print('angular velocity bias covariances are not provided')
@@ -119,7 +111,6 @@ class Kalman_Filter_V1():
                 q = st.orientation.value
                 ab = st.accel_bias.value
                 wb = st.angular_bias.value
-                gb = st.gnss_bias.value
 
                 P = st.covariance
 
@@ -132,7 +123,7 @@ class Kalman_Filter_V1():
                 # print 'euler (rpy):', Quaternion(q[0],q[1],q[2],q[3]).to_euler()
                 # print 'tf euler (rpy):', tft.euler_from_quaternion(tf_q,axes='sxyz')
 
-                Fx = np.eye(17)
+                Fx = np.eye(15)
                 Fx[0:3, 3:6] = dt * np.eye(3)
                 Fx[3:6, 6:9] = - skew_symmetric(R_inert_body.dot(am - ab)) * dt
                 Fx[3:6, 9:12] = -dt * R_inert_body
@@ -151,7 +142,6 @@ class Kalman_Filter_V1():
                 q = Quaternion(q[0],q[1],q[2],q[3]).quat_mult_left(Quaternion(axis_angle=dt * (wm - wb)),out='Quaternion').normalize().to_numpy()
                 ab = ab
                 wb = wb
-                gb = gb
 
                 # print 'am:', am
                 # print 'converted am:', R_inert_body.dot(am)
@@ -172,8 +162,6 @@ class Kalman_Filter_V1():
                 st.accel_bias.time = time
                 st.angular_bias.value = wb
                 st.angular_bias.time = time
-                st.gnss_bias.value = gb
-                st.gnss_bias.time = time
                 st.covariance = P
                 st.accel_input = am
                 st.accel_var = var_am
@@ -209,7 +197,6 @@ class Kalman_Filter_V1():
             q = st.orientation.value
             ab = st.accel_bias.value
             wb = st.angular_bias.value
-            gb = st.gnss_bias.value
 
             P = st.covariance
 
@@ -222,16 +209,16 @@ class Kalman_Filter_V1():
                 [ q[2], -q[1],  q[0]]
             ])
 
-            X_dtheta = np.zeros([18,17])
+            X_dtheta = np.zeros([16,15])
             X_dtheta[0:6,0:6] = np.eye(6)
             X_dtheta[6:10,6:9] = Q_dtheta
-            X_dtheta[10:18,9:17] = np.eye(8)
+            X_dtheta[10:16,9:15] = np.eye(6)
 
             state_as_numpy = st.values_to_numpy()[0:-2]
             Hx = hx_func(state_as_numpy)
             H = np.matmul(Hx,X_dtheta)
             K = np.matmul(np.matmul(P, H.T), np.linalg.inv(np.matmul(np.matmul(H, P), H.T) + V))
-            P = np.matmul(np.eye(17) - np.matmul(K, H), P)
+            P = np.matmul(np.eye(15) - np.matmul(K, H), P)
             P = 0.5 * (P + P.T)
             dx = K.dot(meas_func(state_as_numpy))
 
@@ -240,7 +227,6 @@ class Kalman_Filter_V1():
             q = Quaternion(axis_angle=dx[6:9]).quat_mult_left(q,out='Quaternion').normalize().to_numpy()
             ab = ab + dx[9:12]
             wb = wb + dx[12:15]
-            gb = gb + dx[15:17]
 
             time = st.state_time
             st.position.value = p
@@ -253,8 +239,6 @@ class Kalman_Filter_V1():
             st.accel_bias.time = time
             st.angular_bias.value = wb
             st.angular_bias.time = time
-            st.gnss_bias.value = gb
-            st.gnss_bias.time = time
             st.covariance = P
             st.state_time = time
             st.initialized = True
@@ -285,12 +269,13 @@ class Kalman_Filter_V1():
             st0 = self._state_buffer.get_state(index0)
             st1 = self._state_buffer.get_state(index1)
 
+            print 'time0:', st0.state_time, 'time1', st1.state_time
+
             p0 = st0.position.value
             v0 = st0.velocity.value
             q0 = st0.orientation.value
             ab0 = st0.accel_bias.value
             wb0 = st0.angular_bias.value
-            gb0 = st0.gnss_bias.value
             P0 = st0.covariance
 
             p1 = st1.position.value
@@ -298,10 +283,9 @@ class Kalman_Filter_V1():
             q1 = st1.orientation.value
             ab1 = st1.accel_bias.value
             wb1 = st1.angular_bias.value
-            gb1 = st1.gnss_bias.value
             P1 = st1.covariance
 
-            Fx_prod = np.eye(17)
+            Fx_prod = np.eye(15)
             for i in range(index0+1, index1+1):
                 st = self._state_buffer.get_state(i)
 
@@ -310,14 +294,13 @@ class Kalman_Filter_V1():
                 q = st.orientation.value
                 ab = st.accel_bias.value
                 wb = st.angular_bias.value
-                gb = st.gnss_bias.value
                 am = st.accel_input
                 dt = st.state_time - self._state_buffer.get_state(i-1).state_time
 
                 tf_q = np.concatenate([q[1:4], [q[0]]])
                 R_inert_body = tft.quaternion_matrix(tf_q)[0:3, 0:3]
 
-                Fx = np.eye(17)
+                Fx = np.eye(15)
                 Fx[0:3, 3:6] = dt * np.eye(3)
                 Fx[3:6, 6:9] = - skew_symmetric(R_inert_body.dot(am - ab)) * dt
                 Fx[3:6, 9:12] = -dt * R_inert_body
@@ -326,11 +309,11 @@ class Kalman_Filter_V1():
                 # Fx_prod should be Fx_(k+m) Fx_(k+m-1) .... Fx_(k+2) Fx_(k+1)
                 Fx_prod = np.matmul(Fx_prod, Fx)
 
-            P = np.zeros((34, 34))
-            P[0:17, 0:17] = P0
-            P[17:34, 17:34] = P1
-            P[0:17, 17:34] = np.matmul(P0, Fx_prod.T)
-            P[17:34, 0:17] = np.matmul(Fx_prod, P0)
+            P = np.zeros((30, 30))
+            P[0:15, 0:15] = P0
+            P[15:30, 15:30] = P1
+            P[0:15, 15:30] = np.matmul(P0, Fx_prod.T)
+            P[15:30, 0:15] = np.matmul(Fx_prod, P0)
 
             Q_dtheta0 = 0.5 * np.array([
                 [-q0[1], -q0[2], -q0[3]],
@@ -339,10 +322,10 @@ class Kalman_Filter_V1():
                 [ q0[2], -q0[1],  q0[0]]
             ])
 
-            X_dtheta0 = np.zeros([18,17])
+            X_dtheta0 = np.zeros([16,15])
             X_dtheta0[0:6,0:6] = np.eye(6)
             X_dtheta0[6:10,6:9] = Q_dtheta0
-            X_dtheta0[10:18,9:17] = np.eye(8)
+            X_dtheta0[10:16,9:15] = np.eye(6)
 
             Q_dtheta1 = 0.5 * np.array([
                 [-q1[1], -q1[2], -q1[3]],
@@ -351,14 +334,14 @@ class Kalman_Filter_V1():
                 [ q1[2], -q1[1],  q1[0]]
             ])
 
-            X_dtheta1 = np.zeros([18, 17])
+            X_dtheta1 = np.zeros([16, 15])
             X_dtheta1[0:6, 0:6] = np.eye(6)
             X_dtheta1[6:10, 6:9] = Q_dtheta1
-            X_dtheta1[10:18, 9:17] = np.eye(8)
+            X_dtheta1[10:16, 9:15] = np.eye(6)
 
-            X_dtheta = np.zeros((36, 34))
-            X_dtheta[0:18, 0:17] = X_dtheta0
-            X_dtheta[18:36, 17:34] = X_dtheta1
+            X_dtheta = np.zeros((32, 30))
+            X_dtheta[0:16, 0:15] = X_dtheta0
+            X_dtheta[16:32, 15:30] = X_dtheta1
 
             state_as_numpy = np.concatenate([st0.values_to_numpy()[0:-2], st1.values_to_numpy()[0:-2]])
             old_state = deepcopy(state_as_numpy)
@@ -369,20 +352,27 @@ class Kalman_Filter_V1():
             # print S
 
             K = np.matmul(np.matmul(P, H.T), np.linalg.inv(S))
-            K1 = K[17:34, :]
+            K1 = K[15:30, :]
             P1 = P1 - np.matmul(np.matmul(K1, S), K1.T)
             error = meas_func(state_as_numpy)
             dx = K1.dot(error)
 
             dx_big = K.dot(error)
-            dx = (dx_big[17:] - dx_big[:17])
+            dx = (dx_big[15:] - dx_big[:15])
+            print 'dx0:'
+            print dx_big[:15]
+            print 'dx1:'
+            print dx_big[15:]
+            print 'dxd:'
+            print dx_big[15:] - dx_big[:15]
+            print 'dx:'
+            print dx
 
             p1 = p1 + dx[0:3]
             v1 = v1 + dx[3:6]
             q1 = Quaternion(axis_angle=dx[6:9]).quat_mult_left(q1,out='Quaternion').normalize().to_numpy()
             ab1 = ab1 + dx[9:12]
             wb1 = wb1 + dx[12:15]
-            gb1 = gb1 + dx[15:17]
 
             time1 = st1.state_time
             st1.position.value = p1
@@ -395,17 +385,19 @@ class Kalman_Filter_V1():
             st1.accel_bias.time = time1
             st1.angular_bias.value = wb1
             st1.angular_bias.time = time1
-            st1.gnss_bias.value = gb1
-            st1.gnss_bias.time = time1
             st1.covariance = P1
             st1.state_time = time1
             st1.initialized = True
             self._state_buffer.update_state(st1, index1)
 
+            print 'after correction:'
             st0 = self._state_buffer.get_state(index0)
             st1 = self._state_buffer.get_state(index1)
             state_as_numpy = np.concatenate([st0.values_to_numpy()[0:-2], st1.values_to_numpy()[0:-2]])
             meas_func(state_as_numpy)
+            print 'old position:', old_state[16:19]
+            print 'new position:', state_as_numpy[16:19]
+            print '--------------------------------------------\n'
 
             if index1+1 < buffer_length:
                 for i in range(index1+1, buffer_length):
@@ -423,7 +415,6 @@ class Kalman_Filter_V1():
             q_prev = st_prev.orientation.value
             ab_prev = st_prev.accel_bias.value
             wb_prev = st_prev.angular_bias.value
-            gb_prev = st_prev.gnss_bias.value
 
             am = st_prev.accel_input
             wm = st_prev.angular_input
@@ -436,7 +427,7 @@ class Kalman_Filter_V1():
             tf_q = np.concatenate([q_prev[1:4], [q_prev[0]]])
             R_inert_body = tft.quaternion_matrix(tf_q)[0:3, 0:3]
 
-            Fx = np.eye(17)
+            Fx = np.eye(15)
             Fx[0:3, 3:6] = dt * np.eye(3)
             Fx[3:6, 6:9] = - skew_symmetric(R_inert_body.dot(am - ab_prev)) * dt
             Fx[3:6, 9:12] = -dt * R_inert_body
@@ -459,14 +450,12 @@ class Kalman_Filter_V1():
             q_prev = Quaternion(axis_angle=dx[6:9]).quat_mult_left(q_prev, out='Quaternion').normalize().to_numpy()
             ab_prev = ab_prev + dx[9:12]
             wb_prev = wb_prev + dx[12:15]
-            gb_prev = gb_prev + dx[15:17]
 
             st_prev.position.value = p_prev
             st_prev.velocity.value = v_prev
             st_prev.orientation.value = q_prev
             st_prev.accel_bias.value = ab_prev
             st_prev.angular_bias.value = wb_prev
-            st_prev.gnss_bias.value = gb_prev
             st_prev.covariance = P_prev
             self._state_buffer.update_state(st_prev, i-1)
 
@@ -483,5 +472,5 @@ class Kalman_Filter_V1():
 
     def get_covariance_as_numpy(self):
         with self._lock:
-            P = self._state_buffer.get_state(-1).covariance[0:15,0:15]
+            P = self._state_buffer.get_state(-1).covariance
             return P.flatten()

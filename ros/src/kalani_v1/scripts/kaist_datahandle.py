@@ -172,10 +172,10 @@ class KAISTData:
         lat = gnss_array[:, 1]
         lon = gnss_array[:, 2]
 
-        # convert lattitudes and longitudes (in degrees) to ENU frame coordinates
+        # convert latitudes and longitudes (in degrees) to ENU frame coordinates of the vehicle origin
         position = get_position_from_gnss_fix(np.array([lat, lon]).T, origin, fixunit='deg', originunit='deg')
-        self.gnss.x = position[:, 0]
-        self.gnss.y = position[:, 1]
+        self.gnss.x = position[:, 0] - self.calibrations.VEHICLE_R_GNSS[0, 3]
+        self.gnss.y = position[:, 1] - self.calibrations.VEHICLE_R_GNSS[1, 3]
 
         self.gnss.covariance = np.array([gnss_array[:, 4], gnss_array[:, 5], gnss_array[:, 7], gnss_array[:, 8]]).T
 
@@ -187,27 +187,33 @@ class KAISTData:
         # imu timestamp correction (ns to s)
         self.imu.time = imu_array[:, 0] / 1e9
 
-        # imu frame:
+        # dataset's imu frame:
         # x--> towards front of the vehicle
         # y--> towards left side of vehicle(when looking from behind)
         # z--> towards roof of the vehicle
-        # However, no conversions are done here, as they will be carried on during the corrections using the sensor
-        # calibration matrix
+        # our imu frame:
+        # x--> towards right side of vehicle(when looking from behind)
+        # y--> towards front of the vehicle
+        # z--> towards roof of the vehicle
+        # Hence,
+        # our x = their -y
+        # our y = their  x
+        # our z = their  z
 
         # imu angular rates (originally in rad s-1, so nothing to convert)
-        self.imu.angular_rate.x = imu_array[:, 8]
-        self.imu.angular_rate.y = imu_array[:, 9]
+        self.imu.angular_rate.x = -imu_array[:, 9]
+        self.imu.angular_rate.y =  imu_array[:, 8]
         self.imu.angular_rate.z = imu_array[:, 10]
 
         # imu accelerations (originally in ms-2, so nothing to convert)
-        self.imu.acceleration.x = imu_array[:, 11]
-        self.imu.acceleration.y = imu_array[:, 12]
-        self.imu.acceleration.z = imu_array[:, 13]
+        self.imu.acceleration.x = -imu_array[:, 12]
+        self.imu.acceleration.y =  imu_array[:, 11]
+        self.imu.acceleration.z =  imu_array[:, 13]
 
         # imu magnetic field (original units: gauss, converted to Tesla)
-        self.imu.magnetic_field.x = imu_array[:, 14] * 1e-4
-        self.imu.magnetic_field.y = imu_array[:, 15] * 1e-4
-        self.imu.magnetic_field.z = imu_array[:, 16] * 1e-4
+        self.imu.magnetic_field.x = -imu_array[:, 15] * 1e-4
+        self.imu.magnetic_field.y =  imu_array[:, 14] * 1e-4
+        self.imu.magnetic_field.z =  imu_array[:, 16] * 1e-4
 
     def load_altitude_from_numpy(self, altitude_array, origin):
         if np.ndim(altitude_array) != 2:
@@ -270,7 +276,7 @@ class KAISTData:
         ov_R_leftvlp = np.matmul(ov_R_tv, tv_R_leftvlp)
         self.calibrations.VEHICLE_R_LEFTVLP = ov_R_leftvlp
 
-    def load_data(self, data_root=None, sequence=None, groundtruth=True, imu=True, gnss=True, altitude=True, vlpleft=True):
+    def load_data(self, data_root=None, sequence=None, groundtruth=True, imu=True, gnss=True, altitude=True, vlpleft=True, calibrations=True):
         kaist_config = get_config_dict()['kaist_dataset']
 
         if data_root is None:
@@ -308,6 +314,8 @@ class KAISTData:
             directory = '{}/{}/{}'.format(data_root, sequence, kaist_config['dir_left_lidar'])
             self.vlpLeft.set_directory(directory)
             self._VLP_LEFT_FLAG = True
+        if calibrations:
+            self.load_calibrations_from_config(sequence)
 
     class Player:
         def __init__(self, data_objects, starttime=None):

@@ -30,10 +30,6 @@ class KalmanFilter():
         self.Fi = np.zeros([15, 12])
         self.Fi[3:15, :] = np.eye(12)
 
-        # Bias variances
-        self._aw_var = np.ones(3) * 1e-10
-        self._ww_var = np.ones(3) * 1e-10
-
 
     def initialize_state(self, p=None, cov_p=None, v=None, cov_v=None, q=None, cov_q=None, ab=None, cov_ab=None, wb=None, cov_wb=None, time=-1):
         with self._lock:
@@ -73,7 +69,6 @@ class KalmanFilter():
                     st.accel_bias.time = time
                     st.covariance[9:12, 9:12] = np.diag(cov_ab)
                     self._state_buffer.update_state(st, -1)
-                    self._aw_var = np.array(cov_ab)
                 else:
                     log.log('acceleration bias covariances are not provided')
 
@@ -83,7 +78,6 @@ class KalmanFilter():
                     st.angular_bias.time = time
                     st.covariance[0:3, 0:3] = np.diag(cov_wb)
                     self._state_buffer.update_state(st, -1)
-                    self._ww_var = np.array(cov_wb)
                 else:
                     log.log('angular velocity bias covariances are not provided')
 
@@ -99,7 +93,7 @@ class KalmanFilter():
                 log.log('initial state time stamps:', timestamps)
 
 
-    def predict(self, am, var_am, wm, var_wm, time, loadindex=-1, inputname='unspecified'):
+    def predict(self, am, var_am, wm, var_wm, var_aw, var_ww, time, loadindex=-1, inputname='unspecified'):
         with self._lock:
             st = self._state_buffer.get_state(loadindex)
             if st is None or not st.initialized:
@@ -134,8 +128,8 @@ class KalmanFilter():
                 Qi = np.eye(12)
                 Qi[0:3, 0:3] = var_am * dt ** 2 * Qi[0:3, 0:3]
                 Qi[3:6, 3:6] = var_wm * dt ** 2 * Qi[3:6, 3:6]
-                Qi[6:9, 6:9] = self._aw_var * dt * Qi[6:9, 6:9]
-                Qi[9:12, 9:12] = self._ww_var * dt * Qi[9:12, 9:12]
+                Qi[6:9, 6:9] = var_aw * dt * Qi[6:9, 6:9]
+                Qi[9:12, 9:12] = var_ww * dt * Qi[9:12, 9:12]
 
                 P = Fx.dot(P).dot(Fx.T) + self.Fi.dot(Qi).dot(self.Fi.T)
 

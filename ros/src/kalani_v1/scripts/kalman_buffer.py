@@ -14,10 +14,10 @@ class ValueTimePair:
 class KalmanStateObject:
     def __init__(self):
         self.position = ValueTimePair(np.zeros(3), -1)
-        self.velocity =  ValueTimePair(np.zeros(3), -1)
-        self.orientation =  ValueTimePair(np.array([1,0,0,0]), -1)
-        self.accel_bias =  ValueTimePair(np.zeros(3), -1)
-        self.angular_bias =  ValueTimePair(np.zeros(3), -1)
+        self.velocity = ValueTimePair(np.zeros(3), -1)
+        self.orientation = ValueTimePair(np.array([1,0,0,0]), -1)
+        self.accel_bias = ValueTimePair(np.zeros(3), -1)
+        self.angular_bias = ValueTimePair(np.zeros(3), -1)
 
         self.covariance = np.zeros((15,15))
 
