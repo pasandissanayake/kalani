@@ -21,7 +21,7 @@ import numpy as np
 import scipy
 from scipy.optimize import leastsq
 from constants import Constants
-from filter.kalman_filter_v1 import Kalman_Filter_V1
+from filter.kalman_filter_v1_original import Kalman_Filter_V1
 from datasetutils.nclt_data_conversions import NCLTDataConversions
 import numdifftools as nd
 
@@ -33,8 +33,8 @@ nclt_mag_orientation_var = 0.01 * np.ones(3)
 aw_var = 0.0001
 ww_var = 0.0001
 gw_var = 10
-am_var = 0.01
-wm_var = 0.001
+am_var = 0.0001
+wm_var = 0.00001
 
 g = np.array([0, 0, -9.8])
 
@@ -59,7 +59,7 @@ def csq_2_tfq(cs_q):
 
 def publish_state(pub):
     state = kf.get_state_as_numpy()
-    print 'gnss biases:', state[16:18]
+    # print 'gnss biases:', state[16:18]
     msg = State()
     msg.header.stamp = rospy.Time.from_sec(state[-2])
     msg.header.frame_id = Constants.WORLD_FRAME
@@ -81,17 +81,17 @@ def publish_state(pub):
     transform.transform.rotation.w, transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z = state[6:10]
     tf2_broadcaster.sendTransform(transform)
 
-    gb_msg = State()
-    gb_msg.header.stamp = rospy.Time.from_sec(state[-2])
-    gb_msg.header.frame_id = Constants.WORLD_FRAME
-    gb_msg.position.x, gb_msg.position.y = list(state[16:18])
-    gnss_bias_pub.publish(gb_msg)
-
-    ga_msg = State()
-    ga_msg.header.stamp = rospy.Time.from_sec(state[-2])
-    ga_msg.header.frame_id = Constants.WORLD_FRAME
-    ga_msg.position.x, ga_msg.position.y = list(state[16:18] + state[0:2])
-    gnss_adjusted_pub.publish(ga_msg)
+    # gb_msg = State()
+    # gb_msg.header.stamp = rospy.Time.from_sec(state[-2])
+    # gb_msg.header.frame_id = Constants.WORLD_FRAME
+    # gb_msg.position.x, gb_msg.position.y = list(state[16:18])
+    # gnss_bias_pub.publish(gb_msg)
+    #
+    # ga_msg = State()
+    # ga_msg.header.stamp = rospy.Time.from_sec(state[-2])
+    # ga_msg.header.frame_id = Constants.WORLD_FRAME
+    # ga_msg.position.x, ga_msg.position.y = list(state[16:18] + state[0:2])
+    # gnss_adjusted_pub.publish(ga_msg)
 
 
 def publish_gnss(pub, time, fix):
@@ -170,17 +170,20 @@ def gnss_callback(data):
     gnss = NCLTDataConversions.gnss_numpy_to_converted(gnss_array)
     fix = np.array([gnss.x,gnss.y,gnss.z])
 
+    # fix for groundtruth derived gnss
+    fix = np.array([lat, long, alt])
+    print "fix: ", fix
+
     if gnss.fix_mode == 3:
         if kf.is_initialized():
-
+            def h(state):
+                return state[0:3]
             # use all x, y and z
             def hx_func(state):
-                Hx = np.zeros([3, 18])
-                Hx[:, 0:3] = np.eye(3)
-                Hx[0:2, 16:18] = np.eye(2)
-                return Hx
+                hj = nd.Jacobian(h)
+                return hj(state)
             def meas_func(state):
-                return fix - state[0:3] - np.concatenate([state[16:18], [0]])
+                return fix - h(state)
             V = np.diag(nclt_gnss_var)
 
             # # use x, y only even z is available
@@ -215,18 +218,19 @@ def gnss_callback(data):
 
             t = time
 
-            kf.initialize_state(p=p, cov_p=cov_p, v=v, cov_v=cov_v, ab=ab, cov_ab=cov_ab, wb=wb, cov_wb=cov_wb, gb=gb, cov_gb=cov_gb, time=t)
+            # kf.initialize_state(p=p, cov_p=cov_p, v=v, cov_v=cov_v, ab=ab, cov_ab=cov_ab, wb=wb, cov_wb=cov_wb, gb=gb, cov_gb=cov_gb, time=t)
+            kf.initialize_state(p=p, cov_p=cov_p, v=v, cov_v=cov_v, ab=ab, cov_ab=cov_ab, wb=wb, cov_wb=cov_wb, time=t)
 
     elif gnss.fix_mode == 2:
         if kf.is_initialized():
+            def h(state):
+                return state[0:2]
             def hx_func(state):
-                Hx = np.zeros([2, 16])
-                Hx[:, 0:2] = np.eye(2)
-                Hx[:, 16:18] = np.eye(2)
-                return Hx
+                hj = nd.Jacobian(h)
+                return hj(state)
 
             def meas_func(state):
-                return fix[0:2] - state[0:2] - state[16:18]
+                return fix[0:2] - h(state)
 
             V = np.diag(nclt_gnss_var[0:2])
             kf.correct(meas_func, hx_func, V, time, measurementname='gnss_no_alt')
@@ -336,7 +340,7 @@ def laser_dt_callback(data):
             jh = nd.Jacobian(h)
             return jh(state)
 
-        V = np.diag(np.ones(3) * 0.001)
+        V = np.diag(np.ones(3) * 1e-10)
 
         print 'ld_prev_time:', laser_dt_prev_time, 'ld_new_time:', time
         kf.correct_relative(meas_func, hx_func, V, laser_dt_prev_time, time, measurementname='laser_dt')
@@ -373,7 +377,8 @@ def laser_callback(data):
 
 def gnss_mod_callback(data):
     time = data.header.stamp.to_sec()
-    gnss_mod_pub.publish(data)
+    # gnss_mod_pub.publish(data)
+
     # if time > 1357847254.9 and time < 1357847287.7:
     #     pass
     # else:
@@ -400,7 +405,7 @@ if __name__ == '__main__':
     gnss_bias_pub = rospy.Publisher('/gnss_bias', State, queue_size=1)
     gnss_adjusted_pub = rospy.Publisher('/gnss_adjusted', State, queue_size=1)
 
-    gnss_mod_pub = rospy.Publisher('raw_data/gnss_fix_mod', NavSatFix, queue_size=1)
+    # gnss_mod_pub = rospy.Publisher('raw_data/gnss_fix_mod', NavSatFix, queue_size=1)
 
     tf2_broadcaster = tf2_ros.TransformBroadcaster()
     tf2_static_broadcaster = tf2_ros.StaticTransformBroadcaster()

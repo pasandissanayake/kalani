@@ -3,6 +3,7 @@
 import numpy as np
 import time
 import thread
+import sys
 
 import rospy
 import tf.transformations as tft
@@ -18,6 +19,7 @@ from kaist_datahandle import *
 
 
 def timer():
+    global pause, step
     log.log('Timer started.')
     prev_time = time.time()
     while True:
@@ -28,6 +30,12 @@ def timer():
             prev_time += duration
             clock_pub.publish(rospy.Time.from_sec(current_time))
         time.sleep(0.00001)
+        while pause:
+            prev_time = time.time() - 0.001
+            if step:
+                step = False
+                break
+            pass
 
 
 def publish_data():
@@ -54,7 +62,7 @@ def publish_data():
                 msg.header.stamp = rospy.Time.from_sec(next_data[2])
                 msg.header.frame_id = general_config['tf_frame_altimeter']
                 msg.pose.pose.position.z = kd.altitude.z[next_data[1]]
-                msg.pose.covariance = np.diag(np.concatenate([[0, 0, sequence_config['var_altitude']], np.zeros(3)])).ravel()
+                msg.pose.covariance = np.diag(np.concatenate([[0, 0], sequence_config['var_altitude'], [0, 0, 0]])).ravel()
                 altitude_pub.publish(msg)
 
             elif name == kd.IMU_CLASS_NAME:
@@ -98,7 +106,9 @@ if __name__ == '__main__':
     log.log('Node initialized.')
 
     current_time = -1
-    rate = 0.5
+    rate = 0.05
+    pause = True
+    step = False
 
     gnss_pub = rospy.Publisher(general_config['processed_gnss_topic'], Odometry, queue_size=1)
     altitude_pub = rospy.Publisher(general_config['processed_altitude_topic'], Odometry, queue_size=1)
@@ -133,19 +143,47 @@ if __name__ == '__main__':
     tf2_static_broadcaster.sendTransform(vehicle2lidar_static_tf)
 
     # set initial values (for unobserved biases and velocity)
-    rospy.set_param('/kalani/init/var_imu_linear_acceleration_bias', [sequence_config['var_imu_linear_acceleration_bias']])
-    rospy.set_param('/kalani/init/var_imu_angular_velocity_bias', [sequence_config['var_imu_angular_velocity_bias']])
-    rospy.set_param('/kalani/init/init_velocity', [sequence_config['init_velocity']])
-    rospy.set_param('/kalani/init/init_var_velocity', [sequence_config['init_var_velocity']])
-    rospy.set_param('/kalani/init/init_imu_linear_acceleration_bias', [sequence_config['init_imu_linear_acceleration_bias']])
-    rospy.set_param('/kalani/init/init_imu_angular_velocity_bias', [sequence_config['init_imu_angular_velocity_bias']])
+    rospy.set_param('/kalani/init/var_imu_linear_acceleration_bias', sequence_config['var_imu_linear_acceleration_bias'])
+    rospy.set_param('/kalani/init/var_imu_angular_velocity_bias', sequence_config['var_imu_angular_velocity_bias'])
+    rospy.set_param('/kalani/init/init_velocity', sequence_config['init_velocity'])
+    rospy.set_param('/kalani/init/init_var_velocity', sequence_config['init_var_velocity'])
+    rospy.set_param('/kalani/init/init_imu_linear_acceleration_bias', sequence_config['init_imu_linear_acceleration_bias'])
+    rospy.set_param('/kalani/init/init_imu_angular_velocity_bias', sequence_config['init_imu_angular_velocity_bias'])
 
     # start data player
     pl = kd.get_player(starttime=kd.imu.time[2000])
+
     try:
         thread.start_new_thread(publish_data, ())
         log.log('Node ready.')
     except Exception as e:
         log.log('Publisher thread error: {}'.format(e.message))
 
-    rospy.spin()
+    time.sleep(0.1)
+    while True:
+        if pause:
+            inputStr = "Input command (paused):"
+        else:
+            inputStr = "Input command:"
+        command = raw_input(inputStr)
+        command = command.strip()
+        command = command.lower()
+        if command == "s":
+            pause = False
+        elif command == "p":
+            pause = True
+        elif command == "r":
+            rateStr = raw_input("Rate value (input 'q' to exit):")
+            rateStr = rateStr.strip()
+            if not rateStr.isalpha():
+                rate = float(rateStr)
+                log.log("Rate updated to {}".format(rate))
+            else:
+                log.log("Rate not updated.")
+        elif command == "":
+            if pause:
+                step = True
+        elif command == "q":
+            sys.exit(0)
+        else:
+            log.log("Invalid command.")

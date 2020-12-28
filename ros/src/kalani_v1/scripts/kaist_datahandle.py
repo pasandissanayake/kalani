@@ -276,18 +276,18 @@ class KAISTData:
         ov_R_leftvlp = np.matmul(ov_R_tv, tv_R_leftvlp)
         self.calibrations.VEHICLE_R_LEFTVLP = ov_R_leftvlp
 
-    def load_data(self, data_root=None, sequence=None, groundtruth=True, imu=True, gnss=True, altitude=True, vlpleft=True, calibrations=True):
+    def load_data(self, dataroot=None, sequence=None, groundtruth=True, imu=True, gnss=True, altitude=True, vlpleft=True, calibrations=True):
         kaist_config = get_config_dict()['kaist_dataset']
 
-        if data_root is None:
-            data_root = kaist_config['data_root']
+        if dataroot is None:
+            dataroot = kaist_config['data_root']
         if sequence is None:
             sequence = kaist_config['sequence']
 
-        groundtruth_file = '{}/{}/{}'.format(data_root, sequence, kaist_config['file_name_groundtruth'])
-        imu_file = '{}/{}/{}'.format(data_root, sequence, kaist_config['file_name_imu'])
-        gnss_file = '{}/{}/{}'.format(data_root, sequence, kaist_config['file_name_gnss'])
-        altimeter_file = '{}/{}/{}'.format(data_root, sequence, kaist_config['file_name_altimeter'])
+        groundtruth_file = '{}/{}/{}'.format(dataroot, sequence, kaist_config['file_name_groundtruth'])
+        imu_file = '{}/{}/{}'.format(dataroot, sequence, kaist_config['file_name_imu'])
+        gnss_file = '{}/{}/{}'.format(dataroot, sequence, kaist_config['file_name_gnss'])
+        altimeter_file = '{}/{}/{}'.format(dataroot, sequence, kaist_config['file_name_altimeter'])
 
         if groundtruth:
             gt_array = np.loadtxt(groundtruth_file, delimiter=',')
@@ -311,7 +311,7 @@ class KAISTData:
             self.load_altitude_from_numpy(altitude_array, origin)
             self._ALTITUDE_FLAG = True
         if vlpleft:
-            directory = '{}/{}/{}'.format(data_root, sequence, kaist_config['dir_left_lidar'])
+            directory = '{}/{}/{}'.format(dataroot, sequence, kaist_config['dir_left_lidar'])
             self.vlpLeft.set_directory(directory)
             self._VLP_LEFT_FLAG = True
         if calibrations:
@@ -337,7 +337,7 @@ class KAISTData:
                 return None
             i = np.argmin(self._time_stamps)
             idx = self._time_stamp_indices[i]
-            retun_tup = (self._data_object_flags[i], idx, self._time_stamps[i])
+            return_tup = (self._data_object_flags[i], idx, self._time_stamps[i])
             if idx == len(self._data_objects[i].time) - 1:
                 self._data_objects.pop(i)
                 self._data_object_flags.pop(i)
@@ -348,7 +348,7 @@ class KAISTData:
                 while self._time_stamp_indices[i] < len(self._data_objects[i].time) and self._time_stamps[i] <= prev_time_stamp:
                     self._time_stamp_indices[i] += 1
                     self._time_stamps[i] = self._data_objects[i].time[self._time_stamp_indices[i]]
-            return retun_tup
+            return return_tup
 
     def get_player(self, starttime=None):
         data_objects = []

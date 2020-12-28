@@ -223,8 +223,6 @@ if __name__ == '__main__':
         gt_path_pub = rospy.Publisher('groundtruth_path', Path, queue_size=10)
         cov_ellipse_pub = rospy.Publisher('cov_ellipse', Marker, queue_size=10)
 
-        np.savetxt('apple', np.array([0]), delimiter=',')
-
         log('Evaluator ready.')
         rospy.spin()
     except rospy.ROSInterruptException:

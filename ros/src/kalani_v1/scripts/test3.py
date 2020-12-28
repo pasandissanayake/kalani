@@ -1,93 +1,69 @@
 #!/usr/bin/env python2
 
 import numpy as np
-from scipy.interpolate import interp1d
-from datasetutils.nclt_data_conversions import *
-from matplotlib import pyplot as plt
-from constants import Constants
+import sympy as sp
+import numdifftools as nd
+from sympy.utilities import lambdify
+from copy import deepcopy
+
 import tf.transformations as tft
-from kaist_datahandle import *
 
-class Foo:
-    def __init__(self, states):
-        for state in states:
-            self.__dict__[state[0]] = np.zeros(state[1])
 
-states = [
-    ['a', 3],
-    ['b', 4]
+class sarray(np.ndarray):
+    def __new__(cls, states, *args):
+        length = sum([s[1] for s in states])
+        obj = np.zeros(length).view(cls)
+        obj.states = states
+        return obj
+
+    def __init__(self, states=None, val=None):
+        i = 0
+        for state in self.states:
+            self._set_sub_state(i, state[0], state[1])
+            i += state[1]
+        if val is not None:
+            self[:] = np.array(val)
+
+    def _set_sub_state(self, idx, name, size):
+        def fun():
+            return self[idx:idx + size]
+        setattr(self, name, fun)
+
+
+
+ns_template = [
+    ['p', 2],
+    ['v', 2],
+    ['o', 1],
 ]
-foo = Foo(states)
-foo.a = np.array((2,1,3))
-print foo.a, foo.b
 
-# nds = NCLTData(Constants.NCLT_DATASET_DIRECTORY)
-# a = np.array([nds.groundtruth.x, nds.groundtruth.y]).T
-# ngt = interp1d(nds.groundtruth.time, a, axis=0, bounds_error=False, fill_value='extrapolate', kind='linear')
-#
-# ner = np.array([ngt(nds.converted_gnss.time)[:,0] - nds.converted_gnss.x, ngt(nds.converted_gnss.time)[:,1] - nds.converted_gnss.y]).T
-#
-#
-# kds = KAISTData()
-# kds.load_data(groundtruth=True, imu=False, gnss=True, altitude=False, vlpleft=False)
-#
-# ker = np.array([kds.groundtruth.interp_x(kds.gnss.time)-kds.gnss.x, kds.groundtruth.interp_y(kds.gnss.time)-kds.gnss.y]).T
+es_template = [
+    ['p', 2],
+    ['v', 2],
+    ['o', 2]
+]
 
+ns = sarray(ns_template, [1,1,2,2,3])
+es = sarray(es_template, [10,10,20,20,30,30])
 
-# GNSS error first difference plots
+f = [
+    lambda s, e, dt: s.p() + s.v() * dt + e.p(),
+    lambda s, e, dt: s.v() + e.v(),
+    lambda s, e, dt: s.o() + np.linalg.norm(e.o())
+]
 
-# fig, (ax1, ax2) = plt.subplots(2,1)
-#
-# ax1.plot(nds.converted_gnss.time[:-1]-nds.converted_gnss.time[0], np.diff(ner[:, 0]))
-# ax1.legend()
-# ax1.grid()
+def fs(s, e, t):
+    s = sarray(ns_template, s)
+    e = sarray(es_template, e)
+    l = [fun(s, e, t).ravel() for fun in f]
+    return np.concatenate(l)
 
+def fe(e, s, t):
+    s = sarray(ns_template, s)
+    e = sarray(es_template, e)
+    l = [fun(s, e, t).ravel() for fun in f]
+    return np.concatenate(l)
 
-
-## GNSS error plots
-#
-# fig, (ax1, ax2) = plt.subplots(2,1)
-#
-# ax1.plot(nds.converted_gnss.time-nds.converted_gnss.time[0], ner[:,0], label='x-error-nclt')
-# ax1.plot(kds.gnss.time-kds.gnss.time[0], ker[:,0], label='x-error-kaist')
-# ax1.plot(kds.gnss.time-kds.gnss.time[0], np.zeros(len(ker[:,0])))
-# ax1.legend()
-# ax1.grid()
-#
-# ax2.plot(nds.converted_gnss.time-nds.converted_gnss.time[0], ner[:,1], label='y-error-nclt')
-# ax2.plot(kds.gnss.time-kds.gnss.time[0], ker[:,1], label='y-error-kaist')
-# ax2.plot(kds.gnss.time-kds.gnss.time[0], np.zeros(len(ker[:,0])))
-# ax2.legend()
-# ax2.grid()
-
-# plt.show()
-
-d = np.zeros((4, 4))
-a = 0
-e = np.array([
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1]
-])
-w = np.array([1, 1, 2, 2])
-w = w / np.linalg.norm(w)
-print "w: ", w
-for i in range(len(w)):
-    a = a + w[i] * e[i, :]
-
-    q = tft.quaternion_from_euler(e[i,0], e[i,1], e[i,2], axes='sxyz')
-    d = d + w[i] * (4 * np.outer(q, q) - np.eye(4))
-
-vals, vecs = np.linalg.eig(d)
-index = np.argmax((vals))
-q = vecs[:, index]
-
-print "direct euler: ", a
-print "indire euler: ", tft.euler_from_quaternion(q, axes='sxyz')
-
-for i in range(4):
-    vec = vecs[:,i]
-    print "val: ", vals[i]
-    print "vec: ", vec, "norm: ", np.linalg.norm(vec)
-    print "eul: ", tft.euler_from_quaternion(vec), "\n"
+print fs(ns, es, 0.5)
+print nd.Jacobian(fs)(ns, es, 0.5)
+print nd.Jacobian(fe)(es, ns, 0.5)
