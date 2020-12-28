@@ -15,13 +15,13 @@ kf_config = get_config_dict()['kalman_filter']
 
 
 class sarray(np.ndarray):
-    def __new__(cls, template, val):
+    def __new__(cls, template, val=None):
         length = sum([s[1] for s in template])
         obj = np.zeros(length).view(cls)
         obj.template = template
         return obj
 
-    def __init__(self, states=None, val=None):
+    def __init__(self, template=None, val=None):
         i = 0
         for t in self.template:
             self._set_sub_state(i, t[0], t[1])
@@ -36,7 +36,7 @@ class sarray(np.ndarray):
 
 
 class parray(np.ndarray):
-    def __new__(cls, template, val):
+    def __new__(cls, template, val=None):
         length = sum([s[1] for s in template])
         obj = np.eye(length).view(cls)
         obj.template = template
@@ -83,10 +83,9 @@ class StateBuffer:
         self._buffer = []
 
 
-    def add_state(self, ns_template, es_template, mmi_template):
+    def add_state(self, stateobject):
         with self._lock:
-            so = StateObject(ns_template, es_template, mmi_template)
-            self._buffer.append(so)
+            self._buffer.append(stateobject)
             if len(self._buffer) > self._BUFFER_LENGTH:
                 self._buffer.pop(0)
 
@@ -96,7 +95,7 @@ class StateBuffer:
             if index >= bl or index < -bl:
                 log.log('Store index: ' + str(index) + ' is out of range.')
             else:
-                self._buffer[index] = deepcopy(stateobject)
+                self._buffer[index] = stateobject
 
     def get_state(self, index):
         with self._lock:
@@ -105,7 +104,7 @@ class StateBuffer:
                 log.log('Store index: ' + str(index) + ' is out of range.')
                 return None
             else:
-                return deepcopy(self._buffer[index])
+                return self._buffer[index]
 
     def get_index_of_closest_state_in_time(self, timestamp):
         with self._lock:
@@ -119,7 +118,7 @@ class StateBuffer:
 
 
 class KalmanFilter:
-    def __init__(self, ns_template, es_template, pn_template, mmi_template, f_list, add_list, sub_list):
+    def __init__(self, ns_template, es_template, pn_template, mmi_template, motion_model, combination, difference):
         # State buffer length
         self.STATE_BUFFER_LENGTH = kf_config['buffer_size']
 
@@ -136,27 +135,123 @@ class KalmanFilter:
         self._pn_template = pn_template
         self._mmi_template = mmi_template
 
-        def add(es, ns):
+        self._motion_model = motion_model
+        self._combination = combination
+        self._difference = difference
+
+        self._ns_timestamps = {s[0]:-1 for s in ns_template}
+
+        def true_state(es, ns):
             ns = sarray(ns_template, ns)
             es = sarray(es_template, es)
-            l = [fun(ns, es).ravel() for fun in add_list]
-            return np.concatenate(l)
+            return combination(ns, es)
 
         def fx(es, ns, pn, mmi, dt):
             pn = sarray(pn_template, pn)
             mmi = sarray(mmi_template, mmi)
-            ts = sarray(ns_template, add(es, ns))
-            l = [fun(ts, pn, mmi, dt).ravel() for fun in f_list]
-            return np.concatenate(l)
+            ts = sarray(ns_template, true_state(es, ns))
+            return motion_model(ts, mmi, pn, dt)
 
         def fi(pn, es, ns, mmi, dt):
             return fx(es, ns, pn, mmi, dt)
 
+        self._truestate_jacob = nd.Jacobian(true_state)
+        sw = Stopwatch()
+        sw.start()
         self._Fx_jacob = nd.Jacobian(fx)
         self._Fi_jacob = nd.Jacobian(fi)
-        self._truestate_jacob = nd.Jacobian(add_list)
+        print 'calculation time:', sw.stop(), 's'
 
-        print self._Fx_jacob(np.ones(5), np.ones(5), np.ones(3), np.ones(3), 0.3)
+
+    def initialize(self, vals):
+        # check whether a state object is available within the buffer
+        if self._state_buffer.get_buffer_length() > 0:
+            so = self._state_buffer.get_state(0)
+            update = True
+        else:
+            so = StateObject(self._ns_template, self._es_template, self._mmi_template)
+            update = False
+        key_min = min(self._ns_timestamps.keys(), key=(lambda k: self._ns_timestamps[k]))
+        val_min = self._ns_timestamps[key_min]
+        for val in vals:
+            # reject if timestamp is older than the current oldest timestamp
+            if val[2] < val_min:
+                continue
+            fun = getattr(so.predicted_ns, val[0])
+            fun()[:] = np.array(val[1])
+            self._ns_timestamps[val[0]] = val[2]
+        # check whether all the timestamps are within the threshold value from the latest timestamp
+        is_initialized = True
+        key_max = max(self._ns_timestamps.keys(), key=(lambda k: self._ns_timestamps[k]))
+        val_max = self._ns_timestamps[key_max]
+        for k in self._ns_timestamps.keys():
+            if self._ns_timestamps[k] < val_max - self.STATE_INIT_TIME_THRESHOLD:
+                self._ns_timestamps[k] = -1
+                is_initialized = False
+        so.timestamp = val_max
+        so.is_valid = is_initialized
+        # store the modified state object in buffer
+        if update:
+            self._state_buffer.update_state(so)
+        else:
+            self._state_buffer.add_state(so)
+
+        pso = self._state_buffer.get_state(0)
+        print pso.predicted_ns, pso.is_valid, pso.timestamp, self._ns_timestamps
+        if pso.is_valid:
+            sw = Stopwatch()
+            sw.start()
+            self._Fx_jacob(np.zeros(15), pso.predicted_ns, np.zeros(12), np.ones(6), pso.timestamp)
+            self._Fi_jacob(np.zeros(12), np.zeros(15), pso.predicted_ns, np.ones(6), pso.timestamp)
+            print 'substitution time:', sw.stop(), 's'
+
+
+
+
+
+# motion model
+def motion_model(ts, mmi, pn, dt):
+    gravity = np.array([0, 0, -9.8])
+    R = tft.quaternion_matrix(ts.q())[0:3,0:3]
+    acc = (np.matmul(R, (mmi.a()-ts.ab())) + gravity)
+    dtheta = (mmi.w() - ts.wb()) * dt + pn.q()
+    axis = tft.unit_vector(dtheta)
+    angle = tft.vector_norm(dtheta)
+    res = [
+        ts.p() + ts.v() * dt + 0.5 * acc * dt**2,
+        ts.v() + acc * dt + pn.v(),
+        tft.quaternion_multiply(ts.q(), tft.quaternion_about_axis(angle, axis)),
+        ts.ab() + pn.ab(),
+        ts.wb() + pn.wb()
+    ]
+    return np.concatenate(res)
+
+
+# nominal state, error state conjugation
+# nominal state + error state ==> nominal state
+def combination(ns, es):
+    eulers = es.q()
+    res = [
+        ns.p() + es.p(),
+        ns.v() + es.v(),
+        tft.quaternion_multiply(ns.q(), tft.quaternion_from_euler(eulers[0], eulers[1], eulers[2])),
+        ns.ab() + es.ab(),
+        ns.wb() + es.wb()
+    ]
+    return np.concatenate(res)
+
+
+# nominal state difference
+# nominal state(ns1) - nominal state(ns0) ==> error state
+def difference(ns1, ns0):
+    res = [
+        ns1.p() - ns0.p(),
+        ns1.v() - ns0.v(),
+        tft.euler_from_quaternion(tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()), ns1.q())),
+        ns1.ab() - ns0.ab(),
+        ns1.wb() - ns0.wb()
+    ]
+    return np.concatenate(res)
 
 
 kf = KalmanFilter(
@@ -192,28 +287,25 @@ kf = KalmanFilter(
         ['w', 3]
     ],
 
-    # motion model
-    [
-        lambda ts, pn, mmi, dt: ts.p() + ts.v() * dt + 0.5 * (np.multiply(tft.quaternion_matrix(ts.q())[0:3,0:3],(mmi.a()-ts.ab())) - np.array((0,0,-9.8)))* dt**2,
-        lambda ts, pn, mmi, dt: ts.v() + np.multiply(tft.quaternion_matrix(ts.q())[0:3,0:3], mmi.a()-ts.ab()) * dt + pn.v(),
-        lambda ts, pn, mmi, dt: tft.quaternion_multiply(tft.quaternion_about_axis(np.linalg.norm((mmi.w()-ts.wb())*dt),tft.unit_vector((mmi.w()-ts.wb())*dt)), ts.q()),
-        lambda ts, pn, mmi, dt:
-    ],
-
-    # nominal state = nominal state + error state
-    [
-        lambda ns, es: ns.p() + es.p(),
-        lambda ns, es: ns.v() + es.v(),
-        lambda ns, es: ns.q() + es.q()
-    ],
-
-    # error state = nominal state 2 -  nominal state 1
-    [
-        lambda ns1, ns2: ns2.p() - ns1.p(),
-        lambda ns1, ns2: ns2.v() - ns1.v(),
-        lambda ns1, ns2: ns2.q() - ns1.q()
-    ]
+    motion_model,
+    combination,
+    difference
 )
+
+
+kf.initialize([
+    ['p', [1, 2, 3], 1.7]
+])
+
+kf.initialize([
+    ['q', [1, 0, 0, 0], 1.7]
+])
+
+kf.initialize([
+    ['v', [3,3,3,], 2.0],
+    ['ab', [4,4,4], 2.0],
+    ['wb', [2,2,2], 2.0]
+])
 
 
 # class KalmanFilter():
