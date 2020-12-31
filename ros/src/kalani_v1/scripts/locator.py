@@ -134,7 +134,7 @@ def imu_callback(data):
     var_wm = np.reshape(data.angular_velocity_covariance, (3,3))
     if kf.is_initialized():
         kf.predict(linear_acceleration, var_am, angular_velocity, var_wm, np.diag(var_imu_linear_acceleration_bias),
-               np.diag(var_imu_angular_velocity_bias), t, inputname='imu')
+                   np.diag(var_imu_angular_velocity_bias), t, input_name='imu')
         publish_state()
 
 

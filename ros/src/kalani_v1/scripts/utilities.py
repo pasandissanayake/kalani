@@ -170,3 +170,33 @@ def skew_symmetric(v):
         [[    0, -v[2],  v[1]],
          [ v[2],     0, -v[0]],
          [-v[1],  v[0],    0]], dtype=np.float64)
+
+def quaternion_to_angle_axis(q):
+    '''
+    converts a quaternion in xyzw form to angle, axis form
+    angle = cos^-1(w) * 2
+    axis = 2 * [x, y, z] / angle
+    :param q: quaternion in xyzw form
+    :return: angle, axis
+    '''
+    half_angle = np.arccos(q[3])
+    if half_angle != 0:
+        axis = np.array(q[:3]) / half_angle
+        angle = half_angle * 2
+        return angle, axis
+    else:
+        return 1e-5, np.ones(3)
+
+
+def axisangle_to_angle_axis(v):
+    '''
+    extracts angle and axis from a vector representing an orientation in axis-angle form
+    :param v: vector representing the orientation
+    :return: angle, axis
+    '''
+    angle = np.linalg.norm(v)
+    if angle > 0:
+        axis = np.array(v) / angle
+    else:
+        axis = np.zeros(3)
+    return angle, axis

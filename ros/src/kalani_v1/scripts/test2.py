@@ -4,44 +4,15 @@ from utilities import *
 from kaist_datahandle import *
 import tf.transformations as tft
 
-sw = Stopwatch()
-sw.start()
-kd = KAISTData()
-kd.load_data(groundtruth=True, imu=False, gnss=True, altitude=True, vlpleft=False)
-print "data loded.. time taken: {} s".format(sw.stop())
 
-fig, (ax1, ax2) = plt.subplots(2,1)
+e1 = np.array([np.pi/3, 0, np.pi/2])
+e2 = np.array([np.pi/4, 0, np.pi/4])
 
-ax1.plot(kd.gnss.time, kd.gnss.y, label='gnss')
-ax1.plot(kd.groundtruth.time, kd.groundtruth.y, label='gt')
-ax1.legend()
-ax1.grid()
+q1 = tft.quaternion_about_axis(tft.vector_norm(e1), tft.unit_vector(e1))
+q2 = tft.quaternion_about_axis(tft.vector_norm(e2), tft.unit_vector(e2))
 
-error = kd.groundtruth.interp_y(kd.gnss.time)-kd.gnss.y
-ax2.hist(error, bins=20, label='error')
-ax2.legend()
-ax2.grid()
+de = e1+e2
+qd = tft.quaternion_multiply(q2, q1)
 
-
-fig2, ax21 = plt.subplots(1,1)
-ax21.plot(kd.gnss.x, kd.gnss.y, label='gnss')
-ax21.plot(kd.groundtruth.x, kd.groundtruth.y, label='gt')
-ax21.legend()
-ax2.grid()
-
-
-plt.show()
-
-e_x = kd.groundtruth.interp_x(kd.gnss.time) - kd.gnss.x
-m_x = np.average(e_x)
-v_x = np.var(e_x)
-e_y = kd.groundtruth.interp_y(kd.gnss.time) - kd.gnss.y
-m_y = np.average(e_y)
-v_y = np.var(e_y)
-e_z = kd.groundtruth.interp_z(kd.altitude.time) - kd.altitude.z
-m_z = np.average(e_z)
-v_z = np.var(e_z)
-
-print "m_x:", m_x, "  v_x:", v_x
-print "m_y:", m_y, "  v_y:", v_y
-print "m_z:", m_z, "  v_z:", v_z
+print 'de: {}'.format(np.array(tft.euler_from_quaternion(tft.quaternion_about_axis(tft.vector_norm(de), tft.unit_vector(de)))))
+print 'qe: {}'.format(np.array(tft.euler_from_quaternion(qd)))
