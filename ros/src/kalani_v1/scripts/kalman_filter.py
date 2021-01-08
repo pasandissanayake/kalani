@@ -2,7 +2,7 @@ import numpy as np
 import sympy as sp
 import numdifftools as nd
 import threading
-from copy import deepcopy
+from copy import deepcopy, copy
 from types import MethodType
 
 import tf.transformations as tft
@@ -147,9 +147,17 @@ class KalmanFilter:
         def ns_motion_model(ns, mmi, dt):
             pn = sarray(self._pn_template, np.zeros(self._pn_len))
             return motion_model(ns, mmi, pn, dt)
+        def ns_combination(ns, es):
+            ns = sarray(self._ns_template, ns)
+            es = sarray(self._es_template, es)
+            return combination(ns, es)
+        def ns_difference(ns1, ns0):
+            ns1 = sarray(self._ns_template, ns1)
+            ns0 = sarray(self._ns_template, ns0)
+            return difference(ns1, ns0)
         self._motion_model = ns_motion_model
-        self._combination = combination
-        self._difference = difference
+        self._combination = ns_combination
+        self._difference = ns_difference
 
         def true_state(es, ns):
             ns = sarray(ns_template, ns)
@@ -186,10 +194,10 @@ class KalmanFilter:
             if val[3] < val_min:
                 continue
             # set nominal state value
-            fun_val = getattr(so.predicted_ns, val[0])
+            fun_val = getattr(so.ns, val[0])
             fun_val()[:] = np.array(val[1])
             # set corresponding error state covariance
-            fun_cov = getattr(so.predicted_es_cov, val[0])
+            fun_cov = getattr(so.es_cov, val[0])
             fun_cov()[:] = np.array(val[2])
             self._ns_timestamps[val[0]] = val[3]
         # check whether all the timestamps are within the threshold value from the latest timestamp
@@ -225,13 +233,11 @@ class KalmanFilter:
 
             dt = timestamp - so_time
 
-            Fx = np.array(self._Fx_jacob(np.zeros(self._es_len), so.predicted_ns, np.zeros(self._pn_len), mmi, dt))
-            Fi = np.array(self._Fi_jacob(np.zeros(self._pn_len), np.zeros(self._es_len), so.predicted_ns, mmi, dt))
-            predicted_P = Fx.dot(so.predicted_es_cov).dot(Fx.T) + Fi.dot(mmi_cov).dot(Fi.T)
+            Fx = np.array(self._Fx_jacob(np.zeros(self._es_len), so.ns, np.zeros(self._pn_len), mmi, dt))
+            Fi = np.array(self._Fi_jacob(np.zeros(self._pn_len), np.zeros(self._es_len), so.ns, mmi, dt))
+            predicted_P = Fx.dot(so.es_cov).dot(Fx.T) + Fi.dot(mmi_cov).dot(Fi.T)
 
-            predicted_ns = self._motion_model(so.predicted_ns, mmi, dt)
-
-            print predicted_ns
+            predicted_ns = self._motion_model(so.ns, mmi, dt)
 
             so_new = StateObject(self._ns_template, self._es_template, self._mmi_template)
             so_new.ns = sarray(self._ns_template, predicted_ns)
@@ -253,7 +259,7 @@ class KalmanFilter:
                 self._state_buffer.update_state(so_new, load_index + 1)
 
 
-    def correct_absolute(self, meas_fun, meas_cov, timestamp, hx_fun=None, measurement_name='unspecified'):
+    def correct_absolute(self, meas_fun, measurement, meas_cov, timestamp, hx_fun=None, measurement_name='unspecified'):
         with self._lock:
             oldest_ts = self._state_buffer.get_state(0).timestamp
             latest_ts = self._state_buffer.get_state(-1).timestamp
@@ -285,14 +291,12 @@ class KalmanFilter:
 
             P = so.es_cov
             K = np.matmul(np.matmul(P, H.T), np.linalg.inv(np.matmul(np.matmul(H, P), H.T) + meas_cov))
-            corrected_P = np.matmul(np.eye(15) - np.matmul(K, H), P)
+            corrected_P = np.matmul(np.eye(self._es_len) - np.matmul(K, H), P)
             corrected_P = 0.5 * (corrected_P + corrected_P.T)
 
-            dx = sarray(self._es_template, K.dot(meas_fun(so.ns)))
+            dx = sarray(self._es_template, np.matmul(K, measurement-meas_fun(so.ns)))
 
             corrected_ns = self._combination(so.ns, dx)
-
-            print corrected_ns
 
             so_new = StateObject(self._ns_template, self._es_template, self._mmi_template)
             so_new.ns = sarray(self._ns_template, corrected_ns)
@@ -308,6 +312,132 @@ class KalmanFilter:
             so_new.timestamp = so.timestamp
             so_new.is_valid = True
 
+            self._state_buffer.update_state(so_new, so_index)
+
+            buffer_length = self._state_buffer.get_buffer_length()
+            if so_index+1 < buffer_length:
+                for i in range(so_index+1, buffer_length):
+                    so_i = self._state_buffer.get_state(i)
+                    self.predict(so_i.mm_inputs, so_i.mm_inputs_cov, so_i.timestamp, i - 1,
+                                 measurement_name + '_correction @ ' + str(timestamp))
+
+            self.backward_smooth(so_index)
+
+
+    def correct_relative(self, meas_fun, measurement, measurement_cov, timestamp1, timestamp0, hx_fun=None, measurement_name='unspecified'):
+        so0_index = self._state_buffer.get_index_of_closest_state_in_time(timestamp0)
+        so1_index = self._state_buffer.get_index_of_closest_state_in_time(timestamp1)
+
+        so0 = self._state_buffer.get_state(so0_index)
+        so1 = self._state_buffer.get_state(so1_index)
+
+        Fx_prod = np.eye(self._es_len)
+        for i in range(so1_index, so0_index, -1):
+            Fxi = self._state_buffer.get_state(i).Fx
+            Fx_prod = np.matmul(Fx_prod, Fxi)
+
+        P = np.eye(self._es_len * 2)
+        P[0:self._es_len, 0:self._es_len] = so0.es_cov
+        P[self._es_len:self._es_len*2, self._es_len:self._es_len*2] = so1.es_cov
+        P[0:self._es_len, self._es_len:self._es_len*2] = np.matmul(so0.es_cov, Fx_prod.T)
+        P[self._es_len:self._es_len*2, 0:self._es_len] = np.matmul(Fx_prod, so0.es_cov)
+
+        X0 = self._true_state_jacob(so0.es, so0.ns)
+        X1 = self._true_state_jacob(so1.es, so1.ns)
+
+        if hx_fun is not None:
+            Hx1, Hx0 = hx_fun(so1.ns, so0.ns)
+        else:
+            def meas_fun_dup1(ns1, ns0):
+                ns0 = sarray(self._ns_template, ns0)
+                ns1 = sarray(self._ns_template, ns1)
+                return meas_fun(ns0, ns1)
+            def meas_fun_dup0(ns0, ns1):
+                ns0 = sarray(self._ns_template, ns0)
+                ns1 = sarray(self._ns_template, ns1)
+                return meas_fun(ns0, ns1)
+            Hx1 = nd.Jacobian(meas_fun_dup1)(so1.ns, so0.ns)
+            Hx0 = nd.Jacobian(meas_fun_dup0)(so0.ns, so1.ns)
+
+        H0 = np.matmul(Hx0, X0)
+        H1 = np.matmul(Hx1, X1)
+
+        H = np.concatenate([H0, H1], axis=1)
+
+        S = np.matmul(np.matmul(H, P), H.T) + measurement_cov
+        K = np.matmul(np.matmul(P, H.T), np.linalg.inv(S))
+
+        K1 = K[self._es_len:self._es_len*2, :]
+        corrected_P1 = so1.es_cov - np.matmul(np.matmul(K1, S), K1.T)
+        dx1 = K1.dot(measurement - meas_fun(so1.ns, so0.ns))
+        dx0 = K[0:self._es_len].dot(measurement - meas_fun(so1.ns, so0.ns))
+        corrected_ns1 = self._combination(so1.ns, -dx1)
+        print dx1, dx0
+
+        so_new = StateObject(self._ns_template, self._es_template, self._mmi_template)
+        so_new.ns = sarray(self._ns_template, corrected_ns1)
+        so_new.es = sarray(self._es_template, np.zeros(self._es_len))
+        so_new.es_cov = parray(self._es_template, corrected_P1)
+        so_new.predicted_ns = sarray(self._ns_template, so1.predicted_ns)
+        so_new.predicted_es = sarray(self._es_template, np.zeros(self._es_len))
+        so_new.predicted_es_cov = parray(self._es_template, so1.predicted_es_cov)
+        so_new.mm_inputs = sarray(self._mmi_template, so1.mm_inputs)
+        so_new.mm_inputs_cov = parray(self._pn_template, so1.mm_inputs_cov)
+        so_new.Fx = so1.Fx
+        so_new.Fi = so1.Fi
+        so_new.timestamp = so1.timestamp
+        so_new.is_valid = True
+
+        self._state_buffer.update_state(so_new, so1_index)
+
+        buffer_length = self._state_buffer.get_buffer_length()
+        if so1_index + 1 < buffer_length:
+            for i in range(so1_index + 1, buffer_length):
+                so_i = self._state_buffer.get_state(i)
+                self.predict(so_i.mm_inputs, so_i.mm_inputs_cov, so_i.timestamp, i - 1,
+                             measurement_name + '_correction @ ' + str(timestamp1))
+
+
+    def backward_smooth(self, load_index):
+        if self._state_buffer.get_buffer_length() <= load_index or load_index <= 0:
+            log.log('Backward smooth start index: {} is out of bounds'.format(load_index))
+            return
+
+        so_current = self._state_buffer.get_state(load_index)
+        so_previous = self._state_buffer.get_state(load_index - 1)
+
+        S = np.matmul(so_previous.es_cov, np.matmul(so_previous.Fx.T, np.linalg.inv(so_current.predicted_es_cov)))
+        smoothed_ns = self._combination(so_previous.ns, np.matmul(S, self._difference(so_current.ns, so_current.predicted_ns)))
+        smoothed_P = so_previous.es_cov + np.matmul(S, np.matmul(so_current.es_cov - so_current.predicted_es_cov, S.T))
+
+        so_new = StateObject(self._ns_template, self._es_template, self._mmi_template)
+        so_new.ns = sarray(self._ns_template, smoothed_ns)
+        so_new.es = sarray(self._es_template, np.zeros(self._es_len))
+        so_new.es_cov = parray(self._es_template, smoothed_P)
+        so_new.predicted_ns = sarray(self._ns_template, so_previous.predicted_ns)
+        so_new.predicted_es = sarray(self._es_template, np.zeros(self._es_len))
+        so_new.predicted_es_cov = parray(self._es_template, so_previous.predicted_es_cov)
+        so_new.mm_inputs = sarray(self._mmi_template, so_previous.mm_inputs)
+        so_new.mm_inputs_cov = parray(self._pn_template, so_previous.mm_inputs_cov)
+        so_new.Fx = so_previous.Fx
+        so_new.Fi = so_previous.Fi
+        so_new.timestamp = so_previous.timestamp
+        so_new.is_valid = True
+
+        self._state_buffer.update_state(so_new, load_index - 1)
+
+
+
+
+    def get_current_state(self):
+        # if self._state_buffer.get_buffer_length() > 1:
+        #     return self._state_buffer.get_state(-2).ns
+        return self._state_buffer.get_state(-1).ns
+
+    def get_current_cov(self):
+        # if self._state_buffer.get_buffer_length() > 1:
+        #     return self._state_buffer.get_state(-2).es_cov.ravel()
+        return self._state_buffer.get_state(-1).es_cov.ravel()
 
 
 
@@ -315,116 +445,117 @@ class KalmanFilter:
 
 
 
-
-
-# motion model
-def motion_model(ts, mmi, pn, dt):
-    gravity = np.array([0, 0, -9.8])
-    R = tft.quaternion_matrix(ts.q())[0:3,0:3]
-    acc = (np.matmul(R, (mmi.a()-ts.ab())) + gravity)
-
-    dtheta = (mmi.w() - ts.wb()) * dt + pn.q()
-    angle, axis = axisangle_to_angle_axis(dtheta)
-    dq = tft.quaternion_about_axis(angle, axis)
-
-    res = [
-        ts.p() + ts.v() * dt + 0.5 * acc * dt**2,
-        ts.v() + acc * dt + pn.v(),
-        tft.quaternion_multiply(ts.q(), dq),
-        ts.ab() + pn.ab(),
-        ts.wb() + pn.wb()
-    ]
-    return np.concatenate(res)
-
-
-# nominal state, error state conjugation
-# nominal state + error state ==> nominal state
-def combination(ns, es):
-    angle, axis = axisangle_to_angle_axis(es.q())
-    res = [
-        ns.p() + es.p(),
-        ns.v() + es.v(),
-        tft.quaternion_multiply(ns.q(), tft.quaternion_about_axis(angle, axis)),
-        ns.ab() + es.ab(),
-        ns.wb() + es.wb()
-    ]
-    return np.concatenate(res)
-
-
-# nominal state difference
-# nominal state(ns1) - nominal state(ns0) ==> error state
-def difference(ns1, ns0):
-    angle, axis = quaternion_to_angle_axis(tft.quaternion_multiply(tft.quaternion_inverse(ns0.q()), ns1.q()))
-    res = [
-        ns1.p() - ns0.p(),
-        ns1.v() - ns0.v(),
-        axis * angle,
-        ns1.ab() - ns0.ab(),
-        ns1.wb() - ns0.wb()
-    ]
-    return np.concatenate(res)
-
-
-kf = KalmanFilter(
-    # nominal/true state template
-    [
-        ['p', 3],
-        ['v', 3],
-        ['q', 4],
-        ['ab', 3],
-        ['wb', 3]
-    ],
-
-    # error state template
-    [
-        ['p', 3],
-        ['v', 3],
-        ['q', 3],
-        ['ab', 3],
-        ['wb', 3]
-    ],
-
-    # process noise template
-    [
-        ['v', 3],
-        ['q', 3],
-        ['ab', 3],
-        ['wb', 3]
-    ],
-
-    # motion model input template
-    [
-        ['a', 3],
-        ['w', 3]
-    ],
-
-    motion_model,
-    combination,
-    difference
-)
-
-
-kf.initialize([
-    ['p', [1, 2, 3], [[1,0,0],[0,1,0],[0,0,1]], 1.7]
-])
-
-kf.initialize([
-    ['q', [0, 0, 0, 1], [[1,0,0],[0,1,0],[0,0,1]], 1.7]
-])
-
-kf.initialize([
-    ['v',  [3,3,3], np.eye(3), 2.0],
-    ['ab', [4,4,4], np.eye(3), 2.0],
-    ['wb', [2,2,2], np.eye(3), 2.0]
-])
-
-
-kf.predict(np.concatenate([[1,1,1],[2,2,2]]), np.eye(12), 2.5)
-
-def meas_fun(ns):
-    return np.ones(3) - ns.p()
-
-def hx_fun(ns):
-    return nd.Jacobian(meas_fun)(ns)
-
-kf.correct_absolute(meas_fun, np.eye(3), 2.5, measurement_name='apple')
+#
+#
+#
+# # motion model
+# def motion_model(ts, mmi, pn, dt):
+#     gravity = np.array([0, 0, -9.8])
+#     R = tft.quaternion_matrix(ts.q())[0:3,0:3]
+#     acc = (np.matmul(R, (mmi.a()-ts.ab())) + gravity)
+#
+#     dtheta = (mmi.w() - ts.wb()) * dt + pn.q()
+#     angle, axis = axisangle_to_angle_axis(dtheta)
+#     dq = tft.quaternion_about_axis(angle, axis)
+#
+#     res = [
+#         ts.p() + ts.v() * dt + 0.5 * acc * dt**2,
+#         ts.v() + acc * dt + pn.v(),
+#         tft.quaternion_multiply(ts.q(), dq),
+#         ts.ab() + pn.ab(),
+#         ts.wb() + pn.wb()
+#     ]
+#     return np.concatenate(res)
+#
+#
+# # nominal state, error state conjugation
+# # nominal state + error state ==> nominal state
+# def combination(ns, es):
+#     angle, axis = axisangle_to_angle_axis(es.q())
+#     res = [
+#         ns.p() + es.p(),
+#         ns.v() + es.v(),
+#         tft.quaternion_multiply(ns.q(), tft.quaternion_about_axis(angle, axis)),
+#         ns.ab() + es.ab(),
+#         ns.wb() + es.wb()
+#     ]
+#     return np.concatenate(res)
+#
+#
+# # nominal state difference
+# # nominal state(ns1) - nominal state(ns0) ==> error state
+# def difference(ns1, ns0):
+#     angle, axis = quaternion_to_angle_axis(tft.quaternion_multiply(tft.quaternion_inverse(ns0.q()), ns1.q()))
+#     res = [
+#         ns1.p() - ns0.p(),
+#         ns1.v() - ns0.v(),
+#         axis * angle,
+#         ns1.ab() - ns0.ab(),
+#         ns1.wb() - ns0.wb()
+#     ]
+#     return np.concatenate(res)
+#
+#
+# kf = KalmanFilter(
+#     # nominal/true state template
+#     [
+#         ['p', 3],
+#         ['v', 3],
+#         ['q', 4],
+#         ['ab', 3],
+#         ['wb', 3]
+#     ],
+#
+#     # error state template
+#     [
+#         ['p', 3],
+#         ['v', 3],
+#         ['q', 3],
+#         ['ab', 3],
+#         ['wb', 3]
+#     ],
+#
+#     # process noise template
+#     [
+#         ['v', 3],
+#         ['q', 3],
+#         ['ab', 3],
+#         ['wb', 3]
+#     ],
+#
+#     # motion model input template
+#     [
+#         ['a', 3],
+#         ['w', 3]
+#     ],
+#
+#     motion_model,
+#     combination,
+#     difference
+# )
+#
+#
+# kf.initialize([
+#     ['p', [1, 2, 3], [[1,0,0],[0,1,0],[0,0,1]], 1.7]
+# ])
+#
+# kf.initialize([
+#     ['q', [0, 0, 0, 1], [[1,0,0],[0,1,0],[0,0,1]], 1.7]
+# ])
+#
+# kf.initialize([
+#     ['v',  [3,3,3], np.eye(3), 2.0],
+#     ['ab', [4,4,4], np.eye(3), 2.0],
+#     ['wb', [2,2,2], np.eye(3), 2.0]
+# ])
+#
+#
+# kf.predict(np.concatenate([[1,1,1],[2,2,2]]), np.eye(12), 2.5)
+#
+# def meas_fun(ns):
+#     return np.ones(3) - ns.p()
+#
+# def hx_fun(ns):
+#     return nd.Jacobian(meas_fun)(ns)
+#
+# kf.correct_absolute(meas_fun, np.eye(3), 2.5, measurement_name='apple')
