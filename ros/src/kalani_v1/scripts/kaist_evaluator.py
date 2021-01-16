@@ -168,7 +168,7 @@ if __name__ == '__main__':
         rospy.init_node(Constants.EVALUATOR_NODE_NAME, anonymous=True)
         log('Node initialized.')
 
-        ds = KAISTData('/home/entc/kalani/data/kaist/urban17', gnss=False)
+        ds = KAISTData('/home/pasan/kalani-data/kaist/urban17', gnss=False)
         gt = np.array([ds.groundtruth.time, ds.groundtruth.x, ds.groundtruth.y, ds.groundtruth.z, ds.groundtruth.r, ds.groundtruth.p, ds.groundtruth.h]).T
 
         # gt_function = interp1d(gt[:, 0], gt[:, 1:7], axis=0, bounds_error=False, fill_value='extrapolate', kind='linear')

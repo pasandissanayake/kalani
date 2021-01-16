@@ -27,18 +27,18 @@ var_altitude = None
 
 
 def publish_state():
-    state = kf.get_state_as_numpy()
+    state, timestamp, is_valid = kf.get_current_state()
     msg = State()
-    msg.header.stamp = rospy.Time.from_sec(state[-2])
+    msg.header.stamp = rospy.Time.from_sec(timestamp)
     msg.header.frame_id = config['tf_frame_odom']
     msg.position.x, msg.position.y, msg.position.z = list(state[0:3])
     msg.velocity.x, msg.velocity.y, msg.velocity.z = list(state[3:6])
-    msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(state[6:10])
+    msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w = list(state[6:10])
     [msg.euler.x, msg.euler.y, msg.euler.z] = tft.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w], axes='sxyz')
     msg.accleration_bias.x, msg.accleration_bias.y, msg.accleration_bias.z = list(state[10:13])
     msg.angularvelocity_bias.x, msg.angularvelocity_bias.y, msg.angularvelocity_bias.z = list(state[13:16])
-    msg.covariance = kf.get_covariance_as_numpy().tolist()
-    msg.is_initialized = bool(state[-1])
+    msg.covariance = kf.get_current_cov()
+    msg.is_initialized = is_valid
     state_pub.publish(msg)
 
     transform = TransformStamped()
@@ -46,7 +46,7 @@ def publish_state():
     transform.header.frame_id = config['tf_frame_odom']
     transform.child_frame_id = config['tf_frame_state']
     transform.transform.translation.x, transform.transform.translation.y, transform.transform.translation.z  = state[0:3]
-    transform.transform.rotation.w, transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z = state[6:10]
+    transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z, transform.transform.rotation.w = state[6:10]
     tf2_broadcaster.sendTransform(transform)
 
 
@@ -76,24 +76,18 @@ def gnss_callback(data):
     gnss_fix = np.array([data.pose.pose.position.x, data.pose.pose.position.y, altitude])
     cov = np.reshape(data.pose.covariance, (6,6))[0:3, 0:3]
     cov[2, 2] = var_altitude
-    if kf.is_initialized() and altitude is not None:
-        def h(state):
-            return state[0:3]
-        def meas_func(state):
-            return gnss_fix - h(state)
-        def hx_func(state):
-            jacob_h = numdiff.Jacobian(h)
-            return jacob_h(state)
-        kf.correct(meas_func, hx_func, cov * 1e-2, t, measurementname='gnss')
+    if kf.is_initialized and altitude is not None:
+        def meas_fun(ns):
+            return ns.p()
+        kf.correct_absolute(meas_fun, gnss_fix, cov, t, measurement_name='gnss')
         publish_gnss(t, gnss_fix)
     elif altitude is not None:
-        kf.initialize_state(
-            p=gnss_fix, cov_p=np.diagonal(cov),
-            v=init_velocity, cov_v=init_var_velocity,
-            ab=init_imu_linear_acceleration_bias, cov_ab=var_imu_linear_acceleration_bias,
-            wb=init_imu_angular_velocity_bias, cov_wb=var_imu_angular_velocity_bias,
-            time=t
-        )
+        kf.initialize([
+            ['p', gnss_fix, cov, t],
+            ['v', init_velocity, np.diag(init_var_velocity), t],
+            ['ab', init_imu_linear_acceleration_bias, np.diag(var_imu_linear_acceleration_bias), t],
+            ['wb', init_imu_angular_velocity_bias, np.diag(var_imu_angular_velocity_bias), t]
+        ])
 
 
 def alt_callback(data):
@@ -132,9 +126,14 @@ def imu_callback(data):
     angular_velocity = np.array([data.angular_velocity.x, data.angular_velocity.y, data.angular_velocity.z])
     var_am = np.reshape(data.linear_acceleration_covariance, (3,3))
     var_wm = np.reshape(data.angular_velocity_covariance, (3,3))
-    if kf.is_initialized():
-        kf.predict(linear_acceleration, var_am, angular_velocity, var_wm, np.diag(var_imu_linear_acceleration_bias),
-                   np.diag(var_imu_angular_velocity_bias), t, input_name='imu')
+    cov = np.eye(12)
+    cov[0:3, 0:3] = var_am
+    cov[3:6, 3:6] = var_wm
+    cov[6:9, 6:9] = var_imu_linear_acceleration_bias
+    cov[9:12, 9:12] = var_imu_angular_velocity_bias
+    if kf.is_initialized:
+        inputs = np.concatenate([linear_acceleration, angular_velocity])
+        kf.predict(inputs, cov, t, input_name='imu')
         publish_state()
 
 
@@ -144,36 +143,28 @@ def mag_callback(data):
     magnetic_field = np.array([data.magnetic_field.x, data.magnetic_field.y, data.magnetic_field.z])
     cov = np.reshape(data.magnetic_field_covariance, (3,3))
     orientation = get_orientation_from_magnetic_field(magnetic_field, linear_acceleration)
-    if kf.is_initialized():
-        def h(state):
-            return state[6:10]
-        def meas_func(state):
-            return quaternion_xyzw2wxyz(tft.quaternion_multiply(orientation, tft.quaternion_conjugate(quaternion_wxyz2xyzw(h(state)))))
-        def hx_func(state):
-            jacob_h = numdiff.Jacobian(h)
-            return jacob_h(state)
-        def q_from_e(e):
-            return quaternion_xyzw2wxyz(tft.quaternion_from_euler(e[0],e[1],e[2]))
-        jacob_q_from_e = numdiff.Jacobian(q_from_e)
-        J = jacob_q_from_e(tft.euler_from_quaternion(quaternion_wxyz2xyzw(orientation)))
-        cov = np.matmul(J, np.matmul(cov, J.T))
-        kf.correct(meas_func,hx_func,cov,t,measurementname='magnetometer')
+    angle, axis = quaternion_to_angle_axis(orientation)
+    meas_axisangle = angle * axis
+    if kf.is_initialized:
+        def meas_fun(ns):
+            angle, axis = quaternion_to_angle_axis(ns.q())
+            return angle * axis
+        kf.correct_absolute(meas_fun, meas_axisangle, cov, t, measurement_name='magnetometer')
         publish_magnetic(t, orientation)
     else:
-        kf.initialize_state(
-            v=init_velocity, cov_v=init_var_velocity,
-            q=quaternion_xyzw2wxyz(orientation), cov_q=cov.diagonal(),
-            ab=init_imu_linear_acceleration_bias, cov_ab=var_imu_linear_acceleration_bias,
-            wb=init_imu_angular_velocity_bias, cov_wb=var_imu_angular_velocity_bias,
-            time=t
-        )
+        kf.initialize([
+            ['v', init_velocity, np.diag(init_var_velocity), t],
+            ['q', orientation, cov, t],
+            ['ab', init_imu_linear_acceleration_bias, np.diag(var_imu_linear_acceleration_bias), t],
+            ['wb', init_imu_angular_velocity_bias, np.diag(var_imu_angular_velocity_bias), t]
+        ])
 
 
 def laserodom_callback(data):
     pass
 
 
-def publish_static_transforms(static_broadcastor):
+def publish_static_transforms(static_broadcaster):
     # world to map static transformation
     world2map_static_tf = TransformStamped()
     world2map_static_tf.header.stamp = rospy.Time.now()
@@ -200,7 +191,7 @@ def publish_static_transforms(static_broadcastor):
     map2odom_static_tf.transform.rotation.y = 0
     map2odom_static_tf.transform.rotation.z = 0
 
-    static_broadcastor.sendTransform([world2map_static_tf, map2odom_static_tf])
+    static_broadcaster.sendTransform([world2map_static_tf, map2odom_static_tf])
 
 
 if __name__ == '__main__':
@@ -234,7 +225,74 @@ if __name__ == '__main__':
     init_imu_linear_acceleration_bias = np.array(rospy.get_param('/kalani/init/init_imu_linear_acceleration_bias'))
     init_imu_angular_velocity_bias    = np.array(rospy.get_param('/kalani/init/init_imu_angular_velocity_bias')   )
 
-    kf = KalmanFilter()
+    # Kalman filter formation
+    def motion_model(ts, mmi, pn, dt):
+        R = tft.quaternion_matrix(ts.q())[0:3, 0:3]  # body frame to enu frame transform matrix (from state quaternion)
+        g = np.array([0, 0, config['gravity']])  # gravitational acceleration in ENU frame
+        angle, axis = axisangle_to_angle_axis((mmi.w() + pn.w() - ts.wb())*dt)
+        return np.concatenate([
+            ts.p() + ts.v() * dt + 0.5 * (np.matmul(R, mmi.a() + pn.a() - ts.ab()) + g) * dt**2,
+            ts.v() + (np.matmul(R, mmi.a() + pn.a() - ts.ab()) + g) * dt,
+            tft.quaternion_multiply(ts.q(), tft.quaternion_about_axis(angle, axis)),
+            ts.ab() + pn.ab(),
+            ts.wb() + pn.wb(),
+        ])
+
+    def combination(ns, es):
+        angle, axis = axisangle_to_angle_axis(es.q())
+        return np.concatenate([
+            ns.p() + es.p(),
+            ns.v() + es.v(),
+            tft.quaternion_multiply(ns.q(), tft.quaternion_about_axis(angle, axis)),
+            ns.ab() + es.ab(),
+            ns.wb() + es.wb(),
+        ])
+
+    def difference(ns1, ns0):
+        angle, axis = quaternion_to_angle_axis(tft.quaternion_multiply(ns1.q(), tft.quaternion_conjugate(ns0.q())))
+        return np.concatenate([
+            ns1.p() - ns0.p(),
+            ns1.v() - ns0.v(),
+            angle * axis,
+            ns1.ab() - ns0.ab(),
+            ns1.wb() - ns0.wb(),
+        ])
+
+    # ns_template, es_template, pn_template, mmi_template, motion_model(ts, mmi, pn, dt),
+    # combination(ns, es), difference(ns1, ns0)
+    kf = KalmanFilter(
+        # nominal state template
+        [
+            ['p', 3],
+            ['v', 3],
+            ['q', 4],
+            ['ab', 3],
+            ['wb', 3],
+        ],
+        # error state template
+        [
+            ['p', 3],
+            ['v', 3],
+            ['q', 3],
+            ['ab', 3],
+            ['wb', 3],
+        ],
+        # process noise template
+        [
+            ['a', 3],
+            ['w', 3],
+            ['ab', 3],
+            ['wb', 3],
+        ],
+        # motion model input template
+        [
+            ['a', 3],
+            ['w', 3],
+        ],
+        motion_model,
+        combination,
+        difference
+    )
 
     log.log('Node ready.')
 

@@ -13,11 +13,11 @@ import tf.transformations as tft
 from kalman_filter import KalmanFilter
 
 POINTSpS = 1 # points per second
-DURATION = 1000  # duration in seconds
+DURATION = 100  # duration in seconds
 POINTS = POINTSpS * DURATION
 t = np.linspace(0.1, DURATION, POINTS)
 # g = np.array([np.cos(0.2 * t) + 0.5 * np.cos(0.5 * t), t]).T
-g = np.array([np.cos(0.2 * t) + 0.5 * np.cos(0.5 * t), np.sin(0.2 * t)+3]).T
+g = np.array([10*np.cos(0.2 * t) + 5 * np.cos(0.5 * t), 10*np.sin(0.2 * t)+30]).T
 g = g * 4
 
 v_std = 1e-0
@@ -36,7 +36,7 @@ noisy_g = np.array([g[:,0] + g_noise[:, 0], g[:, 1] + g_noise[:, 1]]).T
 
 b_std = 1e-4
 
-d_std = 1e-0
+d_std = 1e-1
 g_dif = np.diff(g, axis=0)
 g_dif = np.concatenate([[[0, 0]], g_dif])
 g_dif_noise = np.random.normal(scale=d_std, size=(POINTS, 2))
@@ -46,39 +46,32 @@ g_dif[:,1] = g_dif[:,1] + g_dif_noise[:,1]
 def motion_model(ts, mmi, pn, dt):
     return np.array([
         ts.p() + (mmi.v() + pn.v()) * dt,
-        # ts.p() + (mmi.v() + pn.v()) * dt + ts.b(),
-        # ts.b() + pn.b()
     ]).ravel()
 
 def combination(ns, es):
     return np.array([
         ns.p() + es.p(),
-        # ns.b() + es.b()
     ]).ravel()
 
 def difference(ns1, ns0):
     return np.array([
         ns1.p() - ns0.p(),
-        # ns1.b() - ns0.b()
     ]).ravel()
 kf = KalmanFilter(
     [
-        ['p', 2],
-        # ['b', 2]
+        ['p', 1],
     ],
 
     [
-        ['p', 2],
-        # ['b', 2]
+        ['p', 1],
     ],
 
     [
-        ['v', 2],
-        # ['b', 2]
+        ['v', 1],
     ],
 
     [
-        ['v', 2]
+        ['v', 1]
     ],
 
     motion_model,
@@ -87,8 +80,7 @@ kf = KalmanFilter(
 )
 kf.initialize(
     [
-        ['p', [-2,0], np.eye(2) * g_std**2, 0.0],
-        # ['b', [0,0], np.eye(2) * b_std**2, 0,0]
+        ['p', [-2], np.eye(1) * g_std**2, 0.0],
     ]
 )
 
@@ -103,10 +95,9 @@ for i in range(len(g)):
     sw = Stopwatch()
     sw.start()
     kf.predict(
-        v[i],
+        v[i,0],
         np.diag(np.concatenate([
-            np.ones(2) * 1 * v_std**2,
-            # np.ones(2) * b_std**2
+            np.ones(1) * 1 * v_std**2,
         ])),
         t[i],
         input_name='velocity'
@@ -116,24 +107,24 @@ for i in range(len(g)):
     sw = Stopwatch()
     sw.start()
 
-    # def meas_fun(ns):
-    #     return ns.p()
-    # if i > 2:
-    #     kf.correct_absolute(
-    #         meas_fun,
-    #         noisy_g[i-1],
-    #         np.eye(2) * 1 * g_std**2,
-    #         t[i-1],
-    #         measurement_name='position'
-    #     )
+    def meas_fun(ns):
+        return ns.p()
+    if i > 2:
+        kf.correct_absolute(
+            meas_fun,
+            noisy_g[i-1,0],
+            np.eye(1) * 1 * g_std**2,
+            t[i-1],
+            measurement_name='position'
+        )
 
     def meas_rel(ns1, ns0):
         return ns1.p() - ns0.p()
     if i > 2:
         kf.correct_relative(
             meas_rel,
-            g_dif[i],
-            np.eye(2) * d_std**2,
+            g_dif[i,0],
+            np.eye(1) * d_std**2,
             t[i],
             t[i-1],
             measurement_name='position'
@@ -146,8 +137,8 @@ out = np.array(out)
 out_cov = np.array(out_cov)
 t = np.concatenate([[0], t])
 
-print 'rms error in x: {}m,  rms error in y: {}m'.format(np.sqrt(np.mean((out[1:,0]-g[:,0])**2)), np.sqrt(np.mean((out[1:,1]-g[:,1])**2)))
-print 'prediction time: {}s,  correction time: {}s'.format(np.average(prediction_time), np.average(correction_time))
+# print 'rms error in x: {}m,  rms error in y: {}m'.format(np.sqrt(np.mean((out[1:,0]-g[:,0])**2)), np.sqrt(np.mean((out[1:,1]-g[:,1])**2)))
+# print 'prediction time: {}s,  correction time: {}s'.format(np.average(prediction_time), np.average(correction_time))
 
 fig1, (ax1, ax2) = plt.subplots(2,1)
 
@@ -158,14 +149,14 @@ ax1.plot(t, out[:, 0] + 3 * np.sqrt(out_cov[:, 0]), '--', label='x upper bound')
 ax1.plot(t, out[:, 0] - 3 * np.sqrt(out_cov[:, 0]), '--', label='x lower bound')
 ax1.legend()
 ax1.grid()
-
-ax2.plot(t[1:], g[:, 1], label='y ground truth')
-ax2.plot(t[1:], noisy_g[:, 1], '.', label='y measurement')
-ax2.plot(t, out[:, 1], label='y estimate')
-ax2.plot(t, out[:, 1] + 3 * np.sqrt(out_cov[:, 3]), '--', label='y upper bound')
-ax2.plot(t, out[:, 1] - 3 * np.sqrt(out_cov[:, 3]), '--', label='y lower bound')
-ax2.legend()
-ax2.grid()
+#
+# ax2.plot(t[1:], g[:, 1], label='y ground truth')
+# ax2.plot(t[1:], noisy_g[:, 1], '.', label='y measurement')
+# ax2.plot(t, out[:, 1], label='y estimate')
+# ax2.plot(t, out[:, 1] + 3 * np.sqrt(out_cov[:, 3]), '--', label='y upper bound')
+# ax2.plot(t, out[:, 1] - 3 * np.sqrt(out_cov[:, 3]), '--', label='y lower bound')
+# ax2.legend()
+# ax2.grid()
 
 fig2, (bx1, bx2) = plt.subplots(2, 1)
 

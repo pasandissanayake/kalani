@@ -126,8 +126,6 @@ class KalmanFilter:
         # Allowed maximum gap between any two initial state variables (in seconds)
         self.STATE_INIT_TIME_THRESHOLD = kf_config['state_init_time_threshold']
 
-        self._g = np.array([0, 0, kf_config['gravity']])
-
         self._state_buffer = StateBuffer(self.STATE_BUFFER_LENGTH)
         self._lock = threading.RLock()
 
@@ -143,6 +141,7 @@ class KalmanFilter:
         self._mmi_len = template_len(mmi_template)
 
         self._ns_timestamps = {s[0]:-1 for s in ns_template}
+        self.is_initialized = False
 
         def ns_motion_model(ns, mmi, dt):
             pn = sarray(self._pn_template, np.zeros(self._pn_len))
@@ -180,6 +179,7 @@ class KalmanFilter:
 
 
     def initialize(self, vals):
+        # vals in the form ['sub state name', value, cov, timestamp]
         # check whether a state object is available within the buffer
         if self._state_buffer.get_buffer_length() > 0:
             so = self._state_buffer.get_state(-1)
@@ -210,6 +210,9 @@ class KalmanFilter:
                 is_initialized = False
         so.timestamp = val_max
         so.is_valid = is_initialized
+        self.is_initialized = is_initialized
+        if self.is_initialized:
+            log.log('Filter initialized.')
         # store the modified state object in buffer
         if update:
             self._state_buffer.update_state(so)
@@ -372,7 +375,6 @@ class KalmanFilter:
         dx1 = K1.dot(measurement - meas_fun(so1.ns, so0.ns))
         dx0 = K[0:self._es_len].dot(measurement - meas_fun(so1.ns, so0.ns))
         corrected_ns1 = self._combination(so1.ns, -dx1)
-        print dx1, dx0
 
         so_new = StateObject(self._ns_template, self._es_template, self._mmi_template)
         so_new.ns = sarray(self._ns_template, corrected_ns1)
@@ -427,135 +429,10 @@ class KalmanFilter:
         self._state_buffer.update_state(so_new, load_index - 1)
 
 
-
-
     def get_current_state(self):
-        # if self._state_buffer.get_buffer_length() > 1:
-        #     return self._state_buffer.get_state(-2).ns
-        return self._state_buffer.get_state(-1).ns
+        so = self._state_buffer.get_state(-1)
+        return so.ns, so.timestamp, so.is_valid
+
 
     def get_current_cov(self):
-        # if self._state_buffer.get_buffer_length() > 1:
-        #     return self._state_buffer.get_state(-2).es_cov.ravel()
         return self._state_buffer.get_state(-1).es_cov.ravel()
-
-
-
-
-
-
-
-#
-#
-#
-# # motion model
-# def motion_model(ts, mmi, pn, dt):
-#     gravity = np.array([0, 0, -9.8])
-#     R = tft.quaternion_matrix(ts.q())[0:3,0:3]
-#     acc = (np.matmul(R, (mmi.a()-ts.ab())) + gravity)
-#
-#     dtheta = (mmi.w() - ts.wb()) * dt + pn.q()
-#     angle, axis = axisangle_to_angle_axis(dtheta)
-#     dq = tft.quaternion_about_axis(angle, axis)
-#
-#     res = [
-#         ts.p() + ts.v() * dt + 0.5 * acc * dt**2,
-#         ts.v() + acc * dt + pn.v(),
-#         tft.quaternion_multiply(ts.q(), dq),
-#         ts.ab() + pn.ab(),
-#         ts.wb() + pn.wb()
-#     ]
-#     return np.concatenate(res)
-#
-#
-# # nominal state, error state conjugation
-# # nominal state + error state ==> nominal state
-# def combination(ns, es):
-#     angle, axis = axisangle_to_angle_axis(es.q())
-#     res = [
-#         ns.p() + es.p(),
-#         ns.v() + es.v(),
-#         tft.quaternion_multiply(ns.q(), tft.quaternion_about_axis(angle, axis)),
-#         ns.ab() + es.ab(),
-#         ns.wb() + es.wb()
-#     ]
-#     return np.concatenate(res)
-#
-#
-# # nominal state difference
-# # nominal state(ns1) - nominal state(ns0) ==> error state
-# def difference(ns1, ns0):
-#     angle, axis = quaternion_to_angle_axis(tft.quaternion_multiply(tft.quaternion_inverse(ns0.q()), ns1.q()))
-#     res = [
-#         ns1.p() - ns0.p(),
-#         ns1.v() - ns0.v(),
-#         axis * angle,
-#         ns1.ab() - ns0.ab(),
-#         ns1.wb() - ns0.wb()
-#     ]
-#     return np.concatenate(res)
-#
-#
-# kf = KalmanFilter(
-#     # nominal/true state template
-#     [
-#         ['p', 3],
-#         ['v', 3],
-#         ['q', 4],
-#         ['ab', 3],
-#         ['wb', 3]
-#     ],
-#
-#     # error state template
-#     [
-#         ['p', 3],
-#         ['v', 3],
-#         ['q', 3],
-#         ['ab', 3],
-#         ['wb', 3]
-#     ],
-#
-#     # process noise template
-#     [
-#         ['v', 3],
-#         ['q', 3],
-#         ['ab', 3],
-#         ['wb', 3]
-#     ],
-#
-#     # motion model input template
-#     [
-#         ['a', 3],
-#         ['w', 3]
-#     ],
-#
-#     motion_model,
-#     combination,
-#     difference
-# )
-#
-#
-# kf.initialize([
-#     ['p', [1, 2, 3], [[1,0,0],[0,1,0],[0,0,1]], 1.7]
-# ])
-#
-# kf.initialize([
-#     ['q', [0, 0, 0, 1], [[1,0,0],[0,1,0],[0,0,1]], 1.7]
-# ])
-#
-# kf.initialize([
-#     ['v',  [3,3,3], np.eye(3), 2.0],
-#     ['ab', [4,4,4], np.eye(3), 2.0],
-#     ['wb', [2,2,2], np.eye(3), 2.0]
-# ])
-#
-#
-# kf.predict(np.concatenate([[1,1,1],[2,2,2]]), np.eye(12), 2.5)
-#
-# def meas_fun(ns):
-#     return np.ones(3) - ns.p()
-#
-# def hx_fun(ns):
-#     return nd.Jacobian(meas_fun)(ns)
-#
-# kf.correct_absolute(meas_fun, np.eye(3), 2.5, measurement_name='apple')

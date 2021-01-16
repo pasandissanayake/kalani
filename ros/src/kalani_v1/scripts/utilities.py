@@ -179,6 +179,9 @@ def quaternion_to_angle_axis(q):
     :param q: quaternion in xyzw form
     :return: angle, axis
     '''
+    norm = np.linalg.norm(q)
+    if norm > 0:
+        q = q / norm
     half_angle = np.arccos(q[3])
     if half_angle != 0:
         axis = np.array(q[:3]) / half_angle
