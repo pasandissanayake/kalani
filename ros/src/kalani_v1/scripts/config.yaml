@@ -2,11 +2,18 @@ general:
 
   # node names
   locator_node_name: 'locator'
+  evaluator_node_name: 'evaluator'
 
-  # output data topics
-  state_topic: '/kalani/state' # type: nav_msgs/Odometry
+  # locator data topics
+  state_topic: '/kalani/state' # type: kalani_v1/State
 
-  # tf ids for output data
+  # evaluator data topics
+  error_topic: '/kalani/evaluate/error' # type: kalani_v1/Error
+  gt_path_topic: '/kalani/evaluate/gt_path' # type: nav_msgs/Path
+  state_path_topic: '/kalani/evaluate/state_path' # type: nav_msgs/Path
+  cov_ellipsoid_topic: '/kalani/evaluate/cov_ellipsoid' # type: visualization_msgs/Marker
+
+  # tf parent ids for output data
   tf_frame_world: 'world'
   tf_frame_map: 'map'
   tf_frame_odom: 'odom'
@@ -18,7 +25,7 @@ general:
   tf_frame_magneto: 'magneto'
   tf_frame_groundtruth: 'gt'
 
-  # processed data topics
+  # processed data topics (before feeding to the locator)
   processed_gnss_topic: '/kalani/processed_data/gnss' # type: nav_msgs/Odometry
   processed_altitude_topic: '/kalani/processed_data/altitude' # type: nav_msgs/Odometry
   processed_imu_topic: '/kalani/processed_data/imu' # type: sensor_msgs/Imu

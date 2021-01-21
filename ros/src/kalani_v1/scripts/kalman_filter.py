@@ -231,7 +231,7 @@ class KalmanFilter:
                 return
             so_time = so.timestamp
             if so_time >= timestamp:
-                log.log('MM input {} is too old. Input time: {} s, closest state time: {} s, loadindex: {}'.format(input_name, timestamp, so_time, load_index))
+                log.log('MM input "{}" is too old. Input time: {} s, closest state time: {} s, loadindex: {}'.format(input_name, timestamp, so_time, load_index))
                 return
 
             dt = timestamp - so_time
@@ -268,15 +268,16 @@ class KalmanFilter:
             latest_ts = self._state_buffer.get_state(-1).timestamp
             if timestamp < oldest_ts:
                 log.log(
-                    'Measurement {} is too early. Measurement time: {}, latest state time: {}'.format(measurement_name,
-                                                                                                        timestamp,
-                                                                                                        latest_ts))
+                    'Measurement "{}" is too old. Measurement time: {}, oldest state time: {}'.format(measurement_name,
+                                                                                                      timestamp,
+                                                                                                      oldest_ts))
                 return
             elif timestamp > latest_ts + self.STATE_INIT_TIME_THRESHOLD:
                 log.log(
-                    'Measurement {} is too old. Measurement time: {}, oldest state time: {}'.format(measurement_name,
-                                                                                                    timestamp,
-                                                                                                    oldest_ts))
+                    'Measurement "{}" is too early. Measurement time: {}, latest state time: {}'.format(
+                        measurement_name,
+                        timestamp,
+                        latest_ts))
                 return
 
             so_index = self._state_buffer.get_index_of_closest_state_in_time(timestamp)
@@ -402,7 +403,7 @@ class KalmanFilter:
 
     def backward_smooth(self, load_index):
         if self._state_buffer.get_buffer_length() <= load_index or load_index <= 0:
-            log.log('Backward smooth start index: {} is out of bounds'.format(load_index))
+            log.log('Backward smooth start index: "{}" is out of bounds'.format(load_index))
             return
 
         so_current = self._state_buffer.get_state(load_index)
@@ -436,3 +437,11 @@ class KalmanFilter:
 
     def get_current_cov(self):
         return self._state_buffer.get_state(-1).es_cov.ravel()
+
+
+    def get_ns_length(self):
+        return copy(self._ns_len)
+
+
+    def get_es_length(self):
+        return copy(self._es_len)

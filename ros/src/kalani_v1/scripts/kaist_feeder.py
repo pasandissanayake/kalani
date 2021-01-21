@@ -106,7 +106,7 @@ if __name__ == '__main__':
     log.log('Node initialized.')
 
     current_time = -1
-    rate = 0.05
+    rate = 0.5
     pause = True
     step = False
 

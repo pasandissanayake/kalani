@@ -203,3 +203,27 @@ def axisangle_to_angle_axis(v):
     else:
         axis = np.zeros(3)
     return angle, axis
+
+
+def rpy_jacobian_axis_angle(a):
+    """Jacobian of RPY Euler angles with respect to axis-angle vector."""
+    if not (type(a) == np.ndarray and len(a) == 3):
+        raise ValueError("'a' must be a np.ndarray with length 3.")
+    # From three-parameter representation, compute u and theta.
+    na = np.sqrt(a.dot(a))
+    na3 = na**3
+    t = np.sqrt(a.dot(a))
+    u = a/t
+
+    # First-order approximation of Jacobian wrt u, t.
+    Jr = np.array([[t/(t**2*u[0]**2 + 1), 0, 0, u[0]/(t**2*u[0]**2 + 1)],
+                   [0, t/np.sqrt(1 - t**2*u[1]**2), 0, u[1]/np.sqrt(1 - t**2*u[1]**2)],
+                   [0, 0, t/(t**2*u[2]**2 + 1), u[2]/(t**2*u[2]**2 + 1)]])
+
+    # Jacobian of u, t wrt a.
+    Ja = np.array([[(a[1]**2 + a[2]**2)/na3,        -(a[0]*a[1])/na3,        -(a[0]*a[2])/na3],
+                   [       -(a[0]*a[1])/na3, (a[0]**2 + a[2]**2)/na3,        -(a[1]*a[2])/na3],
+                   [       -(a[0]*a[2])/na3,        -(a[1]*a[2])/na3, (a[0]**2 + a[1]**2)/na3],
+                   [                a[0]/na,                 a[1]/na,                 a[2]/na]])
+
+    return Jr.dot(Ja)

@@ -26,23 +26,25 @@ altitude = None
 var_altitude = None
 
 
-def publish_state():
+def publish_state(transform_only=False):
     state, timestamp, is_valid = kf.get_current_state()
-    msg = State()
-    msg.header.stamp = rospy.Time.from_sec(timestamp)
-    msg.header.frame_id = config['tf_frame_odom']
-    msg.position.x, msg.position.y, msg.position.z = list(state[0:3])
-    msg.velocity.x, msg.velocity.y, msg.velocity.z = list(state[3:6])
-    msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w = list(state[6:10])
-    [msg.euler.x, msg.euler.y, msg.euler.z] = tft.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w], axes='sxyz')
-    msg.accleration_bias.x, msg.accleration_bias.y, msg.accleration_bias.z = list(state[10:13])
-    msg.angularvelocity_bias.x, msg.angularvelocity_bias.y, msg.angularvelocity_bias.z = list(state[13:16])
-    msg.covariance = kf.get_current_cov()
-    msg.is_initialized = is_valid
-    state_pub.publish(msg)
+
+    if not transform_only:
+        msg = State()
+        msg.header.stamp = rospy.Time.from_sec(timestamp)
+        msg.header.frame_id = config['tf_frame_odom']
+        msg.position.x, msg.position.y, msg.position.z = list(state[0:3])
+        msg.velocity.x, msg.velocity.y, msg.velocity.z = list(state[3:6])
+        msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w = list(state[6:10])
+        [msg.euler.x, msg.euler.y, msg.euler.z] = tft.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w], axes='sxyz')
+        msg.accleration_bias.x, msg.accleration_bias.y, msg.accleration_bias.z = list(state[10:13])
+        msg.angularvelocity_bias.x, msg.angularvelocity_bias.y, msg.angularvelocity_bias.z = list(state[13:16])
+        msg.covariance = kf.get_current_cov()
+        msg.is_initialized = is_valid
+        state_pub.publish(msg)
 
     transform = TransformStamped()
-    transform.header.stamp = msg.header.stamp
+    transform.header.stamp = rospy.Time.from_sec(timestamp)
     transform.header.frame_id = config['tf_frame_odom']
     transform.child_frame_id = config['tf_frame_state']
     transform.transform.translation.x, transform.transform.translation.y, transform.transform.translation.z  = state[0:3]
@@ -91,29 +93,6 @@ def gnss_callback(data):
 
 
 def alt_callback(data):
-    # global altitude
-    # t = data.header.stamp.to_sec()
-    # altitude = data.pose.pose.position.z
-    # cov = np.reshape(data.pose.covariance, (6, 6))[2, 2]
-    # if kf.is_initialized():
-    #     def h(state):
-    #         return state[2]
-    #
-    #     def meas_func(state):
-    #         return altitude - h(state)
-    #
-    #     def hx_func(state):
-    #         jacob_h = numdiff.Jacobian(h)
-    #         return np.reshape(jacob_h(state), (1,-1))
-    #     kf.correct(meas_func, hx_func, np.reshape(cov, (1,-1)), t, measurementname='altitude')
-    # else:
-    #     kf.initialize_state(
-    #         p_z=altitude, cov_p_z=cov,
-    #         v=init_velocity, cov_v=init_var_velocity,
-    #         ab=init_imu_linear_acceleration_bias, cov_ab=var_imu_linear_acceleration_bias,
-    #         wb=init_imu_angular_velocity_bias, cov_wb=var_imu_angular_velocity_bias,
-    #         time=t
-    #     )
     global altitude, var_altitude
     altitude = data.pose.pose.position.z
     var_altitude = np.reshape(data.pose.covariance, (6, 6))[2, 2]
