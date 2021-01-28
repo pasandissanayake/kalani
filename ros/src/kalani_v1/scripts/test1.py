@@ -2,40 +2,54 @@ import numpy as np
 from utilities import *
 from matplotlib import pyplot as plt
 from kaist_datahandle import *
+from pyproj import Proj
+from scipy.interpolate import interp1d
 import time
 
 start = time.time()
 kd = KAISTData()
 print 'loading started'
-kd.load_data(groundtruth=True, gnss=True, imu=False, altitude=False, vlpleft=False)
+sequence = 'urban17'
+kd.load_data(sequence=sequence, groundtruth=True, gnss=True, imu=False, altitude=False, vlpleft=False)
 print 'loading done. time elapsed: {} s'.format(time.time() - start)
 print 'start time: {:.9f} s'.format(kd.groundtruth.time[0],)
-# plt.plot(kd.groundtruth.time[:-1], np.diff(kd.groundtruth.x)/np.diff(kd.groundtruth.time), 'x', label='gt-x')
-# plt.plot(kd.groundtruth.time[:-1], np.diff(kd.groundtruth.y)/np.diff(kd.groundtruth.time), 'x', label='gt-y')
-# plt.plot(kd.groundtruth.time[:-1], np.diff(kd.groundtruth.z)/np.diff(kd.groundtruth.time), 'x', label='gt-z')
-# r = range(len(kd.groundtruth.time)-1)
-# plt.plot(r, np.diff(kd.groundtruth.x)/np.diff(kd.groundtruth.time), label='gt-x')
-# plt.plot(r, np.diff(kd.groundtruth.y)/np.diff(kd.groundtruth.time), label='gt-y')
-# plt.plot(r, np.diff(kd.groundtruth.z)/np.diff(kd.groundtruth.time), label='gt-z')
 
-n = np.zeros(kd.gnss.x.shape[0])
-std = np.sqrt(5)
-n[0] = kd.groundtruth.interp_x(kd.gnss.time[0])
-n[1] = kd.groundtruth.interp_x(kd.gnss.time[1])
-n[2] = kd.groundtruth.interp_x(kd.gnss.time[2])
-n[3] = kd.groundtruth.interp_x(kd.gnss.time[3])
-for i in range(4,len(n)):
-    n[i] = kd.gnss.x[i] + (kd.gnss.x[i-1] - n[i-1]) - 0.3 * (kd.gnss.x[i-2] - n[i-2] - kd.gnss.x[i-3] + n[i-3]) - 0.3 * (kd.gnss.x[i-3] - n[i-3] - kd.gnss.x[i-4] + n[i-4])
-bins = 20
-fig, (ax1, ax2) = plt.subplots(1,2)
-ax1.hist(n-kd.groundtruth.interp_x(kd.gnss.time), bins=bins, label='after')
-ax2.hist(kd.gnss.x-kd.groundtruth.interp_x(kd.gnss.time), bins=bins, label='before')
+gps_dif_x = np.diff(kd.gnss.x)
+gps_dif_y = np.diff(kd.gnss.y)
+gps_dif = np.sqrt(gps_dif_x**2 + gps_dif_y**2)
 
-# e = np.array([kd.gnss.x-kd.groundtruth.interp_x(kd.gnss.time),kd.gnss.y-kd.groundtruth.interp_y(kd.gnss.time)]).T
-# np.savetxt('kaist_urban17_gnss_errors.csv', e, delimiter=',')
+gt_dif_x = np.diff(kd.groundtruth.interp_x(kd.gnss.time))
+gt_dif_y = np.diff(kd.groundtruth.interp_y(kd.gnss.time))
+gt_dif = np.sqrt(gt_dif_x**2 + gt_dif_y**2)
+
+dif_dif = gps_dif - gt_dif
+
+error_x = kd.gnss.x - kd.groundtruth.interp_x(kd.gnss.time)
+error_y = kd.gnss.y - kd.groundtruth.interp_y(kd.gnss.time)
+error = np.sqrt(error_x**2 + error_y**2)
+
+error_dif = np.diff(error)
+
+fig1, (ax1, ax2) = plt.subplots(2,1)
+
+fig1.suptitle('Sequence: {}'.format(sequence))
+
+ax1.set_title('(distance between current, previous GPS) - (distance between current, previous GT) (m)')
+ax1.plot(kd.gnss.time[:-1], dif_dif, label='Difference')
+ax1.plot(kd.gnss.time[:-1], np.zeros(len(kd.gnss.time)-1))
+ax1.plot(kd.gnss.time[:-1], np.ones(len(kd.gnss.time)-1) * 1, 'r--')
+ax1.plot(kd.gnss.time[:-1], np.ones(len(kd.gnss.time)-1) * -1, 'r--')
+
+ax2.set_title('(distance between current GPS and GT) - (distance between previous GPS and GT) (m)')
+ax2.plot(kd.gnss.time[:-1], error_dif, label='Difference')
+ax2.plot(kd.gnss.time[:-1], np.zeros(len(kd.gnss.time)-1))
+ax2.plot(kd.gnss.time[:-1], np.ones(len(kd.gnss.time)-1) * 2, 'r--')
+ax2.plot(kd.gnss.time[:-1], np.ones(len(kd.gnss.time)-1) * -2, 'r--')
 
 ax1.legend()
 ax2.legend()
 ax1.grid()
 ax2.grid()
+ax1.margins(0.05)
+ax2.margins(0.05)
 plt.show()

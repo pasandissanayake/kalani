@@ -4,6 +4,7 @@ import yaml
 import numpy as np
 import time
 from scipy.optimize import leastsq
+from pyproj import Proj
 
 import tf.transformations as tft
 
@@ -122,6 +123,35 @@ def get_position_from_gnss_fix(fix, origin, fixunit='deg', originunit='deg'):
         y = r * np.sin(dif[0])
 
     return np.array([x,y]).T
+
+
+def get_utm_from_gnss_fix(fix, origin, zone, hemisphere, fixunit='deg'):
+    '''
+        convert gnss coordinates to local coordinates in ENU frame
+        :param fix: gnss coordinate / coordinate array - [lat, lon]
+        :param origin: gnss coordinate of the origin - [lat, lon]
+        :param fixunit: units of fix ('deg'-->degrees, 'rad'-->radians)
+        :param originunit: units of origin ('deg'-->degrees, 'rad'-->radians)
+        :return: coordinates in local ENU frame
+    '''
+    if fixunit == 'rad':
+        fix = np.rad2deg(fix)
+    else:
+        fix = np.array(fix)
+
+    origin = np.array(origin)
+    proj = Proj("+proj=utm +zone={}, +{} +ellps=WGS84 +datum=WGS84 +units=m +no_defs".format(zone, hemisphere))
+
+    if np.ndim(fix) == 2:
+        ret = np.zeros((len(fix), 2))
+        for i in range(len(fix)):
+            utm = np.array(proj(fix[i, 1], fix[i, 0]))
+            ret[i, :] = utm - origin
+    else:
+        utm = np.array(proj(fix[1], fix[0]))
+        ret = utm - origin
+
+    return ret
 
 
 def quaternion_xyzw2wxyz(q):

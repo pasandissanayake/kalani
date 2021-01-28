@@ -14,8 +14,14 @@ from nav_msgs.msg import Path, Odometry
 from visualization_msgs.msg import Marker
 import visualization_msgs
 
-from kaist_datahandle import *
 from utilities import *
+
+###########################################
+######### import datahandle ###############
+###########################################
+from kaist_datahandle import *
+###########################################
+###########################################
 
 gt_path = Path()       # stores ground truth path (all historical values)
 state_path = Path()    # stores state path (all historical values)
@@ -154,7 +160,7 @@ def callback(data):
     transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z, transform.transform.rotation.w = list(gt_rot)
     tf_broadcaster.sendTransform(transform)
 
-    # publish paths
+    # publish paths and covariance ellipsoid
     publish_path(gt_path, gt_path_publisher, timestamp, general_config['tf_frame_world'], gt_trans, gt_rot)
     publish_path(state_path, state_path_publisher, timestamp, general_config['tf_frame_world'], trans, rot)
     publish_covariance(timestamp, trans_sigma)
@@ -166,9 +172,14 @@ if __name__ == '__main__':
     rospy.init_node(general_config['evaluator_node_name'], anonymous=True)
     log.log('Node initialized.')
 
-    # load ground truth
+    #####################################################
+    ################# load ground truth #################
+    #####################################################
     ds = KAISTData()
     ds.load_data(imu=False, gnss=False, altitude=False, vlpleft=False, calibrations=False)
+    #####################################################
+    #####################################################
+
     log.log('Ground truth loaded.')
 
     rospy.Subscriber(general_config['state_topic'], State, callback, queue_size=1)  # subscribe to locator output

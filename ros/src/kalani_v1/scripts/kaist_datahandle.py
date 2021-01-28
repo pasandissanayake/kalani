@@ -129,7 +129,7 @@ class KAISTData:
         self.ALTITUDE_CLASS_NAME = self.altitude.__class__.__name__
         self.VLP_LEFT_CLASS_NAME = self.vlpLeft.__class__.__name__
 
-    def load_groundtruth_from_numpy(self, gt_array):
+    def load_groundtruth_from_numpy(self, gt_array, origin):
         if np.ndim(gt_array) != 2:
             log.log('Groundtruth array dimension mismatch.')
             return 
@@ -139,9 +139,9 @@ class KAISTData:
         # set starting groundtruth point as (0, 0, 0)
         # groundtruth position is already in ENU frame
         # So, nothing to convert
-        self.groundtruth.x = gt_array[:, 4] - gt_array[0, 4]
-        self.groundtruth.y = gt_array[:, 8] - gt_array[0, 8]
-        self.groundtruth.z = gt_array[:, 12] - gt_array[0, 12]
+        self.groundtruth.x = gt_array[:, 4] - origin[0]
+        self.groundtruth.y = gt_array[:, 8] - origin[1]
+        self.groundtruth.z = gt_array[:, 12] - origin[2]
 
         # convert rotation matrix to obtain groundtruth euler angles
         eulers = np.zeros([len(gt_array),3])
@@ -173,7 +173,8 @@ class KAISTData:
         lon = gnss_array[:, 2]
 
         # convert latitudes and longitudes (in degrees) to ENU frame coordinates of the vehicle origin
-        position = get_position_from_gnss_fix(np.array([lat, lon]).T, origin, fixunit='deg', originunit='deg')
+        # position = get_position_from_gnss_fix(np.array([lat, lon]).T, origin, fixunit='deg', originunit='deg')
+        position = get_utm_from_gnss_fix(np.array([lat, lon]).T, origin, '52S', 'north', fixunit='deg')
         self.gnss.x = position[:, 0] - self.calibrations.VEHICLE_R_GNSS[0, 3]
         self.gnss.y = position[:, 1] - self.calibrations.VEHICLE_R_GNSS[1, 3]
 
@@ -292,7 +293,8 @@ class KAISTData:
         if groundtruth:
             gt_array = np.loadtxt(groundtruth_file, delimiter=',')
             gt_array = gt_array[np.argsort(gt_array[:,0])]
-            self.load_groundtruth_from_numpy(gt_array)
+            origin = np.array([kaist_config[sequence]['map_origin']['easting'], kaist_config[sequence]['map_origin']['northing'], kaist_config[sequence]['map_origin']['alt']])
+            self.load_groundtruth_from_numpy(gt_array, origin)
         if imu:
             imu_array = np.loadtxt(imu_file, delimiter=',')
             imu_array = imu_array[np.argsort(imu_array[:,0])]
@@ -301,13 +303,13 @@ class KAISTData:
         if gnss:
             gnss_array = np.loadtxt(gnss_file, delimiter=',')
             gnss_array = gnss_array[np.argsort(gnss_array[:, 0])]
-            origin = np.array([kaist_config[sequence]['map_origin_gnss_coordinates']['lat'], kaist_config[sequence]['map_origin_gnss_coordinates']['lon']])
+            origin = np.array([kaist_config[sequence]['map_origin']['easting'], kaist_config[sequence]['map_origin']['northing']])
             self.load_gnss_from_numpy(gnss_array, origin)
             self._GNSS_FLAG = True
         if altitude:
             altitude_array = np.loadtxt(altimeter_file, delimiter=',')
             altitude_array = altitude_array[np.argsort(altitude_array[:, 0])]
-            origin = kaist_config[sequence]['map_origin_gnss_coordinates']['alt']
+            origin = kaist_config[sequence]['map_origin']['alt']
             self.load_altitude_from_numpy(altitude_array, origin)
             self._ALTITUDE_FLAG = True
         if vlpleft:
