@@ -25,12 +25,13 @@ from kaist_datahandle import *
 
 gt_path = Path()       # stores ground truth path (all historical values)
 state_path = Path()    # stores state path (all historical values)
+rms_errors = np.zeros(4)  # stores no. of estimate readings, RMS error for estimate, no. of GNSS readings, RMS error for GNSS
 
 
-def publish_covariance(time, sigma):
+def publish_covariance(timestamp, sigma):
     marker = Marker()
     marker.header.frame_id = general_config['tf_frame_state']
-    marker.header.stamp = rospy.Time.from_sec(time)
+    marker.header.stamp = rospy.Time.from_sec(timestamp)
     marker.ns = 'evaluate/covariance'
     marker.type = visualization_msgs.msg.Marker.SPHERE
     marker.action = visualization_msgs.msg.Marker.ADD
@@ -165,6 +166,14 @@ def callback(data):
     publish_path(state_path, state_path_publisher, timestamp, general_config['tf_frame_world'], trans, rot)
     publish_covariance(timestamp, trans_sigma)
 
+    # calculate and store total RMS errors
+    estimate_reading_count = rms_errors[0] + 1
+    rms_errors[1] = np.sqrt((rms_errors[1]**2 * rms_errors[0] + error_trans_euc**2) / estimate_reading_count)
+    rms_errors[0] = estimate_reading_count
+    gnss_reading_count = rms_errors[2] + 1
+    rms_errors[3] = np.sqrt((rms_errors[3]**2 * rms_errors[2] + gnss_error_euc**2) / gnss_reading_count)
+    rms_errors[2] = gnss_reading_count
+    log.log('RMS errors: Estimate: {} m,   GNSS: {} m'.format(rms_errors[1], rms_errors[3]))
 
 if __name__ == '__main__':
     general_config = get_config_dict()['general']

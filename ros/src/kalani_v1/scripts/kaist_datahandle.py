@@ -224,7 +224,7 @@ class KAISTData:
         # altitude time conversion (ns to s)
         # altitude originally in meters, so no unit conversions
         self.altitude.time = altitude_array[:, 0] / 1e9
-        self.altitude.z = altitude_array[:, 1] - origin
+        self.altitude.z = altitude_array[:, 1] - altitude_array[0, 1]
 
     @staticmethod
     def vector_nwu_to_enu(vector):
@@ -254,7 +254,7 @@ class KAISTData:
             [0,  0, 0, 1]
         ])
 
-        sensor_calibrations = config[sequence]['sensor_calibrations']
+        sensor_calibrations = config['sensor_calibrations']
 
         tv_R_imu = np.zeros((4,4))
         tv_R_imu[0:3, 0:3] = np.reshape(sensor_calibrations['vehicle_R_imu']['R'], (3,3))

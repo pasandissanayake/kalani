@@ -130,6 +130,13 @@ def mag_callback(data):
             return angle * axis
         kf.correct_absolute(meas_fun, meas_axisangle, cov, t, measurement_name='magnetometer')
         publish_magnetic(t, orientation)
+        # zero velocity update
+        def meas_fun(ns):
+            r = tft.quaternion_matrix(ns.q())[0:3,0:3]
+            r = r.T
+            v = np.matmul(r, ns.v())
+            return np.array([v[0], v[1]])
+        # kf.correct_absolute(meas_fun, np.zeros(2), np.eye(2)*1e-2, t, measurement_name='zupt')
     else:
         kf.initialize([
             ['v', init_velocity, np.diag(init_var_velocity), t],
@@ -222,7 +229,7 @@ if __name__ == '__main__':
         return np.concatenate([
             ns.p() + es.p(),
             ns.v() + es.v(),
-            tft.quaternion_multiply(ns.q(), tft.quaternion_about_axis(angle, axis)),
+            tft.quaternion_multiply(tft.quaternion_about_axis(angle, axis), ns.q()),
             ns.ab() + es.ab(),
             ns.wb() + es.wb(),
         ])
@@ -236,6 +243,35 @@ if __name__ == '__main__':
             ns1.ab() - ns0.ab(),
             ns1.wb() - ns0.wb(),
         ])
+
+    def fx(ns, mmi, dt):
+        R = tft.quaternion_matrix(ns.q())[0:3, 0:3]
+        Fx = np.eye(15)
+        Fx[0:3, 3:6] = np.eye(3) * dt
+        Fx[3:6, 6:9] = -skew_symmetric(np.matmul(R, (mmi.a()-ns.ab()))) * dt
+        Fx[3:6, 9:12] = -R * dt
+        Fx[6:9, 12:15] = -R * dt
+        return Fx
+
+    def fi(ns, mmi, dt):
+        Fi = np.concatenate([np.zeros((3, 12)), np.eye(12)], axis=0)
+        return Fi
+
+    def ts(ns):
+        q = ns.q()
+        qr = np.array([
+            [ q[3],  q[2], -q[1], q[0]],
+            [-q[2],  q[3],  q[0], q[1]],
+            [ q[1], -q[0],  q[3], q[2]],
+            [-q[0], -q[1], -q[2], q[3]]
+        ])
+        qt = 0.5 * np.concatenate([np.eye(3), np.zeros((1,3))])
+        Q_dtheta = np.matmul(qr, qt)
+        X = np.zeros([16, 15])
+        X[0:6, 0:6] = np.eye(6)
+        X[6:10, 6:9] = Q_dtheta
+        X[10:16, 9:15] = np.eye(6)
+        return X
 
     # ns_template, es_template, pn_template, mmi_template, motion_model(ts, mmi, pn, dt),
     # combination(ns, es), difference(ns1, ns0)
@@ -270,7 +306,10 @@ if __name__ == '__main__':
         ],
         motion_model,
         combination,
-        difference
+        difference,
+        ts_fun=ts,
+        fx_fun=fx,
+        fi_fun=fi
     )
 
     log.log('Node ready.')

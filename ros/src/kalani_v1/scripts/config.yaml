@@ -91,6 +91,17 @@ kaist_dataset:
   dir_left_lidar: 'data/VLP_left'
   dir_right_lidar: 'data/VLP_right'
 
+  sensor_calibrations: # R and T separately
+    vehicle_R_imu:
+      R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+      T: [-0.07, 0, 1.7]
+    vehicle_R_gnss:
+      R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+      T: [-0.32, 0, 1.7]
+    vehicle_R_leftvlp:
+      R: [-0.514066, -0.702201, -0.492595, 0.486485, -0.711672, 0.506809, -0.706447, 0.0208933, 0.707457]
+      T: [-0.440699, 0.397052, 1.90953]
+
   # sequence specific info
   urban17:
     time_start_motion: 1335704128.61069  # in seconds
@@ -99,18 +110,7 @@ kaist_dataset:
       # these are used in relocating the origin, only to reduce the coordinate magnitudes
       easting: 316001.6098
       northing: 4155469.996
-      alt: -13.7
-
-    sensor_calibrations: # R and T separately
-      vehicle_R_imu:
-        R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
-        T: [-0.07, 0, 1.7]
-      vehicle_R_gnss:
-        R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
-        T: [-0.32, 0, 1.7]
-      vehicle_R_leftvlp:
-        R: [-0.514066, -0.702201, -0.492595, 0.486485, -0.711672, 0.506809, -0.706447, 0.0208933, 0.707457]
-        T: [-0.440699, 0.397052, 1.90953]
+      alt: 16.88669620379847
 
 #    # theoretical values from the datasheets
 #    var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
@@ -121,10 +121,10 @@ kaist_dataset:
 #    var_gnss_position: [1.0e+2, 4.0e+2] # in m^2
 #    var_altitude: [2.5e+0] # in m^2
 
-    var_imu_linear_acceleration: [4.0e-0, 4.0e-0, 4.0e-0] # in (m s^(-2))^2
-    var_imu_linear_acceleration_bias: [1.0e-4, 1.0e-4, 1.0e-4] # in (m s^(-2))^2
-    var_imu_angular_velocity: [2.5e-0, 2.5e-0, 2.5e-0] # in (rad s^(-1))^2
-    var_imu_angular_velocity_bias: [2.5e-4, 2.5e-4, 2.5e-4] # in (rad s^(-1))^2
+    var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
+    var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
+    var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
+    var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
     var_magnetometer_orientation: [1.0e-0, 1.0e-0, 1.0e-0] # in rad^2
     var_gnss_position: [4.0e+0, 4.0e+0] # in m^2
     var_altitude: [1.0e-1] # in m^2
@@ -134,15 +134,14 @@ kaist_dataset:
     init_imu_linear_acceleration_bias: [0.0, 0.0, 0.0] # in m s^(-2)
     init_imu_angular_velocity_bias: [0.0, 0.0, 0.0] # in rad s^(-1)
 
-
   urban27:
     time_start_motion: 1335704128.61069  # in seconds
 
     map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
       # these are used in relocating the origin, only to reduce the coordinate magnitudes
-      easting: 316001.6098
-      northing: 4155469.996
-      alt: -13.7
+      easting: 328626.9008
+      northing: 4118415.219
+      alt: 11.778476662541232
 
     sensor_calibrations: # R and T separately
       vehicle_R_imu:
@@ -160,9 +159,9 @@ kaist_dataset:
 
     map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
       # these are used in relocating the origin, only to reduce the coordinate magnitudes
-      easting: 316001.6098
-      northing: 4155469.996
-      alt: -13.7
+      easting: 316995.2876
+      northing: 4155550.097
+      alt: 9.99963655937851
 
     sensor_calibrations: # R and T separately
       vehicle_R_imu:

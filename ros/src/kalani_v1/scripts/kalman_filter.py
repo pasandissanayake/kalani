@@ -119,7 +119,7 @@ class StateBuffer:
 
 
 class KalmanFilter:
-    def __init__(self, ns_template, es_template, pn_template, mmi_template, motion_model, combination, difference):
+    def __init__(self, ns_template, es_template, pn_template, mmi_template, motion_model, combination, difference, ts_fun=None, fx_fun=None, fi_fun=None):
         # State buffer length
         self.STATE_BUFFER_LENGTH = kf_config['buffer_size']
 
@@ -173,9 +173,32 @@ class KalmanFilter:
             return difference(mm_full, mm_nill)
         def fi(pn, es, ns, mmi, dt):
             return fx(es, ns, pn, mmi, dt)
-        self._true_state_jacob = nd.Jacobian(true_state)
-        self._Fx_jacob = nd.Jacobian(fx)
-        self._Fi_jacob = nd.Jacobian(fi)
+
+        if ts_fun is None:
+            self._true_state_jacob = nd.Jacobian(true_state)
+        else:
+            def ts_jacob(es, ns):
+                ns = sarray(ns_template, ns)
+                es = sarray(es_template, es)
+                # log.log(nd.Jacobian(true_state)(es, ns)-ts_fun(ns))
+                return ts_fun(ns)
+            self._true_state_jacob = ts_jacob
+        if fx_fun is None:
+            self._Fx_jacob = nd.Jacobian(fx)
+        else:
+            def fx_jacob(es, ns, pn, mmi, dt):
+                mmi = sarray(mmi_template, mmi)
+                ns = sarray(ns_template, ns)
+                return fx_fun(ns, mmi, dt)
+            self._Fx_jacob = fx_jacob
+        if fi_fun is None:
+            self._Fi_jacob = nd.Jacobian(fi)
+        else:
+            def fi_jacob(pn, es, ns, mmi, dt):
+                mmi = sarray(mmi_template, mmi)
+                ns = sarray(ns_template, ns)
+                return fi_fun(ns, mmi, dt)
+            self._Fi_jacob = fi_jacob
 
 
     def initialize(self, vals):
