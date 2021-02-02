@@ -125,7 +125,7 @@ kaist_dataset:
     var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
     var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
     var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
-    var_magnetometer_orientation: [1.0e-0, 1.0e-0, 1.0e-0] # in rad^2
+    var_magnetometer_orientation: [5.0e-0, 1.0e-0, 1.0e-0] # in rad^2
     var_gnss_position: [4.0e+0, 4.0e+0] # in m^2
     var_altitude: [1.0e-1] # in m^2
 

@@ -25,6 +25,11 @@ magnetic_field = None
 altitude = None
 var_altitude = None
 
+# placeholders for message sequence numbers
+seq_imu = -1
+seq_gnss = -1
+seq_altimeter = -1
+
 
 def publish_state(transform_only=False):
     state, timestamp, is_valid = kf.get_current_state()
@@ -73,16 +78,28 @@ def publish_magnetic(timestamp, ori):
 
 
 def gnss_callback(data):
-    global gnss_fix, altitude, var_altitude
+    global gnss_fix, altitude, var_altitude, seq_gnss
     t = data.header.stamp.to_sec()
+    if data.header.seq > seq_gnss + 1:
+        log.log("{} GNSS messages lost at {} s!".format(data.header.seq - seq_gnss -1, t))
+    seq_gnss = data.header.seq
     gnss_fix = np.array([data.pose.pose.position.x, data.pose.pose.position.y, altitude])
     cov = np.reshape(data.pose.covariance, (6,6))[0:3, 0:3]
     cov[2, 2] = var_altitude
     if kf.is_initialized and altitude is not None:
         def meas_fun(ns):
             return ns.p()
-        kf.correct_absolute(meas_fun, gnss_fix, cov, t, measurement_name='gnss')
+        def hx_fun(ns):
+            return np.concatenate([np.eye(3),np.zeros((3,13))], axis=1)
+        kf.correct_absolute(meas_fun, gnss_fix, cov, t, hx_fun=hx_fun, measurement_name='gnss')
         publish_gnss(t, gnss_fix)
+        # zero velocity update
+        def meas_fun(ns):
+            r = tft.quaternion_matrix(ns.q())[0:3, 0:3]
+            r = r.T
+            v = np.matmul(r, ns.v())
+            return np.array([v[0], v[2]])
+        kf.correct_absolute(meas_fun, np.zeros(2), np.eye(2) * 1e+1, t, measurement_name='zupt')
     elif altitude is not None:
         kf.initialize([
             ['p', gnss_fix, cov, t],
@@ -93,14 +110,21 @@ def gnss_callback(data):
 
 
 def alt_callback(data):
-    global altitude, var_altitude
+    global altitude, var_altitude, seq_altimeter
+    t = data.header.stamp.to_sec()
+    if data.header.seq > seq_altimeter + 1:
+        log.log("{} Altimeter messages lost at {} s!".format(data.header.seq - seq_altimeter -1, t))
+    seq_altimeter = data.header.seq
     altitude = data.pose.pose.position.z
     var_altitude = np.reshape(data.pose.covariance, (6, 6))[2, 2]
 
 
 def imu_callback(data):
-    global linear_acceleration, angular_velocity
+    global linear_acceleration, angular_velocity, seq_imu
     t = data.header.stamp.to_sec()
+    if data.header.seq > seq_imu + 1:
+        log.log("{} IMU messages lost at {} s!".format(data.header.seq - seq_imu -1, t))
+    seq_imu = data.header.seq
     linear_acceleration = np.array([data.linear_acceleration.x, data.linear_acceleration.y, data.linear_acceleration.z])
     angular_velocity = np.array([data.angular_velocity.x, data.angular_velocity.y, data.angular_velocity.z])
     var_am = np.reshape(data.linear_acceleration_covariance, (3,3))
@@ -128,15 +152,35 @@ def mag_callback(data):
         def meas_fun(ns):
             angle, axis = quaternion_to_angle_axis(ns.q())
             return angle * axis
-        kf.correct_absolute(meas_fun, meas_axisangle, cov, t, measurement_name='magnetometer')
+        def hx_fun(ns):
+            [x, y, z, w] = ns.q()
+            n = tft.vector_norm([x, y, z])
+            if w != 0:
+                h = 2 * np.arctan(n / w)
+                a = 1 + n**2 / w**2
+                p = lambda p1, p2: (2*p1*p2) / (w*a*n**2) - (p1*p2*h)/n**3
+                q = np.array([
+                    [p(x, x), p(x, y), p(x, z)],
+                    [p(y, x), p(y, y), p(y, z)],
+                    [p(z, x), p(z, y), p(z, z)],
+                ])
+                r = -2 * np.array([[x],[y],[z]]) / (a * w**2)
+                s = np.zeros((3, 16))
+                s[:, 6:10] = np.concatenate([q + np.eye(3) * h/n, r], axis=1)
+                return s
+            else:
+                p = lambda p1, p2: - (p1 * p2 * np.pi) / n ** 3
+                q = np.array([
+                    [p(x, x), p(x, y), p(x, z)],
+                    [p(y, x), p(y, y), p(y, z)],
+                    [p(z, x), p(z, y), p(z, z)],
+                ])
+                r = np.array([[0], [0], [0]])
+                s = np.zeros((3, 16))
+                s[:, 6:10] = np.concatenate([q + np.eye(3) * np.pi / n, r], axis=1)
+                return s
+        kf.correct_absolute(meas_fun, meas_axisangle, cov, t, hx_fun=hx_fun, measurement_name='magnetometer')
         publish_magnetic(t, orientation)
-        # zero velocity update
-        def meas_fun(ns):
-            r = tft.quaternion_matrix(ns.q())[0:3,0:3]
-            r = r.T
-            v = np.matmul(r, ns.v())
-            return np.array([v[0], v[1]])
-        # kf.correct_absolute(meas_fun, np.zeros(2), np.eye(2)*1e-2, t, measurement_name='zupt')
     else:
         kf.initialize([
             ['v', init_velocity, np.diag(init_var_velocity), t],
