@@ -17,14 +17,36 @@ from datasetutils.nclt_data_conversions import NCLTData
 
 gt = []
 gt_function = []
+
+gnss_euclidian_error = []
+estimate_euclidean_error = []
+
 pos_cal = np.zeros((3, 3))
 ori_cal = np.zeros((3, 3))
 t = np.zeros(1)
+
+groundtruth_path = Path()
+estimate_path = Path()
 
 
 def log(message):
     rospy.loginfo(Constants.EVALUATOR_NODE_NAME + ' := ' + str(message))
 
+
+def print_rms_euclidean_error():
+    if len(estimate_euclidean_error)>0:
+        e_error = np.array(estimate_euclidean_error)
+        e_error_rms = np.sqrt(np.average(e_error))
+    else:
+        e_error_rms = 'None'
+
+    if len(gnss_euclidian_error)>0:
+        g_error = np.array(gnss_euclidian_error)
+        g_error_rms = np.sqrt(np.average(g_error))
+    else:
+        g_error_rms = 'None'
+
+    print 'RMS Errors: Estimate - {} m, GNSS - {} m'.format(e_error_rms, g_error_rms)
 
 def publish_covariance(data, publisher, frameid, threesigma):
     marker = Marker()
@@ -46,8 +68,7 @@ def publish_covariance(data, publisher, frameid, threesigma):
     publisher.publish(marker)
 
 
-def publish_path(data, publisher, frameid):
-    path = Path()
+def publish_path(path, data, publisher, frameid):
     path.header.stamp = data.header.stamp
     path.header.frame_id = frameid
     pose = PoseStamped()
@@ -59,7 +80,7 @@ def publish_path(data, publisher, frameid):
     publisher.publish(path)
 
 
-def publish_error(pub):
+def publish_error(pub, e_pub):
     msg = Error()
     msg.header.stamp = rospy.Time.from_sec(t[0])
     msg.position.x, msg.position.y, msg.position.z = pos_cal[0:3, 0]
@@ -80,6 +101,12 @@ def publish_error(pub):
 
     pub.publish(msg)
 
+    msg = Error()
+    msg.header.stamp = rospy.Time.from_sec(t[0])
+    msg.position.x = np.sqrt(np.sum(pos_cal[0:3, 0]**2))
+    msg.position.y = np.sqrt(np.sum(pos_cal[0:3, 1]**2))
+    e_pub.publish(msg)
+
 
 def publish_gt(pub, time, position, ori_e):
     ori_q = Quaternion(euler=ori_e).to_numpy()
@@ -89,8 +116,8 @@ def publish_gt(pub, time, position, ori_e):
     msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = list(ori_q)
     msg.euler.x, msg.euler.y, msg.euler.z = list(ori_e)
     pub.publish(msg)
-    publish_path(msg,gt_path_pub,Constants.WORLD_FRAME)
-    br.sendTransform(position, (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), Constants.GROUNDTRUTH_FRAME, Constants.WORLD_FRAME)
+    publish_path(groundtruth_path, msg,gt_path_pub,Constants.WORLD_FRAME)
+    br.sendTransform(position, (ori_q[1],ori_q[2],ori_q[3],ori_q[0]), rospy.Time.from_sec(time), '/gt', '/odom')
 
 
 def state_callback(data):
@@ -142,15 +169,33 @@ def state_callback(data):
         ori_cal[i, 1] = 3 * p_cov_euler_std[:, i]
         ori_cal[i, 2] = -3 * p_cov_euler_std[:, i]
 
-    publish_error(error_pub)
+    estimate_euclidean_error.append(np.sum(pos_cal[0:3,0] ** 2))
+
+    publish_error(error_pub, eucledian_error_pub)
     publish_gt(gt_pub, state[0],gt_interpol[0:3], gt_interpol[3:6])
-    publish_path(data, et_path_pub, Constants.WORLD_FRAME)
+    publish_path(estimate_path, data, et_path_pub, Constants.WORLD_FRAME)
     publish_covariance(data, cov_ellipse_pub, Constants.WORLD_FRAME, pos_cal[:,1])
 
+    print_rms_euclidean_error()
 
-def imu_callback(data):
-    global imu_time
-    imu_time = data.header.stamp.to_sec()
+
+def gnss_callback(data):
+    time = data.header.stamp.to_sec()
+    fix = np.array([data.position.x, data.position.y, 0])
+    gt_interpol = gt_function(time)
+    error = (gt_interpol[0:3] - fix)
+
+    gnss_euclidian_error.append(np.sum(error[0:3]**2))
+
+    msg = Error()
+    msg.header.stamp = rospy.Time.from_sec(time)
+    msg.position.x, msg.position.y, msg.position.z = error.tolist()
+    gnss_error_pub.publish(msg)
+
+    msg = Error()
+    msg.header.stamp = rospy.Time.from_sec(time)
+    msg.position.x = np.sqrt(np.sum(error[0:3]**2))
+    gnss_euc_error_pub.publish(msg)
 
 
 if __name__ == '__main__':
@@ -165,10 +210,15 @@ if __name__ == '__main__':
         log('Interpolation finished.')
 
         rospy.Subscriber(Constants.STATE_TOPIC, State, state_callback, queue_size=1)
+        rospy.Subscriber('/converted_data/gnss', State, gnss_callback, queue_size=1)
+        # rospy.Subscriber(Constants.CONVERTED_MAGNETIC_DATA_TOPIC, State, magnetic_callback, queue_size=1)
 
         br = tf.TransformBroadcaster()
         gt_pub = rospy.Publisher(Constants.CONVERTED_GROUNDTRUTH_DATA_TOPIC, State, queue_size=1)
         error_pub = rospy.Publisher(Constants.ERROR_TOPIC, Error, queue_size=1)
+        gnss_error_pub = rospy.Publisher('gnss_error', Error, queue_size=1)
+        gnss_euc_error_pub = rospy.Publisher('gnss_euc_error', Error, queue_size=1)
+        eucledian_error_pub = rospy.Publisher('eucledian_error', Error, queue_size=1)
         et_path_pub = rospy.Publisher('estimate_path', Path, queue_size=10)
         gt_path_pub = rospy.Publisher('groundtruth_path', Path, queue_size=10)
         cov_ellipse_pub = rospy.Publisher('cov_ellipse', Marker, queue_size=10)

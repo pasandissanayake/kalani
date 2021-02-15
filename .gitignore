@@ -1,0 +1,4 @@
+ros/build/
+ros/devel/
+ros/src/center_track/models/
+ros/src/orb_slam2/Vocabulary/

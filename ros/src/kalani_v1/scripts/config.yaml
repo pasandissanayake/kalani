@@ -1,0 +1,189 @@
+general:
+
+  # node names
+  locator_node_name: 'locator'
+  evaluator_node_name: 'evaluator'
+
+  # locator data topics
+  state_topic: '/kalani/state' # type: kalani_v1/State
+
+  # evaluator data topics
+  error_topic: '/kalani/evaluate/error' # type: kalani_v1/Error
+  gt_path_topic: '/kalani/evaluate/gt_path' # type: nav_msgs/Path
+  state_path_topic: '/kalani/evaluate/state_path' # type: nav_msgs/Path
+  cov_ellipsoid_topic: '/kalani/evaluate/cov_ellipsoid' # type: visualization_msgs/Marker
+
+  # tf parent ids for output data
+  tf_frame_world: 'world'
+  tf_frame_map: 'map'
+  tf_frame_odom: 'odom'
+  tf_frame_state: 'base_link'
+
+  # tf child frame ids for processed data (published by either the locator or the evaluator
+  # for evaluation purposes)
+  tf_frame_gnss: 'gnss'
+  tf_frame_magneto: 'magneto'
+  tf_frame_groundtruth: 'gt'
+
+  # raw data topics
+  raw_stereo_image_left:  '/camera/left/image_raw'
+  raw_stereo_image_right: '/camera/right/image_raw'
+
+  # processed data topics (before feeding to the locator)
+  processed_gnss_topic: '/kalani/processed_data/gnss' # type: nav_msgs/Odometry
+  processed_altitude_topic: '/kalani/processed_data/altitude' # type: nav_msgs/Odometry
+  processed_imu_topic: '/kalani/processed_data/imu' # type: sensor_msgs/Imu
+  processed_magneto_topic: '/kalani/processed_data/magneto' # type: sensor_msgs/MagneticField
+  processed_odometry_topic: '/kalani/processed_data/odometry' # type: nav_msgs/Odometry
+  processed_laserodom_topic: '/kalani/processed_data/laserodom' # type: nav_msgs/Odometry
+  processed_visualodom_topic: '/kalani/processed_data/visualodom' # type: nav_msgs/Odometry
+
+  # tf frame ids for sensors
+  tf_frame_gnss_receiver: 'gnss_receiver'
+  tf_frame_altimeter: 'altimeter'
+  tf_frame_imu: 'imu'
+  tf_frame_magnetometer: 'magnetometer'
+  tf_frame_odometer: 'odometer'
+  tf_frame_lidar: 'lidar'
+  tf_frame_camera: 'camera'
+
+  gravity: -9.8 # Gravitational acceleration in up direction (in m s^-2)
+
+
+kalman_filter:
+  buffer_size: 50 # State buffer length
+  state_init_time_threshold: 1 # Allowed maximum gap between any two initial state variables (in seconds)
+
+
+nclt_dataset:
+  feeder_node_name: 'nclt_feeder'
+  evaluator_node_name: 'nclt_evaluator'
+
+  # info of current dataset to use
+  data_root: '/home/entc/kalani-data/nclt'
+  sequence: '2012-04-29'
+
+  # common info
+  file_name_imu: 'ms25.csv'
+  file_name_gnss: 'gps.csv'
+  file_name_groundtruth: 'groundtruth.csv'
+  file_name_lidar_hits: 'velodyne_hits.bin'
+  dir_name_lidar_sync: 'velodyne_sync'
+  map_origin_gnss_coordinates: # in degrees
+    lat: 478787
+    lon: 12121
+    alt: 0
+
+  # sequence specific info
+  2012-04-29:
+    time_start_motion: 1335704128.61069  # in seconds
+
+
+kaist_dataset:
+  feeder_node_name: 'kaist_feeder'
+  evaluator_node_name: 'kaist_evaluator'
+
+  # info of current dataset to use
+  data_root: '/home/entc/kalani-data/kaist'
+  sequence: 'urban28'
+
+  # common info
+  file_name_imu: 'data/xsens_imu.csv'
+  file_name_gnss: 'data/gps.csv'
+  file_name_altimeter: 'data/altimeter.csv'
+  file_name_groundtruth: 'pose/global_pose.csv'
+  dir_left_lidar: 'data/VLP_left'
+  dir_right_lidar: 'data/VLP_right'
+  dir_left_camera: 'image/image_0'
+  dir_right_camera: 'image/image_1'
+  file_name_camera_timestamps: 'image/times.txt' 
+
+  sensor_calibrations: # R and T separately
+    vehicle_R_imu:
+      R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+      T: [-0.07, 0, 1.7]
+    vehicle_R_gnss:
+      R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+      T: [-0.32, 0, 1.7]
+    vehicle_R_leftvlp:
+      R: [-0.514066, -0.702201, -0.492595, 0.486485, -0.711672, 0.506809, -0.706447, 0.0208933, 0.707457]
+      T: [-0.440699, 0.397052, 1.90953]
+    vehicle_R_stereo:
+      R: [-0.00680499, -0.0153215, 0.99985, -0.999977, 0.000334627, -0.00680066, -0.000230383, -0.999883, -0.0153234] 
+      T: [1.64239, 0.247401, 1.58411]
+
+  # sequence specific info
+  urban17:
+    time_start_motion: 1335704128.61069  # in seconds
+
+    map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
+      # these are used in relocating the origin, only to reduce the coordinate magnitudes
+      easting: 316001.6098
+      northing: 4155469.996
+      alt: 16.88669620379847
+
+#    # theoretical values from the datasheets
+#    var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
+#    var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
+#    var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
+#    var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
+#    var_magnetometer_orientation: [1.0e-1, 1.0e-2, 1.0e-2] # in rad^2
+#    var_gnss_position: [1.0e+2, 4.0e+2] # in m^2
+#    var_altitude: [2.5e+0] # in m^2
+
+    var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
+    var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
+    var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
+    var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
+    var_magnetometer_orientation: [5.0e-0, 1.0e-0, 1.0e-0] # in rad^2
+    var_gnss_position: [4.0e+0, 4.0e+0] # in m^2
+    var_altitude: [1.0e-1] # in m^2
+
+    init_velocity: [0.0, 0.0, 0.0] # in m s^(-1)
+    init_var_velocity: [1.0e-3, 1.0e-3, 1.0e-3] # in (m s^(-1))^2
+    init_imu_linear_acceleration_bias: [0.0, 0.0, 0.0] # in m s^(-2)
+    init_imu_angular_velocity_bias: [0.0, 0.0, 0.0] # in rad s^(-1)
+
+  urban27:
+    time_start_motion: 1335704128.61069  # in seconds
+
+    map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
+      # these are used in relocating the origin, only to reduce the coordinate magnitudes
+      easting: 328626.9008
+      northing: 4118415.219
+      alt: 11.778476662541232
+
+    var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
+    var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
+    var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
+    var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
+    var_magnetometer_orientation: [5.0e-0, 1.0e-0, 1.0e-0] # in rad^2
+    var_gnss_position: [4.0e+0, 4.0e+0] # in m^2
+    var_altitude: [1.0e-1] # in m^2
+
+    init_velocity: [0.0, 0.0, 0.0] # in m s^(-1)
+    init_var_velocity: [1.0e-3, 1.0e-3, 1.0e-3] # in (m s^(-1))^2
+    init_imu_linear_acceleration_bias: [0.0, 0.0, 0.0] # in m s^(-2)
+    init_imu_angular_velocity_bias: [0.0, 0.0, 0.0] # in rad s^(-1)
+
+  urban28:
+    time_start_motion: 1335704128.61069  # in seconds
+
+    map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
+      # these are used in relocating the origin, only to reduce the coordinate magnitudes
+      easting: 316995.2876
+      northing: 4155550.097
+      alt: 9.99963655937851
+
+    var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
+    var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
+    var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
+    var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
+    var_magnetometer_orientation: [5.0e-0, 1.0e-0, 1.0e-0] # in rad^2
+    var_gnss_position: [4.0e+0, 4.0e+0] # in m^2
+    var_altitude: [1.0e-1] # in m^2
+
+    init_velocity: [0.0, 0.0, 0.0] # in m s^(-1)
+    init_var_velocity: [1.0e-3, 1.0e-3, 1.0e-3] # in (m s^(-1))^2
+    init_imu_linear_acceleration_bias: [0.0, 0.0, 0.0] # in m s^(-2)
+    init_imu_angular_velocity_bias: [0.0, 0.0, 0.0] # in rad s^(-1)

@@ -1,16 +1,8 @@
 # !/usr/bin/python
-#
-# Convert the sensor data files in the given directory to a single rosbag.
-#
-# To call:
-#
-#   python sensordata_to_rosbag.py 2012-01-08/ 2012-01-08.bag
-#
 
 import rosbag, rospy
 from std_msgs.msg import Float64, UInt16, Float64MultiArray, MultiArrayDimension, MultiArrayLayout
 from sensor_msgs.msg import NavSatStatus, NavSatFix, Imu, MagneticField
-
 
 import sys
 import numpy as np
@@ -18,6 +10,9 @@ import struct
 
 sys.path.append('../')
 from constants import Constants
+
+
+num_hits = 0
 
 def write_gps(gps, i, bag):
 
@@ -354,11 +349,11 @@ def main(args):
 
     # Excluding velodyne and hok data
     #
-    # f_vel = open(sys.argv[1] + "velodyne_hits.bin", "r")
+    f_vel = open(Constants.NCLT_DATASET_DIRECTORY + "/velodyne_hits.bin", "r")
     # f_hok_30 = open(sys.argv[1] + "hokuyo_30m.bin", "r")
     # f_hok_4 = open(sys.argv[1] + "hokuyo_4m.bin", "r")
     #
-    # utime_vel, vel_data = read_next_vel_packet(f_vel)
+    utime_vel, vel_data = read_next_vel_packet(f_vel)
     # utime_hok30, hok30_data = read_next_hokuyo_30m_packet(f_hok_30)
     # utime_hok4, hok4_data = read_next_hokuyo_4m_packet(f_hok_4)
 
@@ -382,8 +377,8 @@ def main(args):
         # if i_ms25_euler<len(ms25_euler) and (ms25_euler[i_ms25_euler, 0]<next_utime or next_utime<0):
         #     next_packet = "ms25_euler"
         #
-        # if utime_vel>0 and (utime_vel<next_utime or next_utime<0):
-        #     next_packet = "vel"
+        if utime_vel>0 and (utime_vel<next_utime or next_utime<0):
+            next_packet = "vel"
         #
         # if utime_hok30>0 and (utime_hok30<next_utime or next_utime<0):
         #     next_packet = "hok30"
@@ -406,9 +401,9 @@ def main(args):
         # elif next_packet == "ms25_euler":
         #     write_ms25_euler(ms25_euler, i_ms25_euler, bag)
         #     i_ms25_euler = i_ms25_euler + 1
-        # elif next_packet == "vel":
-        #     write_vel(vel_data, utime_vel, bag)
-        #     utime_vel, vel_data = read_next_vel_packet(f_vel)
+        elif next_packet == "vel":
+            write_vel(vel_data, utime_vel, bag)
+            utime_vel, vel_data = read_next_vel_packet(f_vel)
         # elif next_packet == "hok30":
         #     write_hokuyo_30m_packet(hok30_data, utime_hok30, bag)
         #     utime_hok30, hok30_data = read_next_hokuyo_30m_packet(f_hok_30)
@@ -418,7 +413,7 @@ def main(args):
         else:
             print "Unknown packet type"
 
-    # f_vel.close()
+    f_vel.close()
     # f_hok_30.close()
     # f_hok_4.close()
     bag.close()
