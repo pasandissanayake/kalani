@@ -114,7 +114,7 @@ def gnss_callback(data):
             r = r.T
             v = np.matmul(r, ns.v())
             return np.array([v[0], v[2]])
-        kf.correct_absolute(meas_fun, np.zeros(2), np.eye(2) * 5e+1, t, measurement_name='zupt')
+        kf.correct_absolute(meas_fun, np.zeros(2), np.eye(2) * 5e+0, t, measurement_name='zupt')
     elif altitude is not None:
         kf.initialize([
             ['p', gnss_fix, cov, t],
@@ -194,7 +194,8 @@ def mag_callback(data):
                 s = np.zeros((3, 16))
                 s[:, 6:10] = np.concatenate([q + np.eye(3) * np.pi / n, r], axis=1)
                 return s
-        kf.correct_absolute(meas_fun, meas_axisangle, cov, t, hx_fun=hx_fun, measurement_name='magnetometer')
+        if not is_stationary():
+            kf.correct_absolute(meas_fun, meas_axisangle, cov, t, hx_fun=hx_fun, measurement_name='magnetometer')
         publish_magnetic(t, orientation)
     else:
         kf.initialize([
@@ -261,12 +262,12 @@ def visualodom_callback(data):
     def meas_fun(ns):
         R = tft.quaternion_matrix(ns.q())[0:3,0:3]
         return np.matmul(R.T, ns.v())
-    kf.correct_absolute(meas_fun, vgt_v, np.eye(3)*1e-6, t,measurement_name='visualodom')
+    kf.correct_absolute(meas_fun, vgt_v, np.eye(3)*1e-4, t,measurement_name='visualodom')
     def meas_fun(ns1, ns0):
         qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
         ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
         return ds_angle * ds_axis
-    kf.correct_relative(meas_fun, da, np.eye(3)*1e-8,t+0.1,t,measurement_name='visualodom_q')
+    kf.correct_relative(meas_fun, da, np.eye(3)*1e-5,t+0.1,t,measurement_name='visualodom_q')
 
 
 def publish_static_transforms(static_broadcaster):

@@ -1,3 +1,7 @@
+#################################################
+################ GENERAL ########################
+#################################################
+
 general:
 
   # node names
@@ -50,10 +54,22 @@ general:
   gravity: -9.8 # Gravitational acceleration in up direction (in m s^-2)
 
 
+
+#################################################
+########## KALMAN FILTER ########################
+#################################################
+
+
 kalman_filter:
   buffer_size: 50 # State buffer length
   state_init_time_threshold: 1 # Allowed maximum gap between any two initial state variables (in seconds)
 
+
+
+
+#################################################
+########## NCLT DATASET ########################
+#################################################
 
 nclt_dataset:
   feeder_node_name: 'nclt_feeder'
@@ -78,6 +94,11 @@ nclt_dataset:
   2012-04-29:
     time_start_motion: 1335704128.61069  # in seconds
 
+
+
+#################################################
+########## KAIST DATASET ########################
+#################################################
 
 kaist_dataset:
   feeder_node_name: 'kaist_feeder'
@@ -179,9 +200,9 @@ kaist_dataset:
     var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
     var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
     var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
-    var_magnetometer_orientation: [5.0e-0, 1.0e-0, 1.0e-0] # in rad^2
-    var_gnss_position: [4.0e+0, 4.0e+0] # in m^2
-    var_altitude: [1.0e-1] # in m^2
+    var_magnetometer_orientation: [1.0e-0, 1.0e-0, 5.0e-0] # in rad^2
+    var_gnss_position: [1.0e+1, 1.0e+1] # in m^2
+    var_altitude: [1.0e+1] # in m^2
 
     init_velocity: [0.0, 0.0, 0.0] # in m s^(-1)
     init_var_velocity: [1.0e-3, 1.0e-3, 1.0e-3] # in (m s^(-1))^2
