@@ -133,6 +133,28 @@ kaist_dataset:
       R: [-0.00680499, -0.0153215, 0.99985, -0.999977, 0.000334627, -0.00680066, -0.000230383, -0.999883, -0.0153234] 
       T: [1.64239, 0.247401, 1.58411]
 
+  sensor_characteristics:
+    var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
+    var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
+    var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
+    var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
+    var_magnetometer_orientation: [1.0e-0, 1.0e-0, 5.0e-0] # in rad^2
+    var_gnss_position: [1.0e+1, 1.0e+1] # in m^2
+    var_altitude: [1.0e+1] # in m^2
+    # # theoretical values from the datasheets
+    # var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
+    # var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
+    # var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
+    # var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
+    # var_magnetometer_orientation: [1.0e-1, 1.0e-2, 1.0e-2] # in rad^2
+    # var_gnss_position: [1.0e+2, 4.0e+2] # in m^2
+    # var_altitude: [2.5e+0] # in m^2
+
+    init_velocity: [0.0, 0.0, 0.0] # in m s^(-1)
+    init_var_velocity: [1.0e-3, 1.0e-3, 1.0e-3] # in (m s^(-1))^2
+    init_imu_linear_acceleration_bias: [0.0, 0.0, 0.0] # in m s^(-2)
+    init_imu_angular_velocity_bias: [0.0, 0.0, 0.0] # in rad s^(-1)
+
   # sequence specific info
   urban17:
     time_start_motion: 1335704128.61069  # in seconds
@@ -143,27 +165,7 @@ kaist_dataset:
       northing: 4155469.996
       alt: 16.88669620379847
 
-#    # theoretical values from the datasheets
-#    var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
-#    var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
-#    var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
-#    var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
-#    var_magnetometer_orientation: [1.0e-1, 1.0e-2, 1.0e-2] # in rad^2
-#    var_gnss_position: [1.0e+2, 4.0e+2] # in m^2
-#    var_altitude: [2.5e+0] # in m^2
 
-    var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
-    var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
-    var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
-    var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
-    var_magnetometer_orientation: [5.0e-0, 1.0e-0, 1.0e-0] # in rad^2
-    var_gnss_position: [4.0e+0, 4.0e+0] # in m^2
-    var_altitude: [1.0e-1] # in m^2
-
-    init_velocity: [0.0, 0.0, 0.0] # in m s^(-1)
-    init_var_velocity: [1.0e-3, 1.0e-3, 1.0e-3] # in (m s^(-1))^2
-    init_imu_linear_acceleration_bias: [0.0, 0.0, 0.0] # in m s^(-2)
-    init_imu_angular_velocity_bias: [0.0, 0.0, 0.0] # in rad s^(-1)
 
   urban27:
     time_start_motion: 1335704128.61069  # in seconds
@@ -174,37 +176,13 @@ kaist_dataset:
       northing: 4118415.219
       alt: 11.778476662541232
 
-    var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
-    var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
-    var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
-    var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
-    var_magnetometer_orientation: [5.0e-0, 1.0e-0, 1.0e-0] # in rad^2
-    var_gnss_position: [4.0e+0, 4.0e+0] # in m^2
-    var_altitude: [1.0e-1] # in m^2
-
-    init_velocity: [0.0, 0.0, 0.0] # in m s^(-1)
-    init_var_velocity: [1.0e-3, 1.0e-3, 1.0e-3] # in (m s^(-1))^2
-    init_imu_linear_acceleration_bias: [0.0, 0.0, 0.0] # in m s^(-2)
-    init_imu_angular_velocity_bias: [0.0, 0.0, 0.0] # in rad s^(-1)
-
+    
+      
   urban28:
     time_start_motion: 1335704128.61069  # in seconds
 
     map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
       # these are used in relocating the origin, only to reduce the coordinate magnitudes
-      easting: 316995.2876
-      northing: 4155550.097
-      alt: 9.99963655937851
-
-    var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
-    var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
-    var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
-    var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
-    var_magnetometer_orientation: [1.0e-0, 1.0e-0, 5.0e-0] # in rad^2
-    var_gnss_position: [1.0e+1, 1.0e+1] # in m^2
-    var_altitude: [1.0e+1] # in m^2
-
-    init_velocity: [0.0, 0.0, 0.0] # in m s^(-1)
-    init_var_velocity: [1.0e-3, 1.0e-3, 1.0e-3] # in (m s^(-1))^2
-    init_imu_linear_acceleration_bias: [0.0, 0.0, 0.0] # in m s^(-2)
-    init_imu_angular_velocity_bias: [0.0, 0.0, 0.0] # in rad s^(-1)
+      easting: 332459.3619
+      northing: 4140617.766
+      alt: 7.95616831

@@ -180,7 +180,6 @@ class KalmanFilter:
             def ts_jacob(es, ns):
                 ns = sarray(ns_template, ns)
                 es = sarray(es_template, es)
-                # log.log(nd.Jacobian(true_state)(es, ns)-ts_fun(ns))
                 return ts_fun(ns)
             self._true_state_jacob = ts_jacob
         if fx_fun is None:
@@ -315,7 +314,7 @@ class KalmanFilter:
                     return meas_fun(ns)
                 Hx = nd.Jacobian(meas_fun_dup)(so.ns)
             H = np.matmul(Hx, X)
-
+            
             P = so.es_cov
             K = np.matmul(np.matmul(P, H.T), np.linalg.inv(np.matmul(np.matmul(H, P), H.T) + meas_cov))
             corrected_P = np.matmul(np.eye(self._es_len) - np.matmul(K, H), P)
@@ -400,7 +399,6 @@ class KalmanFilter:
         dx0 = K[0:self._es_len].dot(measurement - meas_fun(so1.ns, so0.ns))
         corrected_ns1 = self._combination(so1.ns, -dx1)
 
-        log.log('state  :', meas_fun(so1.ns, so0.ns))
         log.log('dx0: ', dx0)
 
         so_new = StateObject(self._ns_template, self._es_template, self._mmi_template)

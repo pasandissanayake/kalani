@@ -123,7 +123,7 @@ def publish_data():
 
 if __name__ == '__main__':
     kaist_config = get_config_dict()['kaist_dataset']
-    sequence_config = kaist_config[kaist_config['sequence']]
+    sequence_config = kaist_config['sensor_characteristics']
     general_config = get_config_dict()['general']
     log = Log(kaist_config['feeder_node_name'])
     rospy.init_node(kaist_config['feeder_node_name'], anonymous=True)

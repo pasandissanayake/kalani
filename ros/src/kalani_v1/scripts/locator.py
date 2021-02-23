@@ -38,7 +38,7 @@ stationary = False
 
 def is_stationary():
     if stationary:
-        log.log('stationary!')
+        # log.log('stationary!')
         return True
     else:
         return False
@@ -75,7 +75,8 @@ def publish_gnss(timestamp, fix):
     transform.header.stamp = rospy.Time.from_sec(timestamp)
     transform.header.frame_id = config['tf_frame_world']
     transform.child_frame_id = config['tf_frame_gnss']
-    transform.transform.translation.x, transform.transform.translation.y, transform.transform.translation.z = list(fix)
+    transform.transform.translation.x, transform.transform.translation.y = list(fix)
+    transform.transform.translation.z = altitude
     transform.transform.rotation.w, transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z = (1, 0, 0, 0)
     tf2_broadcaster.sendTransform(transform)
 
@@ -85,7 +86,8 @@ def publish_magnetic(timestamp, ori):
     transform.header.stamp = rospy.Time.from_sec(timestamp)
     transform.header.frame_id = config['tf_frame_world']
     transform.child_frame_id = config['tf_frame_magneto']
-    transform.transform.translation.x, transform.transform.translation.y, transform.transform.translation.z = list(gnss_fix)
+    transform.transform.translation.x, transform.transform.translation.y = list(gnss_fix)
+    transform.transform.translation.z = altitude
     transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z, transform.transform.rotation.w = list(ori)
     tf2_broadcaster.sendTransform(transform)
 
@@ -96,14 +98,13 @@ def gnss_callback(data):
     if data.header.seq > seq_gnss + 1:
         log.log("{} GNSS messages lost at {} s!".format(data.header.seq - seq_gnss -1, t))
     seq_gnss = data.header.seq
-    gnss_fix = np.array([data.pose.pose.position.x, data.pose.pose.position.y, altitude])
-    cov = np.reshape(data.pose.covariance, (6,6))[0:3, 0:3]
-    cov[2, 2] = var_altitude
-    if kf.is_initialized and altitude is not None:
+    gnss_fix = np.array([data.pose.pose.position.x, data.pose.pose.position.y])
+    cov = np.reshape(data.pose.covariance, (6,6))[0:2, 0:2]
+    if kf.is_initialized:
         def meas_fun(ns):
-            return ns.p()
+            return ns.p()[0:2]
         def hx_fun(ns):
-            return np.concatenate([np.eye(3),np.zeros((3,13))], axis=1)
+            return np.concatenate([np.eye(2),np.zeros((2,14))], axis=1)
         if not is_stationary():
             kf.correct_absolute(meas_fun, gnss_fix, cov, t, hx_fun=hx_fun, measurement_name='gnss')
         publish_gnss(t, gnss_fix)
@@ -116,8 +117,12 @@ def gnss_callback(data):
             return np.array([v[0], v[2]])
         kf.correct_absolute(meas_fun, np.zeros(2), np.eye(2) * 5e+0, t, measurement_name='zupt')
     elif altitude is not None:
+        cov_p = np.eye(3)
+        cov_p[0:2, 0:2] = cov
+        cov_p[2, 2] = var_altitude
+        p = np.concatenate([gnss_fix, [altitude]])
         kf.initialize([
-            ['p', gnss_fix, cov, t],
+            ['p', p, cov_p, t],
             ['v', init_velocity, np.diag(init_var_velocity), t],
             ['ab', init_imu_linear_acceleration_bias, np.diag(var_imu_linear_acceleration_bias), t],
             ['wb', init_imu_angular_velocity_bias, np.diag(var_imu_angular_velocity_bias), t]
@@ -132,6 +137,12 @@ def alt_callback(data):
     seq_altimeter = data.header.seq
     altitude = data.pose.pose.position.z
     var_altitude = np.reshape(data.pose.covariance, (6, 6))[2, 2]
+    if kf.is_initialized:
+        def meas_fun(ns):
+            return np.array([ns.p()[2]])
+        def hx_fun(ns):
+            return np.concatenate([[0,0,1], np.zeros(13)]).reshape((1, 16))
+        kf.correct_absolute(meas_fun, np.array([altitude]), var_altitude.reshape((1,1)), t, hx_fun=hx_fun, measurement_name='altitude')
 
 
 def imu_callback(data):
@@ -217,13 +228,13 @@ def visualodom_callback(data):
         return
     # velocity in camera_init frame
     v_ci = np.array([data.twist.twist.linear.x, data.twist.twist.linear.y, data.twist.twist.linear.z])
-    log.log('raw    :', v_ci)
+    # log.log('raw    :', v_ci)
     # quaternion representing camera_init_R_camera
     q_ci = np.array([data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w])
     R_ci = tft.quaternion_matrix(q_ci)[0:3,0:3]
     # velocity in camera frame
     v_c = np.matmul(R_ci.T, v_ci)
-    log.log('camera :', v_c)
+    # log.log('camera :', v_c)
     # obtain vehicle to camera transform
     try:
         trans = tf2_buffer.lookup_transform(config['tf_frame_camera'], config['tf_frame_state'], rospy.Time(0))
@@ -235,7 +246,7 @@ def visualodom_callback(data):
     # velocity in vehicle frame
     v_v = np.matmul(R_cv.T, v_c)
     v_v[1] = v_v[1] * 25
-    log.log('rotated:', v_v)
+    # log.log('rotated:', v_v)
     # def meas_fun(ns):
     #     R = tft.quaternion_matrix(ns.q())[0:3,0:3]
     #     return np.matmul(R.T, ns.v())
@@ -257,8 +268,8 @@ def visualodom_callback(data):
         stationary = True
     else:
         stationary = False
-    log.log('vgt_v  :', vgt_v)
-    log.log('*******************************')
+    # log.log('vgt_v  :', vgt_v)
+    # log.log('*******************************')
     def meas_fun(ns):
         R = tft.quaternion_matrix(ns.q())[0:3,0:3]
         return np.matmul(R.T, ns.v())
