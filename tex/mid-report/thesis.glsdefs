@@ -1,0 +1,60 @@
+\ifglsentryexists{lid}{}%
+{%
+\gls@defglossaryentry{lid}%
+{%
+name={LID},%
+sort={LID},%
+type={acronym},%
+first={Looooo Is Doooo\glsspace (LID)},%
+firstplural={Looooo Is Doooo\acrpluralsuffix \glsspace (LID\acrpluralsuffix )},%
+text={LID},%
+plural={LID\acrpluralsuffix },%
+description={Looooo Is Doooo},%
+descriptionplural={Looooo Is Doooo\acrpluralsuffix },%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Looooo Is Doooo},%
+longplural={Looooo Is Doooos},%
+short={LID},%
+shortplural={LIDs},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{stc}{}%
+{%
+\gls@defglossaryentry{stc}%
+{%
+name={STC},%
+sort={STC},%
+type={acronym},%
+first={sit amet consectetuer\glsspace (STC)},%
+firstplural={sit amet consectetuer\acrpluralsuffix \glsspace (STC\acrpluralsuffix )},%
+text={STC},%
+plural={STC\acrpluralsuffix },%
+description={sit amet consectetuer},%
+descriptionplural={sit amet consectetuer\acrpluralsuffix },%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={sit amet consectetuer},%
+longplural={sit amet consectetuers},%
+short={STC},%
+shortplural={STCs},%
+counter={page},%
+parent={},%
+%
+}%
+}%
