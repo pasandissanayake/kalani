@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.10.16)  16 MAR 2021 13:08
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.10.16)  16 MAR 2021 21:29
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -571,7 +571,7 @@ Package glossaries Info: Writing glossary file thesis.acn on input line 69.
 File: l3backend-pdfmode.def 2020-03-12 L3 backend support: PDF mode
 \l__kernel_color_stack_int=\count327
 \l__pdf_internal_box=\box105
-) (/home/pasan/kalani/tex/mid-report/thesis.aux (/home/pasan/kalani/tex/mid-report/chapters/Title.aux) (/home/pasan/kalani/tex/mid-report/chapters/Signatures.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.aux) (/home/pasan/kalani/tex/mid-report/chapters/Abstract.aux) (/home/pasan/kalani/tex/mid-report/chapters/Dedication.aux) (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.aux) (/home/pasan/kalani/tex/mid-report/chapters/Introduction.aux) (/home/pasan/kalani/tex/mid-report/chapters/References.aux))
+) (/home/pasan/kalani/tex/mid-report/thesis.aux (/home/pasan/kalani/tex/mid-report/chapters/Title.aux) (/home/pasan/kalani/tex/mid-report/chapters/Signatures.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.aux) (/home/pasan/kalani/tex/mid-report/chapters/Abstract.aux) (/home/pasan/kalani/tex/mid-report/chapters/Dedication.aux) (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.aux) (/home/pasan/kalani/tex/mid-report/chapters/Introduction.aux) (/home/pasan/kalani/tex/mid-report/chapters/Methodology.aux) (/home/pasan/kalani/tex/mid-report/chapters/References.aux) (/home/pasan/kalani/tex/mid-report/chapters/Appendix.aux))
 \openout1 = `thesis.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 72.
@@ -768,35 +768,60 @@ l.14 W
 
 
 ] [2] [3]) [4]
+\openout2 = `chapters/Methodology.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Methodology.tex
+Chapter 2.
+<figs/system-block-diagram.png, id=320, 800.9925pt x 385.44pt>
+File: figs/system-block-diagram.png Graphic file (type png)
+<use figs/system-block-diagram.png>
+Package pdftex.def Info: figs/system-block-diagram.png  used on input line 11.
+(pdftex.def)             Requested size: 433.62001pt x 208.66382pt.
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `\gls' on input line 32.
+
+[5
+
+
+
+ </home/pasan/kalani/tex/mid-report/figs/system-block-diagram.png>] [6] [7]) [8]
 \openout2 = `chapters/References.aux'.
 
- (/home/pasan/kalani/tex/mid-report/chapters/References.tex (/home/pasan/kalani/tex/mid-report/thesis.bbl [5
+ (/home/pasan/kalani/tex/mid-report/chapters/References.tex (/home/pasan/kalani/tex/mid-report/thesis.bbl [9
 
 
 
-])) [6]
+])) [10]
+\openout2 = `chapters/Appendix.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Appendix.tex) [11
+
+
+
+]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 123.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 123.
- (/home/pasan/kalani/tex/mid-report/thesis.aux (/home/pasan/kalani/tex/mid-report/chapters/Title.aux) (/home/pasan/kalani/tex/mid-report/chapters/Signatures.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.aux) (/home/pasan/kalani/tex/mid-report/chapters/Abstract.aux) (/home/pasan/kalani/tex/mid-report/chapters/Dedication.aux) (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.aux) (/home/pasan/kalani/tex/mid-report/chapters/Introduction.aux) (/home/pasan/kalani/tex/mid-report/chapters/References.aux))
+ (/home/pasan/kalani/tex/mid-report/thesis.aux (/home/pasan/kalani/tex/mid-report/chapters/Title.aux) (/home/pasan/kalani/tex/mid-report/chapters/Signatures.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.aux) (/home/pasan/kalani/tex/mid-report/chapters/Abstract.aux) (/home/pasan/kalani/tex/mid-report/chapters/Dedication.aux) (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.aux) (/home/pasan/kalani/tex/mid-report/chapters/Introduction.aux) (/home/pasan/kalani/tex/mid-report/chapters/Methodology.aux) (/home/pasan/kalani/tex/mid-report/chapters/References.aux) (/home/pasan/kalani/tex/mid-report/chapters/Appendix.aux))
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 123.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 123.
 Package rerunfilecheck Info: File `thesis.out' has not changed.
-(rerunfilecheck)             Checksum: E20B8A2D8AC0BAD640DF291B74D62EFB;769.
+(rerunfilecheck)             Checksum: 6B0AFF8B9964E690646715D8F6FBE01D;1228.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 123.
  ) 
 Here is how much of TeX's memory you used:
- 14652 strings out of 480608
- 226494 string characters out of 5903614
- 569665 words of memory out of 5000000
- 30090 multiletter control sequences out of 15000+600000
- 549121 words of font info for 58 fonts, out of 8000000 for 9000
+ 14802 strings out of 480608
+ 229289 string characters out of 5903614
+ 575566 words of memory out of 5000000
+ 30171 multiletter control sequences out of 15000+600000
+ 555106 words of font info for 75 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 58i,5n,98p,2834b,442s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on /home/pasan/kalani/tex/mid-report/thesis.pdf (17 pages, 79446 bytes).
+ 58i,18n,98p,2834b,442s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on /home/pasan/kalani/tex/mid-report/thesis.pdf (22 pages, 252915 bytes).
 PDF statistics:
- 320 PDF objects out of 1000 (max. 8388607)
- 295 compressed objects within 3 object streams
- 63 named destinations out of 1000 (max. 500000)
- 113 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 478 PDF objects out of 1000 (max. 8388607)
+ 433 compressed objects within 5 object streams
+ 104 named destinations out of 1000 (max. 500000)
+ 174 words of extra memory for PDF output out of 10000 (max. 10000000)
 
