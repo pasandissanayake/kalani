@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.10.16)  11 MAR 2021 06:53
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.10.16)  16 MAR 2021 13:08
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -571,7 +571,7 @@ Package glossaries Info: Writing glossary file thesis.acn on input line 69.
 File: l3backend-pdfmode.def 2020-03-12 L3 backend support: PDF mode
 \l__kernel_color_stack_int=\count327
 \l__pdf_internal_box=\box105
-) (/home/pasan/kalani/tex/mid-report/thesis.aux (/home/pasan/kalani/tex/mid-report/chapters/Title.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.aux) (/home/pasan/kalani/tex/mid-report/chapters/Abstract.aux) (/home/pasan/kalani/tex/mid-report/chapters/Dedication.aux) (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.aux) (/home/pasan/kalani/tex/mid-report/chapters/References.aux))
+) (/home/pasan/kalani/tex/mid-report/thesis.aux (/home/pasan/kalani/tex/mid-report/chapters/Title.aux) (/home/pasan/kalani/tex/mid-report/chapters/Signatures.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.aux) (/home/pasan/kalani/tex/mid-report/chapters/Abstract.aux) (/home/pasan/kalani/tex/mid-report/chapters/Dedication.aux) (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.aux) (/home/pasan/kalani/tex/mid-report/chapters/Introduction.aux) (/home/pasan/kalani/tex/mid-report/chapters/References.aux))
 \openout1 = `thesis.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 72.
@@ -676,20 +676,26 @@ Package caption Info: End \AtBeginDocument code.
 
 
 {/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map}])
+\openout2 = `chapters/Signatures.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Signatures.tex) [1
+
+
+]
 \openout2 = `chapters/Declaration.aux'.
 
  (/home/pasan/kalani/tex/mid-report/chapters/Declaration.tex
 LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 12.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-)) [1
+)) [2
 
 
 
 ]
 \openout2 = `chapters/Declaration_Supervisor.aux'.
 
- (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.tex) [2
+ (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.tex) [3
 
 
 
@@ -701,83 +707,96 @@ Underfull \hbox (badness 10000) in paragraph at lines 14--15
 
  []
 
-) [3
+) [4
 
 
 
 ]
 \openout2 = `chapters/Dedication.aux'.
 
- (/home/pasan/kalani/tex/mid-report/chapters/Dedication.tex) [4
+ (/home/pasan/kalani/tex/mid-report/chapters/Dedication.tex) [5
 
 
 
 ]
 \openout2 = `chapters/Acknowledgements.aux'.
 
- (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.tex) [5
+ (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.tex) [6
 
 
 
-] (/home/pasan/kalani/tex/mid-report/thesis.toc)
+] (/home/pasan/kalani/tex/mid-report/thesis.toc
+LaTeX Font Info:    Trying to load font information for U+msa on input line 11.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 11.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+))
 \tf@toc=\write7
 \openout7 = `thesis.toc'.
 
- [6
+ [7
 
 
 ] (/home/pasan/kalani/tex/mid-report/thesis.lof)
 \tf@lof=\write8
 \openout8 = `thesis.lof'.
 
- [7
+ [8
 
 ] (/home/pasan/kalani/tex/mid-report/thesis.lot)
 \tf@lot=\write9
 \openout9 = `thesis.lot'.
 
- [8
+ [9
 
-] (/home/pasan/kalani/tex/mid-report/thesis.acr) [9
+] (/home/pasan/kalani/tex/mid-report/thesis.acr) [10
 
 
 ]
-\openout2 = `chapters/References.aux'.
+\openout2 = `chapters/Introduction.aux'.
 
- (/home/pasan/kalani/tex/mid-report/chapters/References.tex (/home/pasan/kalani/tex/mid-report/thesis.bbl
-
-LaTeX Warning: Empty `thebibliography' environment on input line 24.
-
-))pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
+ (/home/pasan/kalani/tex/mid-report/chapters/Introduction.tex
+Chapter 1.
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.120   \include{chapters/References}
-                                      [1
+l.14 W
+      hile self-driving is itself a novel concept in the Sri Lankan context,... [1
 
 
-]
+] [2] [3]) [4]
+\openout2 = `chapters/References.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/References.tex (/home/pasan/kalani/tex/mid-report/thesis.bbl [5
+
+
+
+])) [6]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 123.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 123.
- (/home/pasan/kalani/tex/mid-report/thesis.aux (/home/pasan/kalani/tex/mid-report/chapters/Title.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.aux) (/home/pasan/kalani/tex/mid-report/chapters/Abstract.aux) (/home/pasan/kalani/tex/mid-report/chapters/Dedication.aux) (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.aux) (/home/pasan/kalani/tex/mid-report/chapters/References.aux))
+ (/home/pasan/kalani/tex/mid-report/thesis.aux (/home/pasan/kalani/tex/mid-report/chapters/Title.aux) (/home/pasan/kalani/tex/mid-report/chapters/Signatures.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.aux) (/home/pasan/kalani/tex/mid-report/chapters/Abstract.aux) (/home/pasan/kalani/tex/mid-report/chapters/Dedication.aux) (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.aux) (/home/pasan/kalani/tex/mid-report/chapters/Introduction.aux) (/home/pasan/kalani/tex/mid-report/chapters/References.aux))
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 123.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 123.
 Package rerunfilecheck Info: File `thesis.out' has not changed.
-(rerunfilecheck)             Checksum: 49C0B45712CC59B44E278F635149DFB0;505.
+(rerunfilecheck)             Checksum: E20B8A2D8AC0BAD640DF291B74D62EFB;769.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 123.
  ) 
 Here is how much of TeX's memory you used:
- 14342 strings out of 480608
- 221200 string characters out of 5903614
- 561471 words of memory out of 5000000
- 29851 multiletter control sequences out of 15000+600000
- 540427 words of font info for 36 fonts, out of 8000000 for 9000
+ 14652 strings out of 480608
+ 226494 string characters out of 5903614
+ 569665 words of memory out of 5000000
+ 30090 multiletter control sequences out of 15000+600000
+ 549121 words of font info for 58 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 58i,4n,98p,1020b,384s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb>
-Output written on /home/pasan/kalani/tex/mid-report/thesis.pdf (11 pages, 40435 bytes).
+ 58i,5n,98p,2834b,442s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on /home/pasan/kalani/tex/mid-report/thesis.pdf (17 pages, 79446 bytes).
 PDF statistics:
- 138 PDF objects out of 1000 (max. 8388607)
- 121 compressed objects within 2 object streams
- 29 named destinations out of 1000 (max. 500000)
- 81 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 320 PDF objects out of 1000 (max. 8388607)
+ 295 compressed objects within 3 object streams
+ 63 named destinations out of 1000 (max. 500000)
+ 113 words of extra memory for PDF output out of 10000 (max. 10000000)
 

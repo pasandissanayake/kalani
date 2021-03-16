@@ -2,14 +2,15 @@ This is BibTeX, Version 0.99d (TeX Live 2020)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: thesis.aux
 A level-1 auxiliary file: chapters/Title.aux
+A level-1 auxiliary file: chapters/Signatures.aux
 A level-1 auxiliary file: chapters/Declaration.aux
 A level-1 auxiliary file: chapters/Declaration_Supervisor.aux
 A level-1 auxiliary file: chapters/Abstract.aux
 A level-1 auxiliary file: chapters/Dedication.aux
 A level-1 auxiliary file: chapters/Acknowledgements.aux
+A level-1 auxiliary file: chapters/Introduction.aux
 A level-1 auxiliary file: chapters/References.aux
 The style file: IEEEtran.bst
-I found no \citation commands---while reading file thesis.aux
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
@@ -21,45 +22,44 @@ Database file #1: thesis.bib
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
 
 Done.
-You've used 0 entries,
+You've used 18 entries,
             4087 wiz_defined-function locations,
-            827 strings with 7454 characters,
-and the built_in function-call counts, 104 in all, are:
-= -- 0
-> -- 0
-< -- 0
-+ -- 0
-- -- 0
-* -- 19
-:= -- 27
-add.period$ -- 0
-call.type$ -- 0
-change.case$ -- 0
-chr.to.int$ -- 0
-cite$ -- 0
-duplicate$ -- 0
-empty$ -- 1
-format.name$ -- 0
-if$ -- 3
+            952 strings with 12018 characters,
+and the built_in function-call counts, 16033 in all, are:
+= -- 1170
+> -- 494
+< -- 138
++ -- 278
+- -- 91
+* -- 780
+:= -- 2191
+add.period$ -- 36
+call.type$ -- 18
+change.case$ -- 18
+chr.to.int$ -- 339
+cite$ -- 18
+duplicate$ -- 1100
+empty$ -- 1300
+format.name$ -- 105
+if$ -- 3801
 int.to.chr$ -- 0
-int.to.str$ -- 0
-missing$ -- 0
-newline$ -- 23
-num.names$ -- 0
-pop$ -- 0
+int.to.str$ -- 18
+missing$ -- 212
+newline$ -- 87
+num.names$ -- 15
+pop$ -- 553
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 2
-skip$ -- 1
+skip$ -- 1221
 stack$ -- 0
-substring$ -- 0
-swap$ -- 0
-text.length$ -- 0
+substring$ -- 803
+swap$ -- 921
+text.length$ -- 25
 text.prefix$ -- 0
 top$ -- 5
-type$ -- 0
+type$ -- 18
 warning$ -- 0
-while$ -- 0
-width$ -- 0
-write$ -- 22
-(There was 1 error message)
+while$ -- 58
+width$ -- 20
+write$ -- 197

@@ -1,6 +1,7 @@
 \chapter{Methodology}
 \label{chapter:method}
 
+
 \section{Overview}
 The two main core objectives of our work involve in producing an online multi object tracker, which incorporates the spatiotemporal coherence of object motion together with the appearance consistency and producing a panoptic segmentation of the video feed by taking into account the bipartite potentials.
 
@@ -13,7 +14,7 @@ In this section, we describe our approach for online real-time multi-object trac
 
 \begin{figure*}[t]
 	\centering
-	\includegraphics[ width=\textwidth]{figs/LSTM_network.png}
+	\includegraphics[ width=textwidth]{figs/LSTM_network.png}
 	\vspace{-0.5cm}
 	\caption{Structure of the proposed LSTM network}
 	\label{fig:LSTM_network}
@@ -25,7 +26,7 @@ Consider a video as a sequence of image frames i.e. $V = I_{0},I_{1},...,I_{n}$ 
 \par When training; the loss function is obtained as a weighted sum of the classification and regression losses. The classification loss $LOSS_{C}$ is a simple cross-entropy loss function. The regression loss takes into account the sparse nature of the ground truth regression tensor. Here $\odot$ denotes the Hadamard product of two tensors or matrices.
 $$
 LOSS_{C} = -\sum(C_{out_{true}} \odot log(C_{out_{pred}})) \eqno{(1)}
-$$
+$$ Figure 1
 $$
 LOSS_{R} = argmax(C_{out_{pred}}) \odot L_{Huber}(R_{out_{pred}},R_{out_{true}}) \eqno{(2)}
 $$
