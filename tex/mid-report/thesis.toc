@@ -6,7 +6,6 @@
 \contentsline {chapter}{Contents}{vii}{chapter*.6}%
 \contentsline {chapter}{List of Figures}{viii}{chapter*.6}%
 \contentsline {chapter}{List of Tables}{ix}{chapter*.7}%
-\contentsline {chapter}{Acronyms and Abbreviations}{x}{section*.9}%
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Problem definition and scope}{1}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Related work}{2}{section.1.2}%
@@ -15,7 +14,10 @@
 \contentsline {section}{\numberline {2.1}System architecture}{5}{section.2.1}%
 \contentsline {section}{\numberline {2.2}Coordinate frames}{6}{section.2.2}%
 \contentsline {section}{\numberline {2.3}Sensor fusion mechanism}{6}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}The \gls {ES-EKF}}{6}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}Stochastic cloning and backward smoothing}{8}{subsection.2.3.2}%
-\contentsline {chapter}{References}{9}{table.caption.12}%
-\contentsline {chapter}{Appendix I}{11}{chapter*.14}%
+\contentsline {subsection}{\numberline {2.3.1}The \acrlong {ES-EKF}}{6}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Stochastic cloning and backward smoothing}{9}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}State buffer}{9}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}Time synchronization}{10}{subsection.2.3.4}%
+\contentsline {subsection}{\numberline {2.3.5}\acrlong {ZUPT} measurements}{10}{subsection.2.3.5}%
+\contentsline {chapter}{References}{11}{subsection.2.3.5}%
+\contentsline {chapter}{Appendix I}{13}{chapter*.12}%

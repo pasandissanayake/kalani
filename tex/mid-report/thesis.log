@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.10.16)  16 MAR 2021 21:29
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.10.16)  17 MAR 2021 19:38
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -726,11 +726,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 14--15
 
 
 ] (/home/pasan/kalani/tex/mid-report/thesis.toc
-LaTeX Font Info:    Trying to load font information for U+msa on input line 11.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 10.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 11.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 10.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ))
@@ -752,10 +752,9 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
  [9
 
-] (/home/pasan/kalani/tex/mid-report/thesis.acr) [10
-
-
 ]
+No file thesis.acr.
+[10]
 \openout2 = `chapters/Introduction.aux'.
 
  (/home/pasan/kalani/tex/mid-report/chapters/Introduction.tex
@@ -772,30 +771,56 @@ l.14 W
 
  (/home/pasan/kalani/tex/mid-report/chapters/Methodology.tex
 Chapter 2.
-<figs/system-block-diagram.png, id=320, 800.9925pt x 385.44pt>
+<figs/system-block-diagram.png, id=331, 800.9925pt x 385.44pt>
 File: figs/system-block-diagram.png Graphic file (type png)
 <use figs/system-block-diagram.png>
-Package pdftex.def Info: figs/system-block-diagram.png  used on input line 11.
+Package pdftex.def Info: figs/system-block-diagram.png  used on input line 14.
 (pdftex.def)             Requested size: 433.62001pt x 208.66382pt.
+<figs/coordinate-frames.jpg, id=334, 284.56313pt x 251.43938pt>
+File: figs/coordinate-frames.jpg Graphic file (type jpg)
+<use figs/coordinate-frames.jpg>
+Package pdftex.def Info: figs/coordinate-frames.jpg  used on input line 40.
+(pdftex.def)             Requested size: 260.17465pt x 229.9113pt.
 
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\gls' on input line 32.
+Underfull \hbox (badness 10000) in paragraph at lines 32--47
+
+ []
+
+
+Overfull \hbox (2.31766pt too wide) in paragraph at lines 32--47
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 32--47
+
+ []
 
 [5
 
 
 
- </home/pasan/kalani/tex/mid-report/figs/system-block-diagram.png>] [6] [7]) [8]
+ </home/pasan/kalani/tex/mid-report/figs/system-block-diagram.png>]
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `\acrlong' on input line 56.
+
+[6 </home/pasan/kalani/tex/mid-report/figs/coordinate-frames.jpg>] [7] [8] [9]
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `\acrlong' on input line 146.
+
+) [10]
 \openout2 = `chapters/References.aux'.
 
- (/home/pasan/kalani/tex/mid-report/chapters/References.tex (/home/pasan/kalani/tex/mid-report/thesis.bbl [9
+ (/home/pasan/kalani/tex/mid-report/chapters/References.tex (/home/pasan/kalani/tex/mid-report/thesis.bbl [11
 
 
 
-])) [10]
+])) [12]
 \openout2 = `chapters/Appendix.aux'.
 
- (/home/pasan/kalani/tex/mid-report/chapters/Appendix.tex) [11
+ (/home/pasan/kalani/tex/mid-report/chapters/Appendix.tex) [13
 
 
 
@@ -806,22 +831,54 @@ Package atveryend Info: Empty hook `AfterLastShipout' on input line 123.
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 123.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 123.
 Package rerunfilecheck Info: File `thesis.out' has not changed.
-(rerunfilecheck)             Checksum: 6B0AFF8B9964E690646715D8F6FBE01D;1228.
+(rerunfilecheck)             Checksum: 6BC461614946B36F4F66DA5757A36CCB;1376.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 123.
  ) 
 Here is how much of TeX's memory you used:
- 14802 strings out of 480608
- 229289 string characters out of 5903614
- 575566 words of memory out of 5000000
- 30171 multiletter control sequences out of 15000+600000
- 555106 words of font info for 75 fonts, out of 8000000 for 9000
+ 14884 strings out of 480608
+ 230573 string characters out of 5903614
+ 576195 words of memory out of 5000000
+ 30239 multiletter control sequences out of 15000+600000
+ 556213 words of font info for 76 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  58i,18n,98p,2834b,442s stack positions out of 5000i,500n,10000p,200000b,80000s
+pdfTeX warning (dest): name{glo:RTS} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:SLAM} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:RNDF} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:RMS} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:DARPA} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:M-ELROB} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:RADAR} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:ZUPT} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:ES-EKF} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:GPS} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:RTK} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:DGPS} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:ROS} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:LiDAR} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:GNSS} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{glo:IMU} has been referenced but does not exist, replaced by a fixed one
+
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on /home/pasan/kalani/tex/mid-report/thesis.pdf (22 pages, 252915 bytes).
+Output written on /home/pasan/kalani/tex/mid-report/thesis.pdf (24 pages, 278794 bytes).
 PDF statistics:
- 478 PDF objects out of 1000 (max. 8388607)
- 433 compressed objects within 5 object streams
- 104 named destinations out of 1000 (max. 500000)
- 174 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 531 PDF objects out of 1000 (max. 8388607)
+ 483 compressed objects within 5 object streams
+ 117 named destinations out of 1000 (max. 500000)
+ 195 words of extra memory for PDF output out of 10000 (max. 10000000)
 

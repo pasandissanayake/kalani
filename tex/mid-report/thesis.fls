@@ -320,9 +320,6 @@ OUTPUT /home/pasan/kalani/tex/mid-report/thesis.lof
 INPUT /home/pasan/kalani/tex/mid-report/thesis.lot
 INPUT /home/pasan/kalani/tex/mid-report/thesis.lot
 OUTPUT /home/pasan/kalani/tex/mid-report/thesis.lot
-INPUT /home/pasan/kalani/tex/mid-report/thesis.acr
-INPUT /home/pasan/kalani/tex/mid-report/thesis.acr
-INPUT /home/pasan/kalani/tex/mid-report/thesis.acr
 OUTPUT /home/pasan/kalani/tex/mid-report/chapters/Introduction.aux
 INPUT /home/pasan/kalani/tex/mid-report/chapters/Introduction.tex
 INPUT /home/pasan/kalani/tex/mid-report/chapters/Introduction.tex
@@ -335,6 +332,9 @@ INPUT /home/pasan/kalani/tex/mid-report/chapters/Methodology.tex
 INPUT /home/pasan/kalani/tex/mid-report/figs/system-block-diagram.png
 INPUT /home/pasan/kalani/tex/mid-report/figs/system-block-diagram.png
 INPUT /home/pasan/kalani/tex/mid-report/figs/system-block-diagram.png
+INPUT /home/pasan/kalani/tex/mid-report/figs/coordinate-frames.jpg
+INPUT /home/pasan/kalani/tex/mid-report/figs/coordinate-frames.jpg
+INPUT /home/pasan/kalani/tex/mid-report/figs/coordinate-frames.jpg
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/times/ptmri7t.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/times/ptmr7t.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm
@@ -355,6 +355,8 @@ INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam5
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/times/ptmr7t.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/adobe/times/ptmb7t.vf
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/times/ptmb8r.tfm
 OUTPUT /home/pasan/kalani/tex/mid-report/chapters/References.aux
 INPUT /home/pasan/kalani/tex/mid-report/chapters/References.tex
 INPUT /home/pasan/kalani/tex/mid-report/chapters/References.tex

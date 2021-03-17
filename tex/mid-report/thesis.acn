@@ -7,6 +7,7 @@
 \glossaryentry{RTK?\glossentry{RTK}|setentrycounter[]{page}\glsnumberformat}{iv}
 \glossaryentry{GPS?\glossentry{GPS}|setentrycounter[]{page}\glsnumberformat}{iv}
 \glossaryentry{ES-EKF?\glossentry{ES-EKF}|setentrycounter[]{page}\glsnumberformat}{vii}
+\glossaryentry{ZUPT?\glossentry{ZUPT}|setentrycounter[]{page}\glsnumberformat}{vii}
 \glossaryentry{GNSS?\glossentry{GNSS}|setentrycounter[]{page}\glsnumberformat}{1}
 \glossaryentry{LiDAR?\glossentry{LiDAR}|setentrycounter[]{page}\glsnumberformat}{1}
 \glossaryentry{RADAR?\glossentry{RADAR}|setentrycounter[]{page}\glsnumberformat}{1}
@@ -66,3 +67,18 @@
 \glossaryentry{ROS?\glossentry{ROS}|setentrycounter[]{page}\glsnumberformat}{5}
 \glossaryentry{ES-EKF?\glossentry{ES-EKF}|setentrycounter[]{page}\glsnumberformat}{6}
 \glossaryentry{ES-EKF?\glossentry{ES-EKF}|setentrycounter[]{page}\glsnumberformat}{6}
+\glossaryentry{ES-EKF?\glossentry{ES-EKF}|setentrycounter[]{page}\glsnumberformat}{6}
+\glossaryentry{ES-EKF?\glossentry{ES-EKF}|setentrycounter[]{page}\glsnumberformat}{9}
+\glossaryentry{LiDAR?\glossentry{LiDAR}|setentrycounter[]{page}\glsnumberformat}{9}
+\glossaryentry{RTS?\glossentry{RTS}|setentrycounter[]{page}\glsnumberformat}{9}
+\glossaryentry{ES-EKF?\glossentry{ES-EKF}|setentrycounter[]{page}\glsnumberformat}{9}
+\glossaryentry{ES-EKF?\glossentry{ES-EKF}|setentrycounter[]{page}\glsnumberformat}{9}
+\glossaryentry{ROS?\glossentry{ROS}|setentrycounter[]{page}\glsnumberformat}{10}
+\glossaryentry{ROS?\glossentry{ROS}|setentrycounter[]{page}\glsnumberformat}{10}
+\glossaryentry{RTS?\glossentry{RTS}|setentrycounter[]{page}\glsnumberformat}{10}
+\glossaryentry{RTS?\glossentry{RTS}|setentrycounter[]{page}\glsnumberformat}{10}
+\glossaryentry{ZUPT?\glossentry{ZUPT}|setentrycounter[]{page}\glsnumberformat}{10}
+\glossaryentry{ZUPT?\glossentry{ZUPT}|setentrycounter[]{page}\glsnumberformat}{10}
+\glossaryentry{ZUPT?\glossentry{ZUPT}|setentrycounter[]{page}\glsnumberformat}{10}
+\glossaryentry{ES-EKF?\glossentry{ES-EKF}|setentrycounter[]{page}\glsnumberformat}{10}
+\glossaryentry{ZUPT?\glossentry{ZUPT}|setentrycounter[]{page}\glsnumberformat}{10}

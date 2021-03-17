@@ -131,4 +131,19 @@ S.~P. {Won}, W.~W. {Melek}, and F.~{Golnaraghi}, ``A kalman/particle
   sensor/inertial measurement unit hybrid system,'' \emph{IEEE Transactions on
   Industrial Electronics}, vol.~57, no.~5, pp. 1787--1798, 2010.
 
+\bibitem{pa:Sola2017QuaternionKinematics}
+J.~Solà, ``Quaternion kinematics for the error-state kalman filter,'' 2017.
+
+\bibitem{pa:Emter2018StochasticCloning}
+T.~{Emter} and J.~{Petereit}, ``Stochastic cloning and smoothing for fusion of
+  multiple relative and absolute measurements for localization and mapping,''
+  in \emph{2018 15th International Conference on Control, Automation, Robotics
+  and Vision (ICARCV)}, 2018, pp. 1508--1513.
+
+\bibitem{pa:Dissanayake2001ZUPT}
+G.~{Dissanayake}, S.~{Sukkarieh}, E.~{Nebot}, and H.~{Durrant-Whyte}, ``The
+  aiding of a low-cost strapdown inertial measurement unit using vehicle model
+  constraints for land vehicle applications,'' \emph{IEEE Transactions on
+  Robotics and Automation}, vol.~17, no.~5, pp. 731--747, 2001.
+
 \end{thebibliography}
