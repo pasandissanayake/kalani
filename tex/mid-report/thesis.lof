@@ -2,3 +2,14 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {2.1}{\ignorespaces System block diagram\relax }}{5}{figure.caption.9}%
 \contentsline {figure}{\numberline {2.2}{\ignorespaces Coordinate frames}}{6}{figure.caption.10}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces \gls {ROS} Node Graph}}{14}{figure.caption.14}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Filter comparison - error in x direction\relax }}{16}{figure.caption.16}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Filter comparison - error in y direction\relax }}{17}{figure.caption.17}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Filter comparison - error in z direction\relax }}{17}{figure.caption.18}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Filter comparison - overall translational error\relax }}{18}{figure.caption.19}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Filter comparison - error in roll\relax }}{18}{figure.caption.21}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Filter comparison - error in pitch\relax }}{19}{figure.caption.22}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Filter comparison - error in yaw\relax }}{19}{figure.caption.23}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Effect of \gls {ZUPT} measurements on the yaw estimate\relax }}{20}{figure.caption.24}%
+\addvspace {10\p@ }

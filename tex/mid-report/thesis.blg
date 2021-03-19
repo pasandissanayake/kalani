@@ -10,6 +10,8 @@ A level-1 auxiliary file: chapters/Dedication.aux
 A level-1 auxiliary file: chapters/Acknowledgements.aux
 A level-1 auxiliary file: chapters/Introduction.aux
 A level-1 auxiliary file: chapters/Methodology.aux
+A level-1 auxiliary file: chapters/Results.aux
+A level-1 auxiliary file: chapters/Conclusion.aux
 A level-1 auxiliary file: chapters/References.aux
 The style file: IEEEtran.bst
 A level-1 auxiliary file: chapters/Appendix.aux
@@ -24,44 +26,44 @@ Database file #1: thesis.bib
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
 
 Done.
-You've used 21 entries,
+You've used 29 entries,
             4087 wiz_defined-function locations,
-            972 strings with 12787 characters,
-and the built_in function-call counts, 18226 in all, are:
-= -- 1344
-> -- 540
-< -- 158
-+ -- 306
-- -- 98
-* -- 876
-:= -- 2505
-add.period$ -- 42
-call.type$ -- 21
-change.case$ -- 21
-chr.to.int$ -- 387
-cite$ -- 21
-duplicate$ -- 1258
-empty$ -- 1484
-format.name$ -- 114
-if$ -- 4323
+            1026 strings with 14850 characters,
+and the built_in function-call counts, 25204 in all, are:
+= -- 1923
+> -- 700
+< -- 214
++ -- 396
+- -- 125
+* -- 1196
+:= -- 3478
+add.period$ -- 61
+call.type$ -- 29
+change.case$ -- 29
+chr.to.int$ -- 519
+cite$ -- 29
+duplicate$ -- 1764
+empty$ -- 2060
+format.name$ -- 149
+if$ -- 6003
 int.to.chr$ -- 0
-int.to.str$ -- 21
-missing$ -- 239
-newline$ -- 96
-num.names$ -- 18
-pop$ -- 618
+int.to.str$ -- 29
+missing$ -- 320
+newline$ -- 124
+num.names$ -- 26
+pop$ -- 812
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 2
-skip$ -- 1397
+skip$ -- 1967
 stack$ -- 0
-substring$ -- 918
-swap$ -- 1049
-text.length$ -- 29
+substring$ -- 1274
+swap$ -- 1467
+text.length$ -- 41
 text.prefix$ -- 0
 top$ -- 5
-type$ -- 21
+type$ -- 29
 warning$ -- 0
-while$ -- 67
-width$ -- 23
-write$ -- 224
+while$ -- 95
+width$ -- 31
+write$ -- 306

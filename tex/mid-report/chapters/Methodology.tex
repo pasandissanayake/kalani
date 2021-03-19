@@ -50,6 +50,100 @@ Figure \ref{fig:pa:coordinateFrames} illustrates the above-mentioned coordinate 
 
 
 
+%%%%%%%%%%%%%%%%
+\section{Datasets}
+We have being using three public datasets, namely, \gls{NCLT} dataset\cite{pa:NCLTDataset}, \gls{KITTI} dataset for tracking\cite{pa:KITTIDataset} and \gls{KAIST} Urban dataset\cite{pa:KAISTDataset}. In addition, we expect to use the EU-Long Term dataset\cite{pa:EULTDataset}. All these datasets include data from sensors that are sufficient for the sensor fusion mechanism, along with ground truth data. Details of the datasets are given in table \ref{table:pa:Datasets}.
+% TODO: dataset info table
+\begin{table}[h]
+\centering
+\begin{tabular}{|c | c | c |} 
+	\hline
+	\textbf{Dataset} & \textbf{Sensors included} & \textbf{Ground truth} \\
+	\hline
+	1 & 6 & 87837\\
+	\hline
+	2 & 7 & 78 \\
+	\hline
+	3 & Banana & 778\\
+	\hline
+\end{tabular}
+\caption{Dataset information}
+\label{table:pa:Datasets}
+\end{table}
+
+
+
+
+
+
+
+%%%%%%%%%%%% ch start %%%%%%%%%%%
+
+\section{Sensor fusion algorithms}
+Kalman filters are the most widely used sensor data fusion algorithms. There 
+are many extensions to the basic Kalman filter (which is known as the Linear Kalman 
+filter) allowing them to be used in variety of applications. Table \ref{table:ch:Comparison of different types of Kalman filters} provides a 
+comparison between different types of Kalman filters. Note that the computational 
+complexity of the filters increases from left to right.\\
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{3.4cm}|p{3.4cm}|p{3.4cm}|p{3.4cm}|} 
+	\hline
+	\textbf{Linear Kalman} & \textbf{Extended Kalman} & \textbf{Error State} & \textbf{Unscented} \\
+	\textbf{Filter} & \textbf{Filter} & \textbf{Kalman Filter} & \textbf{Kalman Filter} \\
+\hline
+Linear and Gaussian model&Non-linear and Gaussian model&Non-linear Gaussian model&Non-linear Gaussian model\\
+\hline
+Best linear unbiased estimator (Blue)&linearize the nonlinear dynamics using Jacobeans (Taylor series)&linearize the nonlinear 
+dynamics of error using Jacobeans(Taylor series)&Calculate sigma points and use Unscented Transform to approximate the PDFs directly\\
+\hline
+Estimates the state & Estimates the state& Estimates the error of the state & Estimates the state\\
+\hline
+\end{tabular}
+\caption{Comparison of different types of Kalman filters}
+\label{table:ch:Comparison of different types of Kalman filters}
+\end{table}
+We can use Kalman filters only for Gaussian models. However, we cannot use the Linear Kalman filter at all because the localization task is not linear. Assuming that the localization problem is Gaussian, other Kalman filters can be used to tackle the problem.We selected  \gls{UKF} and \gls{ESKF} to implement in python since those two algorithms have shown the best results among Kalman filters according to researchers\cite{ch24:st2004comparison},\cite{ch25:madyastha2011extended},\cite{ch26:wan2000unscented}.\\
+\gls{PF} was recently suggested after \gls{KF}s to 
+process arbitrary inertial sensor characteristics, motion dynamics, and noise distributions. When dealing with non-linear models in motion equations and measurement relations with a non-Gaussian noise assumption, the Kalman Filter methods may lead to non-optimal solutions. However, particle filters provide general solutions to many problems where linearization and Gaussian approximations are intractable \cite{ch27:ababsa2004comparison}. A brief comparison of \gls{PF}s and \gls{KF}s is given in Table \ref{table:ch:A brief comparison of Kalman filters and Particle filters}.\\
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|} 
+	\hline
+	\textbf{Kalman Filters} & \textbf{Particle Filters} \\
+\hline
+Only for Gaussian models & For both Gaussian and non-Gaussian models\\
+\hline
+Only for linear models& For both linear and non-linear models
+\\
+\hline
+Low computational complexity&High computational complexity\\
+\hline
+\end{tabular}
+\caption{A brief comparison of Kalman filters and Particle filters}
+\label{table:ch:A brief comparison of Kalman filters and Particle filters}
+\end{table}
+Three basic level filters were implemented and compared using the \gls{NCLT} data set to select the best filter for our application. Those filters were \gls{PF}, \gls{ESKF}, and \gls{UKF}. Then, the performance of the  best filter was improved by increasing the number of elements in the state vector, adding zero velocity update, and fussing relative measurements (Visual odometry , \gls{LiDAR} odometer) etc.The state vector used for basic filter implementations was \eqref{eq:basic state vector}
+\begin{align}
+\label{eq:basic state vector}
+   \textbf{x} &= \left[\begin{matrix}{}\textbf{p}\\\textbf{v}\\\textbf{q}\end{matrix}\right]
+\end{align}
+where,\\
+\textbf{p}=($p_x,p_y,p_z$) position relative to the inertial frame\\
+\textbf{v}=($v_x,v_y,v_z$) velocity relative to the inertial frame\\
+\textbf{q}=($q_\omega,q_x,q_y,q_z$) quaternion relative to the inertial frame\\
+\\
+The \gls{ESKF} estimates the error state directly and uses it as a correction to the nominal state.1000 particles were used in the \gls{PF}. Gaussian random noise was added to particles before applying the motion model to increase the diversity of particles. Systematic resample was used to resample particles when needed and squared error function was used as the weight function.1,1, and 2 were used as $\alpha$,k, and $\beta$ respectively in the unscented transform of \gls{UKF}.\\
+The \gls{PF} had the worst orientation estimation while \gls{UKF} having the worst position estimation. According to the results, \gls{ESKF} performed way better than the other two filters, since it gave better estimations for both orientation and position. Also, the computational complexity of \gls{ESKF} was low with compared to other filters. Hence, \gls{ESKF} was selected as the best filter to tackle our problem.
+
+
+%%%%%%%%%%%% ch end %%%%%%%%%%%%%
+
+
+
+
+
+
 
 %%%%%%%%%%%%%%%
 \section{Sensor fusion mechanism}
@@ -146,28 +240,43 @@ If a prediction is to be carried out, the filter will only search for the latest
 \subsection{\acrlong{ZUPT} measurements}
 Some of the physical constraints that govern the motion of a vehicle can be incorporated into the sensor fusion mechanism, in-order to make the estimate more accurate. \gls{ZUPT} measurements, generated based on the fact that the motion of a vehicle is constrained only towards its longitudinal direction, are one such constraint that can be employed to couple the positional measurements with the heading estimation \cite{pa:Dissanayake2001ZUPT}. 
 
-However, it should be noted that, the advantages of \gls{ZUPT} measurements come at a cost. Since they are fed into the \gls{ES-EKF} as ordinary absolute measurements, they reduce the estimated covariance of the error, causing the filter to be overconfident on its estimate. This effect should be balanced out by carefully tuning the measurement variance of the \gls{ZUPT} measurement. Furthermore, once diverged due to erroneous measurements, the estimate takes a longer time to converge back to the ground truth, after starting to receive correct measurements.
+However, it should be noted that, the advantages of \gls{ZUPT} measurements come at a cost. Since they are fed into the \gls{ES-EKF} as ordinary absolute measurements, they reduce the estimated covariance of the error, causing the filter to be overconfident on its estimate. Furthermore, once diverged due to erroneous measurements, the estimate takes a longer time to converge back to the ground truth, after starting to receive correct measurements. These effects should be balanced out by carefully tuning the noise variance of the \gls{ZUPT} measurement.
 
 
 
 
 
+%%%%%%%%%%%%%%%%
+\section{Implementation on \acrlong{ROS}}
+The system was implemented on \gls{ROS}, targetting the easy integration with other modules (path planning, perception etc.) of the autonomous vehicle. Furthermore, the \gls{ROS} environment facilitates the following;
+\begin{itemize}
+	\item Visualizing results (through Rviz, Multiplot etc.)
+	\item In-built multi-threading for handling asynchronous data feeds
+	\item Controlling simulation time
+	\item Inter-process communication through \gls{ROS} topics
+	\item Debugging (using tools such as Node Graphs, TF Tree etc.)
+	\item Handling transformations (through TF)
+\end{itemize}
+Apart from the nodes for visual and \gls{LiDAR} odometry algorithms, the system consists of 3 main nodes, namely, the Data Feeder, Locator and the Evaluator. Each of these nodes will be described separately, in the following discussion. Figure \ref{fig:pa:nodeGraph} shows the Node Graph obtained for the system.
+
+\begin{figure}[h]
+	\begin{center}
+	\includegraphics[width=\textwidth]{figs/rosgraph.png}
+	\end{center}
+	\vspace{-0.5cm}
+	\caption[\gls{ROS} Node Graph]{\gls{ROS} Node Graph}
+	\label{fig:pa:nodeGraph}
+	\vspace{0.5cm}
+\end{figure}
+
+\subsection{Data Feeder}
+This \gls{ROS} node is responsible for publishing sensor data obtained from the dataset, into pre-defined \gls{ROS} topics. Furthermore, it is capable of controlling the simulation clock, so that the simulation timescale can be adjusted. It carries out all the data conversions required (Eg: \gls{GNSS} sensor data need to be converted from \gls{WGS} 84 to the local inertial frame) and publishes the data according to the rates specified by the specifications of the corresponding sensor. Each dataset in use requires a separate Data Feeder, tailored to suit its data format specifications.
+
+\subsection{Locator}
+This is the node that is responsible for invoking prediction and correction functions of the \gls{ES-EKF}, upon receiving data from the Data Feeder. Once a prediction is done, it publishes the latest state estimate both as a TF frame update as well as a \gls{ROS} message under a pre-defined topic. The structure of the \gls{ES-EKF} (including state variables, motion model and its Jacobians) is defined within this node, along with the measurement matrices for both absolute and relative measurement updates.
+
+\subsection{Evaluator}
+Purpose of this node is to calculate and publish the errors and error confidence bounds (3$\sigma$ bounds) for the state estimate. In addition, it publishes the errors caused in the \gls{GNSS} and magnetometer measurements, with respect to the ground truth. These errors can be visualized on either Rviz or Multiplot tools. Furthermore, it keeps a history of the paths of the estimate and the ground truth, which is also can be visualized on Rviz.
 
 
 
-% \begin{table}[h]
-% \centering
-% \begin{tabular}{|c | c | c | c|} 
-% 	\hline
-% 	\textbf{Heading1} & \textbf{Heading2} & \textbf{Heading3} & \textbf{Heading4} \\
-% 	\hline
-% 	1 & 6 & 87837 & 787 \\
-% 	\hline
-% 	2 & 7 & 78 & 5415 \\
-% 	\hline
-% 	3 & Banana & 778 & Apple \\
-% 	\hline
-% \end{tabular}
-% \caption{Example table}
-% \label{table:pa:ExampleTable}
-% \end{table}

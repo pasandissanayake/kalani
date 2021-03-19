@@ -3,9 +3,9 @@
 \contentsline {chapter}{Abstract}{iv}{chapter*.3}%
 \contentsline {chapter}{Dedication}{v}{chapter*.4}%
 \contentsline {chapter}{Acknowledgements}{vi}{chapter*.5}%
-\contentsline {chapter}{Contents}{vii}{chapter*.6}%
-\contentsline {chapter}{List of Figures}{viii}{chapter*.6}%
-\contentsline {chapter}{List of Tables}{ix}{chapter*.7}%
+\contentsline {chapter}{Contents}{viii}{chapter*.6}%
+\contentsline {chapter}{List of Figures}{ix}{chapter*.6}%
+\contentsline {chapter}{List of Tables}{x}{chapter*.7}%
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Problem definition and scope}{1}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Related work}{2}{section.1.2}%
@@ -13,11 +13,23 @@
 \contentsline {chapter}{\numberline {2}Methodology}{5}{chapter.2}%
 \contentsline {section}{\numberline {2.1}System architecture}{5}{section.2.1}%
 \contentsline {section}{\numberline {2.2}Coordinate frames}{6}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Sensor fusion mechanism}{6}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}The \acrlong {ES-EKF}}{6}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}Stochastic cloning and backward smoothing}{9}{subsection.2.3.2}%
-\contentsline {subsection}{\numberline {2.3.3}State buffer}{9}{subsection.2.3.3}%
-\contentsline {subsection}{\numberline {2.3.4}Time synchronization}{10}{subsection.2.3.4}%
-\contentsline {subsection}{\numberline {2.3.5}\acrlong {ZUPT} measurements}{10}{subsection.2.3.5}%
-\contentsline {chapter}{References}{11}{subsection.2.3.5}%
-\contentsline {chapter}{Appendix I}{13}{chapter*.12}%
+\contentsline {section}{\numberline {2.3}Datasets}{6}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Sensor fusion algorithms}{7}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Sensor fusion mechanism}{9}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}The \acrlong {ES-EKF}}{9}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Stochastic cloning and backward smoothing}{11}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}State buffer}{11}{subsection.2.5.3}%
+\contentsline {subsection}{\numberline {2.5.4}Time synchronization}{12}{subsection.2.5.4}%
+\contentsline {subsection}{\numberline {2.5.5}\acrlong {ZUPT} measurements}{12}{subsection.2.5.5}%
+\contentsline {section}{\numberline {2.6}Implementation on \acrlong {ROS}}{13}{section.2.6}%
+\contentsline {subsection}{\numberline {2.6.1}Data Feeder}{13}{subsection.2.6.1}%
+\contentsline {subsection}{\numberline {2.6.2}Locator}{14}{subsection.2.6.2}%
+\contentsline {subsection}{\numberline {2.6.3}Evaluator}{14}{subsection.2.6.3}%
+\contentsline {chapter}{\numberline {3}Results}{15}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Comparison of Bayesian filters}{15}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Translational performance}{15}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Orientation}{16}{subsection.3.1.2}%
+\contentsline {section}{\numberline {3.2}Sensor fusion mechanism}{16}{section.3.2}%
+\contentsline {chapter}{\numberline {4}Discussion and Conclusion}{21}{chapter.4}%
+\contentsline {chapter}{References}{22}{chapter.4}%
+\contentsline {chapter}{Appendix I}{25}{chapter*.26}%
