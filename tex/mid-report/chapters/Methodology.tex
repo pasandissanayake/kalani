@@ -8,7 +8,7 @@
 %%%%%%%%%%%%%%%
 \section{System architecture}
 \label{sec:SystemArchitecture}
-As depicted in figure \ref{fig:pa:systemBlockDiagram}, we use the pose estimates calculated using stereo images and \gls{LiDAR} point clouds as relative measurements. ORB SLAM 2 and LegoLOAM algorithms, respectively, are used for this purpose. Furthermore, \gls{GNSS} measurements and orientation estimated from magnetometer measurements act as positional and rotational absolute measurements to the fusion mechanism. The fusion mechanism is an \gls{ES-EKF} with 16 variables in the state space and 15 variables in the error state space. The output of the system consists of a state vector including position, orientation and velocity of the vehicle relative to a global frame of reference. Estimated covariance of the error is also provided, from which, the 99\% confidence interval ($3\sigma$ bound) can be derived. Output is compared with the ground truth provided with the dataset being used, to calculate the resultant error margins.
+As depicted in figure \ref{fig:pa:systemBlockDiagram}, we use the pose estimates calculated using stereo images and \gls{LiDAR} point clouds as relative measurements. \gls{ORBSLAM} and LegoLOAM algorithms, respectively, are used for this purpose. Furthermore, \gls{GNSS} measurements and orientation estimated from magnetometer measurements act as positional and rotational absolute measurements to the fusion mechanism. The fusion mechanism is an \gls{ES-EKF} with 16 variables in the state space and 15 variables in the error state space. The output of the system consists of a state vector including position, orientation and velocity of the vehicle relative to a global frame of reference. Estimated covariance of the error is also provided, from which, the 99\% confidence interval ($3\sigma$ bound) can be derived. Output is compared with the ground truth provided with the dataset being used, to calculate the resultant error margins.
 \begin{figure}[h]
 	\begin{center}
 	\includegraphics[width=\textwidth]{figs/system-block-diagram.png}
@@ -136,7 +136,7 @@ where,
 	\textbf{q}&=(q_\omega,q_x,q_y,q_z) \text{ quaternion relative to the inertial frame}.
 \end{align}
 
-The \gls{ESKF} estimates the error state directly and uses it as a correction to the nominal state. Number of particles used in the \gls{PF} was 1000. Gaussian random noise was added to the particles before applying the motion model, to increase the diversity of the particles. Systematic Resampling was used to resample particles when needed and squared error function was used as the weight function. Following values were selected for the parameters of the \gls{UKF};
+The \gls{ESKF} estimates the error state directly and uses it as a correction to the nominal state. Number of particles used in the \gls{PF} was 1000. Gaussian random noise was added to the particles before applying the motion model, to increase the diversity of the particles. Systematic Resampling was used to resample particles when needed and squared error function was used as the weight function. Following values were selected for the parameters (as defined in \cite{ch26:wan2000unscented}) of the \gls{UKF};
 \begin{align}
 	\alpha &= 1 \text{ (controls the spread of sigma)}\\
 	\beta & = 2 \text{ (related to the distribution)}\\
@@ -222,7 +222,7 @@ Here,
 	\oplus &= \text{Operator representing the combination of nominal state and error state }\nonumber\\
 	&\quad\text{ vectors}.
 \end{align}
-For a detailed presentation of the matrices included in above equations, refer Appendix \ref{appendix:ESEKFMatrices}\cite{pa:Sola2017QuaternionKinematics}.
+For a detailed presentation of the matrices involved in above equations, refer Appendix \ref{appendix:ESEKFMatrices}\cite{pa:Sola2017QuaternionKinematics}.
 
 
 \subsection{Stochastic cloning and backward smoothing}
@@ -250,6 +250,62 @@ If a prediction is to be carried out, the filter will only search for the latest
 Some of the physical constraints that govern the motion of a vehicle can be incorporated into the sensor fusion mechanism, in-order to make the estimate more accurate. \gls{ZUPT} measurements, generated based on the fact that the motion of a vehicle is constrained only towards its longitudinal direction, are one such constraint that can be employed to couple the positional measurements with the heading estimation \cite{pa:Dissanayake2001ZUPT}. 
 
 However, it should be noted that, the advantages of \gls{ZUPT} measurements come at a cost. Since they are fed into the \gls{ES-EKF} as ordinary absolute measurements, they reduce the estimated covariance of the error, causing the filter to be overconfident on its estimate. Furthermore, once diverged due to erroneous measurements, the estimate takes a longer time to converge back to the ground truth, after starting to receive correct measurements. These effects should be balanced out by carefully tuning the noise variance of the \gls{ZUPT} measurement.
+
+
+
+
+
+
+%%%%%%%%%%%%%%%% ra start %%%%%%%%%%%%%%%%%%
+
+\section{Visual Odometry}
+Out of the sensors that we use for localization process, cameras are the cheapest. However, it is capable of providing rich information of the environment, which allows us to recognize the environment robustly and accurately. Therefore, camera based visual odometry \gls{SLAM} solutions are becoming very popular, and can be used in our system as a solution for \gls{GNSS} outages. 
+
+\subsection{System Selection}
+Monocular camera based systems are the most commonly used for visual odometry because of the low cost and the smaller sensor setup. However, estimations are not reliable and inaccurate because depth cannot be calculated using one camera \cite{ra:ORB_SLAM2}. Therefore, stereo camera based systems were selected as the best solution for our system. As implementation of this algorithm was not within the project scope, we had to find a solution with an existing implementation. Following criteria were used when selecting a suitable method:
+\begin{itemize}
+    \item Should not depend on previously generated feature maps
+    \item Should provide real time output
+    \item Accuracy
+    \item Availability of proper implementation
+\end{itemize}
+
+\gls{ORBSLAM} \cite{ra:ORB_SLAM2} and \gls{S-PTAM} \cite{ra:S-PTAM} were the best solutions available. Furthermore, they had proper implementations, available for free. Comparing the results they have obtained by testing these algorithms using the KITTI dataset \cite{ra:KITTI}, \gls{ORBSLAM} showed superior perfomance over \gls{S-PTAM}. Furthermore, the implementation of the \gls{ORBSLAM} algorithm was fairly detailed. Hence, we selected \gls{ORBSLAM} as the best solution.
+
+
+\subsection{\gls{ORBSLAM} algorithm}
+This is an extension of the previously implemented \gls{ORBSLAM} algorithm \cite{ra:ORB_SLAM}, which was only for the monocular systems. In the \gls{ORBSLAM}, they have extended the previous implementation for the stereo cameras with accuracy improvements\cite{ra:ORB_SLAM2}. 
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=\textwidth]{figs/ORB_SYSTEM.png}
+	\vspace{-0.5cm}
+	\caption{\gls{ORBSLAM} architecture \cite{ra:ORB_SLAM2}}
+	\label{fig:ra:ORB_SYSTEM}
+	\vspace{0.5cm}
+\end{figure}
+
+Pre-processing architecture is shown in figure \ref{fig:ra:ORB_SYSTEM}(b). Features of the rectified stereo images will be extracted using the ORB feature extractor \cite{ra:ORB} and extracted features will be matched with the previous frame to identify the stereo key points. 
+
+General view of the system architecture is shown in figure \ref{fig:ra:ORB_SYSTEM}(a). System is consisted of three main parallel threads, namely;
+\begin{enumerate}
+	\item the Tracking thread to localize the camera with every frame by finding feature matches to the local map and minimizing the re-projection error applying motion-only \gls{BA}
+	\item the Local Mapping thread to manage the local map and optimize it, performing local BA\gls{BA}
+	\item the Loop Closing thread to detect large loops and correct the accumulated drift by performing a pose-graph optimization \cite{ra:ORB_SLAM2}.
+\end{enumerate} 
+
+In the existing code, the vehicle is localized on a local map created using the feature points. However, for our system, we needed to get the relative transform of the vehicle, between two stereo frames. Hence, we modified the existing algorithm to receive relative transform of the vehicle, directly, as the output. The result is published as a ROS\gls{ROS} message.
+
+\gls{ORBSLAM} has been designed and setup only for the \gls{KITTI} and \gls{TUM} datasets. We added the image rectification functionality for the \gls{KAIST}, as we will be using that dataset for our testing purposes.
+
+One drawback of the \gls{ORBSLAM} algorithm is the absence of a reliability metric (eg: estimated variance of the error) for the estimate. In order to circumvent this problem, we have been testing different methods to obtain an error covarince matrix. One of the methods tested was to estimate covariance values based on the number of features matched between each pair of frames. We hypothesized that the error should be reduced if a higher number of features have been detected. However, this hypothesis has been observed to be invalid (see section \ref{sec:VisualOdometry}). Hence, alternatives are being sought to overcome this issue. 
+
+%%%%%%%%%%%%%%%% ra end %%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
 
 
 

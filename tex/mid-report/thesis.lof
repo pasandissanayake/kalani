@@ -2,14 +2,23 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {2.1}{\ignorespaces System block diagram\relax }}{5}{figure.caption.9}%
 \contentsline {figure}{\numberline {2.2}{\ignorespaces Coordinate frames}}{6}{figure.caption.10}%
-\contentsline {figure}{\numberline {2.3}{\ignorespaces \gls {ROS} Node Graph}}{14}{figure.caption.14}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces \gls {ORBSLAM} architecture \cite {ra:ORB_SLAM2}\relax }}{14}{figure.caption.14}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces \gls {ROS} Node Graph}}{16}{figure.caption.15}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Filter comparison - error in x direction\relax }}{16}{figure.caption.16}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Filter comparison - error in y direction\relax }}{17}{figure.caption.17}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Filter comparison - error in z direction\relax }}{17}{figure.caption.18}%
-\contentsline {figure}{\numberline {3.4}{\ignorespaces Filter comparison - overall translational error\relax }}{18}{figure.caption.19}%
-\contentsline {figure}{\numberline {3.5}{\ignorespaces Filter comparison - error in roll\relax }}{18}{figure.caption.21}%
-\contentsline {figure}{\numberline {3.6}{\ignorespaces Filter comparison - error in pitch\relax }}{19}{figure.caption.22}%
-\contentsline {figure}{\numberline {3.7}{\ignorespaces Filter comparison - error in yaw\relax }}{19}{figure.caption.23}%
-\contentsline {figure}{\numberline {3.8}{\ignorespaces Effect of \gls {ZUPT} measurements on the yaw estimate\relax }}{20}{figure.caption.24}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Filter comparison - error in x direction\relax }}{18}{figure.caption.17}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Filter comparison - error in y direction\relax }}{19}{figure.caption.18}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Filter comparison - error in z direction\relax }}{19}{figure.caption.19}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Filter comparison - overall translational error\relax }}{20}{figure.caption.20}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Filter comparison - error in roll\relax }}{20}{figure.caption.22}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Filter comparison - error in pitch\relax }}{21}{figure.caption.23}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Filter comparison - error in yaw\relax }}{21}{figure.caption.24}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Effect of \gls {ZUPT} measurements on the yaw estimate}}{22}{figure.caption.25}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Detected feature points}}{23}{figure.caption.26}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Map of feature points}}{24}{figure.caption.27}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Positional error of \gls {ORBSLAM}}}{25}{figure.caption.28}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Rotational error of \gls {ORBSLAM}}}{25}{figure.caption.29}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Positional error of \gls {ORBSLAM}, after removing the effect of error accumulation\relax }}{26}{figure.caption.30}%
+\contentsline {figure}{\numberline {3.14}{\ignorespaces Rotational error of \gls {ORBSLAM}, after removing the effect of error accumulation\relax }}{26}{figure.caption.31}%
+\contentsline {figure}{\numberline {3.15}{\ignorespaces Histogram of the number of matched points}}{27}{figure.caption.32}%
+\contentsline {figure}{\numberline {3.16}{\ignorespaces Average \gls {RMS} error vs. the number of matched points}}{27}{figure.caption.33}%
 \addvspace {10\p@ }

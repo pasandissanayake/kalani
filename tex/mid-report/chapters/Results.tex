@@ -9,13 +9,12 @@
 \section{Comparison of Bayesian filters}
 \label{sec:BayesianFilterComparison}
 Data from the \gls{NCLT} dataset has been used for this comparison and the results shown in the discussion have been obtained using sequence 2013.01.10.
-\subsection{Translational performance}
-Overall performances of all the filters are better than the raw \gls{GNSS} measurements. \gls{UKF} has given the worst estimation while \gls{PF} and \gls{ESKF} have given better results. Table \ref{table:ch:RMSErrorPosition} shows a summary of the results.
+\subsection{Performance of translation estimation}
+Overall performances (\gls{RMS} error) of all the filters are better than the raw \gls{GNSS} measurements. \gls{UKF} has given the worst estimation while \gls{PF} and \gls{ESKF} have given better results. Table \ref{table:ch:RMSErrorPosition} shows a summary of the results.
 \begin{table}[h]
     \centering
     \begin{tabular}{|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|} 
         \hline
-            
         \textbf{Method} & \textbf{x} & \textbf{y} & \textbf{z}& \textbf{Overall} \\
         \textbf{} & \textbf{direction(m)} & \textbf{direction(m)} & \textbf{direction(m)}& \textbf{position(m)} \\
         \hline
@@ -69,9 +68,9 @@ Even though \gls{PF} has given the most accurate results, as shown in figures \r
 \end{figure}
 
 
-\subsection{Orientation}
+\subsection{Performance of orientation estimation}
 Raw orientation measurement obtained using the \gls{IMU} + Magnetometer is better than the estimates of all the three filters (see table \ref{table:ch:RMSErrorRotation}). This is due to the noise in the angular velocity measurement, which is confirmed from the reduction of the error when the angular measurement noise variance parameter is increased. \gls{PF} has given the worst estimation. Results of the other two filters are somewhat similar. However, \gls{UKF} has given the best
-estimation.
+estimation. Error plots are shown in figures \ref{fig:ch:errorRoll}, \ref{fig:ch:errorPitch} and \ref{fig:ch:errorYaw}.
 \begin{table}[h]
     \centering
     \begin{tabular}{|p{4cm}|p{3cm}|p{3cm}|p{3cm}|} 
@@ -89,7 +88,7 @@ estimation.
         \\
         \hline
     \end{tabular}
-    \caption{\gls{RMS} errors(orientation)}
+    \caption{Rotational \gls{RMS} errors of different Bayesian filters}
     \label{table:ch:RMSErrorRotation}
 \end{table}
 
@@ -124,8 +123,7 @@ estimation.
 %%%%%%%%%%%%%%%
 \section{Sensor fusion mechanism}
 
-Adding \gls{ZUPT} measurements has a significant effect on the accuracy of the yaw estimate, as seen from figure \ref{fig:pa:zuptYaw}. The yaw estimate error remains within the estimated error bounds (3$\sigma$ bounds), despite the fact that the magnetometer-estimated yaw is biased.
-
+Adding \gls{ZUPT} measurements has a significant effect on the accuracy of the yaw estimate, as seen from figure \ref{fig:pa:zuptYaw}. When \gls{ZUPT} measurements are applied, the yaw estimate error remains within the estimated error bounds (3$\sigma$ bounds), despite the fact that the magnetometer-estimated yaw is biased.
 \begin{figure}[h]
 	\centering
     \begin{subfigure}{\textwidth}
@@ -136,7 +134,95 @@ Adding \gls{ZUPT} measurements has a significant effect on the accuracy of the y
         \includegraphics[width=\textwidth]{figs/yaw-with-zupt.png}
         \caption{Yaw estimate with \gls{ZUPT} measurements}
     \end{subfigure}
-    \caption{Effect of \gls{ZUPT} measurements on the yaw estimate}
+    \caption[Effect of \gls{ZUPT} measurements on the yaw estimate]{Effect of \gls{ZUPT} measurements on the yaw estimate. Pink: Magnetometer estimated yaw, Red: Filter output, Orange (dashed): Estimated upper bound of the error, Violet (dashed): Estimated lower bound of the error.}
     \label{fig:pa:zuptYaw}
 \end{figure}
 
+
+
+
+
+%%%%%%%%%%%% ra start %%%%%%%%%%%%%%%%%%%%
+
+
+
+\section{Visual Odometry}
+\label{sec:VisualOdometry}
+
+Experiments were conducted using the \gls{KITTI} and \gls{KAIST} datasets on the \gls{ORBSLAM}. Images in the \gls{KITTI} odometry dataset are rectified images and the ones in the \gls{KAIST} dataset are non-rectified. Therefore, images should be rectified in system for the \gls{KAIST} dataset. Results in the subsequent discussion have been obtained using the \gls{KITTI} dataset. Coordinate axes, x, y and z refers to the coordinate axes of the initial camera frame (Coordinate frame of the camera, when the vehicle started moving).
+
+While running \gls{ORBSLAM} algorithm, it creates a feature points map using the detected feature points (see figure \ref{fig:ra:detected_features}) and localize the vehicle in the feature map. Figure \ref{fig:ra:point_map} shows the estimated path of the vehicle in the map. Blue coloured triangles show the localized vehicle (pose if the camera) for every image frame it receives.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{figs/detected_features.png}
+	\vspace{-0.5cm}
+	\caption[Detected feature points]{Feature points detected in a frame of \gls{KITTI} sequence 09 when running \gls{ORBSLAM}. Green colour squares indicate the feature points.}
+	\label{fig:ra:detected_features}
+	\vspace{0.5cm}
+\end{figure}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{figs/path_pred.png}
+	\vspace{-0.5cm}
+	\caption[Map of feature points]{Part of the feature point map generated from \gls{ORBSLAM}, using \gls{KITTI} sequence 00. Estimated path of the vehicle is shown in green colour. Blue triangles show the pose of the camera, in the respective frames.}
+	\label{fig:ra:point_map}
+	\vspace{0.5cm}
+\end{figure}
+
+Figure \ref{fig:ra:xyz_error} shows the position error in the directions of x, y and z with the frame index, and figure \ref{fig:ra:rpy_error} shows the error in the orientation (roll, pitch and yaw) with frame index. It can be observed that the total position error in a given direction increase with time due to the accumulation of the relative position errors in the estimate.
+\begin{figure}[h]
+	\centering
+	\includegraphics[ width=\textwidth]{figs/xyz_error.png}
+	\vspace{-0.5cm}
+	\caption[Positional error of \gls{ORBSLAM}]{Positional error of \gls{ORBSLAM} (\gls{KITTI} sequence 09)}
+	\label{fig:ra:xyz_error}
+	\vspace{0.5cm}
+\end{figure}
+\begin{figure}[h]
+	\centering
+	\includegraphics[ width=\textwidth]{figs/rpy_error.png}
+	\vspace{-0.5cm}
+	\caption[Rotational error of \gls{ORBSLAM}]{Rotational error of \gls{ORBSLAM} (\gls{KITTI} sequence 09)}
+	\label{fig:ra:rpy_error}
+	\vspace{0.5cm}
+\end{figure}
+
+In-order to test the effect of error accumulation, we subtracted the error of the previous frame, from the total error of the current frame, thereby removing the effect of accumulated error for each frame. This revealed that the error in the relative position/orientation estimate of the algorithm is extremely low, which is desirable when using the output as a relative measurement in the fusion mechanism (see figures \ref{fig:ra:xyz_error_allred} and \ref{fig:ra:rpy_error_allred}).
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{figs/xyz_error_allred.png}
+	\vspace{-0.5cm}
+	\caption{Positional error of \gls{ORBSLAM}, after removing the effect of error accumulation}
+	\label{fig:ra:xyz_error_allred}
+	\vspace{0.5cm}
+\end{figure}
+\begin{figure}[h]
+	\centering
+	\includegraphics[ width=\textwidth]{figs/rpy_error_allred.png}
+	\vspace{-0.5cm}
+	\caption{Rotational error of \gls{ORBSLAM}, after removing the effect of error accumulation}
+	\label{fig:ra:rpy_error_allred}
+	\vspace{0.5cm}
+\end{figure}
+
+With the intention of obtaining insights for implementing an error covariance estimation mechanism for \gls{ORBSLAM}, a histogram was obtained by counting the number of feature points detected in a given frame. It appeared to be concentrated around 300 for the \gls{KITTI} dataset (figure \ref{fig:ra:matched_points}).
+\begin{figure}[h]
+	\centering
+	\includegraphics[ width=\textwidth]{figs/matched_points.png}
+	\vspace{-0.5cm}
+	\caption[Histogram of the number of matched points]{Histogram of the number of matched points. Vertical axis denotes the number of frames, with a given number of feature points detected.}
+	\label{fig:ra:matched_points}
+	\vspace{0.5cm}
+\end{figure}
+Furthermore, we calculated the average \gls{RMS} error obtained for a given number of matched points in a frame (see figure \ref{fig:ra:rms_error}), which showed that up to some optimal number, the \gls{RMS} error decreases with the number of matched points. However, beyond this point, it was observed that the \gls{RMS} error increases. A possible reason for this is the confusion caused by the large number of feature points (with similar features) detected very close to each other.
+\begin{figure}[h]
+	\centering
+	\includegraphics[ width=\textwidth]{figs/rms_error.png}
+	\vspace{-0.5cm}
+	\caption[Average \gls{RMS} error vs. the number of matched points]{Variation of average \gls{RMS} error, with the number of matched points}
+	\label{fig:ra:rms_error}
+	\vspace{0.5cm}
+\end{figure}
+
+
+%%%%%%%%%%% ra end %%%%%%%%%%%%%%%%%%%%%%%
