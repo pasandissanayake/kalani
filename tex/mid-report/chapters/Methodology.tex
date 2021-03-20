@@ -79,62 +79,71 @@ We have being using three public datasets, namely, \gls{NCLT} dataset\cite{pa:NC
 
 %%%%%%%%%%%% ch start %%%%%%%%%%%
 
-\section{Sensor fusion algorithms}
-Kalman filters are the most widely used sensor data fusion algorithms. There 
-are many extensions to the basic Kalman filter (which is known as the Linear Kalman 
-filter) allowing them to be used in variety of applications. Table \ref{table:ch:Comparison of different types of Kalman filters} provides a 
-comparison between different types of Kalman filters. Note that the computational 
-complexity of the filters increases from left to right.\\
+\section{Comparison of Bayesian filters}
+Kalman Filters are the most widely used sensor data fusion algorithms. There 
+are many extensions to the basic Kalman Filter (which is known as the Linear Kalman Filter), allowing them to be used in variety of applications. Table \ref{table:ch:KalmanFilterComparison} provides a 
+comparison between different types of Kalman filters. Note that the computational complexity of the filters increases from left to right.
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|p{3.4cm}|p{3.4cm}|p{3.4cm}|p{3.4cm}|} 
+		\hline
+		% \textbf{Linear Kalman} & \textbf{Extended Kalman} & \textbf{Error State} & \textbf{Unscented} \\
+		% \textbf{Filter} & \textbf{Filter} & \textbf{Kalman Filter} & \textbf{Kalman Filter} \\
+		\textbf{Linear Kalman Filter} & \textbf{Extended Kalman Filter} & \textbf{Error State Extended Kalman Filter} & \textbf{Unscented Kalman Filter} \\
+		\hline
+		Linear Gaussian model&Non-linear Gaussian model&Non-linear  Gaussian model&Non-linear Gaussian model\\
+		\hline
+		Best linear unbiased estimator (Blue)&Linearize the nonlinear dynamics using Jacobeans (Taylor series)&Linearize the nonlinear 
+		dynamics of error using Jacobeans (Taylor series)&Calculate sigma points and use Unscented Transform to approximate the \gls{PDF}s directly\\
+		\hline
+		Estimates the state & Estimates the state& Estimates the error of the state & Estimates the state\\
+		\hline
+	\end{tabular}
+	\caption{Comparison of different types of Kalman Filters}
+	\label{table:ch:KalmanFilterComparison}
+\end{table}
+
+Kalman Filters can only be used for Gaussian models. However, we cannot use the Linear Kalman Filter at all because the localization task is not linear. Assuming that the localization problem is Gaussian, other Kalman Filters can be used to tackle the problem. We selected  \gls{UKF} and \gls{ESKF} to implement in python since those two algorithms have shown the best results among Kalman filters according to \cite{ch24:st2004comparison},\cite{ch25:madyastha2011extended} and \cite{ch26:wan2000unscented}.
+
+\gls{PF} was recently suggested after \gls{KF}s to process arbitrary inertial sensor characteristics, motion dynamics, and noise distributions. When dealing with non-linear models in motion equations and measurement relations with a non-Gaussian noise assumption, the Kalman Filter methods may lead to non-optimal solutions. However, particle filters provide general solutions to many problems where linearization and Gaussian approximations are intractable \cite{ch27:ababsa2004comparison}. A brief comparison of \gls{PF}s and \gls{KF}s is given in Table \ref{table:ch:KFandPFComparison}.
 \begin{table}[h]
 \centering
-\begin{tabular}{|p{3.4cm}|p{3.4cm}|p{3.4cm}|p{3.4cm}|} 
-	\hline
-	\textbf{Linear Kalman} & \textbf{Extended Kalman} & \textbf{Error State} & \textbf{Unscented} \\
-	\textbf{Filter} & \textbf{Filter} & \textbf{Kalman Filter} & \textbf{Kalman Filter} \\
-\hline
-Linear and Gaussian model&Non-linear and Gaussian model&Non-linear Gaussian model&Non-linear Gaussian model\\
-\hline
-Best linear unbiased estimator (Blue)&linearize the nonlinear dynamics using Jacobeans (Taylor series)&linearize the nonlinear 
-dynamics of error using Jacobeans(Taylor series)&Calculate sigma points and use Unscented Transform to approximate the PDFs directly\\
-\hline
-Estimates the state & Estimates the state& Estimates the error of the state & Estimates the state\\
-\hline
-\end{tabular}
-\caption{Comparison of different types of Kalman filters}
-\label{table:ch:Comparison of different types of Kalman filters}
+	\begin{tabular}{|c|c|} 
+		\hline
+		\textbf{Kalman Filters} & \textbf{Particle Filters} \\
+		\hline
+		Only for Gaussian models & For both Gaussian and non-Gaussian models\\
+		\hline
+		Only for linear models& For both linear and non-linear models
+		\\
+		\hline
+		Low computational complexity&High computational complexity\\
+		\hline
+	\end{tabular}
+	\caption{A brief comparison of Kalman Filters and Particle Filters}
+	\label{table:ch:KFandPFComparison}
 \end{table}
-We can use Kalman filters only for Gaussian models. However, we cannot use the Linear Kalman filter at all because the localization task is not linear. Assuming that the localization problem is Gaussian, other Kalman filters can be used to tackle the problem.We selected  \gls{UKF} and \gls{ESKF} to implement in python since those two algorithms have shown the best results among Kalman filters according to researchers\cite{ch24:st2004comparison},\cite{ch25:madyastha2011extended},\cite{ch26:wan2000unscented}.\\
-\gls{PF} was recently suggested after \gls{KF}s to 
-process arbitrary inertial sensor characteristics, motion dynamics, and noise distributions. When dealing with non-linear models in motion equations and measurement relations with a non-Gaussian noise assumption, the Kalman Filter methods may lead to non-optimal solutions. However, particle filters provide general solutions to many problems where linearization and Gaussian approximations are intractable \cite{ch27:ababsa2004comparison}. A brief comparison of \gls{PF}s and \gls{KF}s is given in Table \ref{table:ch:A brief comparison of Kalman filters and Particle filters}.\\
-\begin{table}[h]
-\centering
-\begin{tabular}{|c|c|} 
-	\hline
-	\textbf{Kalman Filters} & \textbf{Particle Filters} \\
-\hline
-Only for Gaussian models & For both Gaussian and non-Gaussian models\\
-\hline
-Only for linear models& For both linear and non-linear models
-\\
-\hline
-Low computational complexity&High computational complexity\\
-\hline
-\end{tabular}
-\caption{A brief comparison of Kalman filters and Particle filters}
-\label{table:ch:A brief comparison of Kalman filters and Particle filters}
-\end{table}
-Three basic level filters were implemented and compared using the \gls{NCLT} data set to select the best filter for our application. Those filters were \gls{PF}, \gls{ESKF}, and \gls{UKF}. Then, the performance of the  best filter was improved by increasing the number of elements in the state vector, adding zero velocity update, and fussing relative measurements (Visual odometry , \gls{LiDAR} odometer) etc.The state vector used for basic filter implementations was \eqref{eq:basic state vector}
+
+Three basic level filters (namely, \gls{PF}, \gls{ESKF}, and \gls{UKF}) were implemented and compared using the \gls{NCLT} data set to select the best filter for our application. Afterwards, the performance of the  best filter was improved by increasing the number of elements in the state vector, adding \gls{ZUPT} measurements, and fusing relative measurements (visual and \gls{LiDAR} odometry) etc. The state vector used for the basic filter implementations was
 \begin{align}
-\label{eq:basic state vector}
+\label{eq:ch:basicStateVector}
    \textbf{x} &= \left[\begin{matrix}{}\textbf{p}\\\textbf{v}\\\textbf{q}\end{matrix}\right]
 \end{align}
-where,\\
-\textbf{p}=($p_x,p_y,p_z$) position relative to the inertial frame\\
-\textbf{v}=($v_x,v_y,v_z$) velocity relative to the inertial frame\\
-\textbf{q}=($q_\omega,q_x,q_y,q_z$) quaternion relative to the inertial frame\\
-\\
-The \gls{ESKF} estimates the error state directly and uses it as a correction to the nominal state.1000 particles were used in the \gls{PF}. Gaussian random noise was added to particles before applying the motion model to increase the diversity of particles. Systematic resample was used to resample particles when needed and squared error function was used as the weight function.1,1, and 2 were used as $\alpha$,k, and $\beta$ respectively in the unscented transform of \gls{UKF}.\\
-The \gls{PF} had the worst orientation estimation while \gls{UKF} having the worst position estimation. According to the results, \gls{ESKF} performed way better than the other two filters, since it gave better estimations for both orientation and position. Also, the computational complexity of \gls{ESKF} was low with compared to other filters. Hence, \gls{ESKF} was selected as the best filter to tackle our problem.
+where,
+\begin{align}
+	\textbf{p}&=(p_x,p_y,p_z) \text{ position relative to the inertial frame}\\
+	\textbf{v}&=(v_x,v_y,v_z) \text{ velocity relative to the inertial frame}\\
+	\textbf{q}&=(q_\omega,q_x,q_y,q_z) \text{ quaternion relative to the inertial frame}.
+\end{align}
+
+The \gls{ESKF} estimates the error state directly and uses it as a correction to the nominal state. Number of particles used in the \gls{PF} was 1000. Gaussian random noise was added to the particles before applying the motion model, to increase the diversity of the particles. Systematic Resampling was used to resample particles when needed and squared error function was used as the weight function. Following values were selected for the parameters of the \gls{UKF};
+\begin{align}
+	\alpha &= 1 \text{ (controls the spread of sigma)}\\
+	\beta & = 2 \text{ (related to the distribution)}\\
+	k &= 1 \text{ (controls the spread of sigma)}.
+\end{align}
+
+Based on the results obtained (see section \ref{sec:BayesianFilterComparison}), \gls{ESKF} was selected as the best filter to tackle our problem.
 
 
 %%%%%%%%%%%% ch end %%%%%%%%%%%%%

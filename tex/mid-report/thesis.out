@@ -14,7 +14,7 @@
 \BOOKMARK [1][-]{section.2.1}{System architecture}{chapter.2}% 14
 \BOOKMARK [1][-]{section.2.2}{Coordinate frames}{chapter.2}% 15
 \BOOKMARK [1][-]{section.2.3}{Datasets}{chapter.2}% 16
-\BOOKMARK [1][-]{section.2.4}{Sensor fusion algorithms}{chapter.2}% 17
+\BOOKMARK [1][-]{section.2.4}{Comparison of Bayesian filters}{chapter.2}% 17
 \BOOKMARK [1][-]{section.2.5}{Sensor fusion mechanism}{chapter.2}% 18
 \BOOKMARK [2][-]{subsection.2.5.1}{The ES-EKF}{section.2.5}% 19
 \BOOKMARK [2][-]{subsection.2.5.2}{Stochastic cloning and backward smoothing}{section.2.5}% 20

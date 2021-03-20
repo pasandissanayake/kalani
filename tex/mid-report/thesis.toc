@@ -14,7 +14,7 @@
 \contentsline {section}{\numberline {2.1}System architecture}{5}{section.2.1}%
 \contentsline {section}{\numberline {2.2}Coordinate frames}{6}{section.2.2}%
 \contentsline {section}{\numberline {2.3}Datasets}{6}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Sensor fusion algorithms}{7}{section.2.4}%
+\contentsline {section}{\numberline {2.4}Comparison of Bayesian filters}{7}{section.2.4}%
 \contentsline {section}{\numberline {2.5}Sensor fusion mechanism}{9}{section.2.5}%
 \contentsline {subsection}{\numberline {2.5.1}The \acrlong {ES-EKF}}{9}{subsection.2.5.1}%
 \contentsline {subsection}{\numberline {2.5.2}Stochastic cloning and backward smoothing}{11}{subsection.2.5.2}%
