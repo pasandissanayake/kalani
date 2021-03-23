@@ -52,19 +52,21 @@ Figure \ref{fig:pa:coordinateFrames} illustrates the above-mentioned coordinate 
 
 %%%%%%%%%%%%%%%%
 \section{Datasets}
-We have being using three public datasets, namely, \gls{NCLT} dataset\cite{pa:NCLTDataset}, \gls{KITTI} dataset for tracking\cite{pa:KITTIDataset} and \gls{KAIST} Urban dataset\cite{pa:KAISTDataset}. In addition, we expect to use the EU-Long Term dataset\cite{pa:EULTDataset}. All these datasets include data from sensors that are sufficient for the sensor fusion mechanism, along with ground truth data. Details of the datasets are given in table \ref{table:pa:Datasets}.
+We have been using three public datasets, namely, \gls{NCLT} dataset\cite{pa:NCLTDataset}, \gls{KITTI} dataset for tracking\cite{pa:KITTIDataset} and \gls{KAIST} Urban dataset\cite{pa:KAISTDataset}. In addition, we expect to use the EU-Long Term dataset\cite{pa:EULTDataset}. All these datasets include data from sensors that are sufficient for the sensor fusion mechanism, along with ground truth data. Details of the datasets are given in table \ref{table:pa:Datasets}.
 % TODO: dataset info table
 \begin{table}[h]
 \centering
-\begin{tabular}{|c | c | c |} 
+\begin{tabular}{ |p{0.1\textwidth}|p{0.27\textwidth}|p{0.2\textwidth}|p{0.10\textwidth}|p{0.18\textwidth}|  }
 	\hline
-	\textbf{Dataset} & \textbf{Sensors included} & \textbf{Ground truth} \\
+	\textbf{Dataset} & \textbf{Sensors} & \textbf{Ground truth} & \textbf{Distance} & \textbf{Data Format}\\
 	\hline
-	1 & 6 & 87837\\
+	KITTTI  & $1\times$ $64$-layer LiDAR \newline $2\times$ grayscale camera \newline $2\times$ stereo camera \newline $1\times$ GPS-RTK/INS & scene flow, odometry object detection and tracking, road and lane&  $39.2$ km & png (camera) \newline txt(GPA-RTK/INS) \newline bin (LiDAR)\\
+	\hline 
+	KAIST & $2\times$ $16$-layer LiDAR \newline $2\times$ $1$-layer LiDAR\newline $2\times$ monocular camera\newline $1\times$ consumer-level GPS\newline $1\times$ GPS-RTK\newline $1\times$ fiber optic gyro\newline $1\times$ independant IMU\newline $2\times$ wheel encoder\newline $1\times$ altimeter & SLAM algorithm for vehicle self-localization &$190.989$ km & bin(LiDAR)\newline png(camera)\newline csv(GPS-RTK/IMU)\\
 	\hline
-	2 & 7 & 78 \\
+	NCLT & $1\times$ $32$-layer LiDAR\newline $2\times$ planar LiDAR\newline $1\times$ camera\newline $1\times$ independant IMU\newline$1\times$ fibre optic gyro\newline $1\times$ consumer-level GPS\newline $1\times$ GPS-RTK\newline & SLAM algorithm for vehicle self-localization with GPS-RTK &$147.4$ km & tiff(image)\newline csv(GPS-RTK/IMU)\newline bin(LiDAR)\\
 	\hline
-	3 & Banana & 778\\
+	EU-Long Term & $2\times$ $32$-layer LiDAR\newline $1\times$ $4$-layer LiDAR\newline $1\times$ $1$-layer LiDAR\newline $2\times$ stereo camera \newline $2\times$ fisheye camera\newline $1\times$ radar\newline $1\times$ GPS-RTK\newline $1\times$ independant IMU\newline & GPS-RTK/IMU for vehicle self-localization & $63.4$ km & rosbag (All-in-one)\\
 	\hline
 \end{tabular}
 \caption{Dataset information}
@@ -138,9 +140,9 @@ where,
 
 The \gls{ESKF} estimates the error state directly and uses it as a correction to the nominal state. Number of particles used in the \gls{PF} was 1000. Gaussian random noise was added to the particles before applying the motion model, to increase the diversity of the particles. Systematic Resampling was used to resample particles when needed and squared error function was used as the weight function. Following values were selected for the parameters (as defined in \cite{ch26:wan2000unscented}) of the \gls{UKF};
 \begin{align}
-	\alpha &= 1 \text{ (controls the spread of sigma)}\\
-	\beta & = 2 \text{ (related to the distribution)}\\
-	k &= 1 \text{ (controls the spread of sigma)}.
+	\alpha &= 1 \text{ (determines the spread of sigma points)}\\
+	\beta & = 2 \text{ (used to incorporate prior knowledge of the \gls{PDF} of the state)}\\
+	k &= 1 \text{ (a secondary scaling factor, similar to $\alpha$)}.
 \end{align}
 
 Based on the results obtained (see section \ref{sec:BayesianFilterComparison}), \gls{ESKF} was selected as the best filter to tackle our problem.
@@ -262,6 +264,7 @@ However, it should be noted that, the advantages of \gls{ZUPT} measurements come
 Out of the sensors that we use for localization process, cameras are the cheapest. However, it is capable of providing rich information of the environment, which allows us to recognize the environment robustly and accurately. Therefore, camera based visual odometry \gls{SLAM} solutions are becoming very popular, and can be used in our system as a solution for \gls{GNSS} outages. 
 
 \subsection{System Selection}
+\label{subsec:vodomSystemSelection}
 Monocular camera based systems are the most commonly used for visual odometry because of the low cost and the smaller sensor setup. However, estimations are not reliable and inaccurate because depth cannot be calculated using one camera \cite{ra:ORB_SLAM2}. Therefore, stereo camera based systems were selected as the best solution for our system. As implementation of this algorithm was not within the project scope, we had to find a solution with an existing implementation. Following criteria were used when selecting a suitable method:
 \begin{itemize}
     \item Should not depend on previously generated feature maps
@@ -301,6 +304,69 @@ One drawback of the \gls{ORBSLAM} algorithm is the absence of a reliability metr
 
 %%%%%%%%%%%%%%%% ra end %%%%%%%%%%%%%%%%%%%%
 
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%% hi start %%%%%%%%%%%%%%%%%%
+
+
+\section{Lidar Odometry}
+In vehicle localization, out of the sensors that we use, \gls{LiDAR} is the most expensive and accurate sensor. It is capable of providing point clouds of the surrounding environment (well-defined rich information) which allows us to recognize the environment robustly and accurately. 360-degree feature space exploration is the best advantage that we can gain from a high-end \gls{LiDAR}, which we can’t obtain with cameras and other sensors regardless of their quality. However, this elevated accuracy comes at a significantly higher cost, relative to the rest of the sensors.
+
+\subsection{Method Selection}
+As implementation of a \gls{LiDAR} odometry algorithm is not within the scope of this project, we had to find a solution with an existing implementation. The criteria followed in this selection was similar to that as in the case of visual odometry algorithm (see section \ref{subsec:vodomSystemSelection}). 
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.15\textwidth}|p{0.15\textwidth}|} 
+		\hline
+		\textbf{Algorithm} & \textbf{Features} & \textbf{Complexity} & \textbf{Robustness} \\
+		\hline
+		Conventional \gls{ICP}&Accuracy mainly depends on the correspondence
+		matching&Low&Low\\
+		\hline
+		\gls{NDT}&No correspondence feature matching&Moderate&Moderate\\
+		\hline
+		\gls{LOAM}&IMU data makes estimation more robust& High & High\\
+		\hline
+		\gls{LeGO-LOAM}&IMU data makes estimation more robust& High & Very High\\
+		\hline
+	\end{tabular}
+	\caption{Different \gls{LiDAR} odometry algorithms}
+	\label{table:ha:DifferentLOdomMethods}
+\end{table}
+
+\gls{LOAM} \cite{hi:LOAM} and the \gls{LeGO-LOAM} \cite{hi:LeGO-LOAM} were the best solutions that we found with a proper implementation in the literature. Comparing the benchmark errors received by testing the algorithms using the \gls{KITTI} dataset, \gls{LeGO-LOAM} showed the better estimation. Depending on the results, along with the comparison presented in table \ref{table:ha:DifferentLOdomMethods}, we selected the \gls{LeGO-LOAM} as the best solution for our localization module.
+
+\subsection{\gls{LeGO-LOAM}}
+\gls{LeGO-LOAM} algorithm is an extension of the \gls{LOAM} algorithm with new features added to make it more accurate, robust and fast in terms of computation. Following list presents some such modifications.
+\begin{itemize}
+    \item Project the \gls{LiDAR} points into a range image 
+    \item Segment the ground plane and separate the ground plane from the image
+    \item Apply image based segmentation method (clustering) to extract separate clusters
+    \item Feature extraction phase is more robust and fast since feature extraction is carried out with segmented objects and planes, rather than raw points, as in \gls{LOAM}.
+\end{itemize}
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[ width=\textwidth]{figs/loam_architect.png}
+	\vspace{-0.5cm}
+	\caption{ \gls{LeGO-LOAM} system architecture\cite{hi:LeGO-LOAM}}
+	\label{fig:hi:LeGO_LOAM_SYSTEM}
+	\vspace{0.5cm}
+\end{figure}
+
+General view of the \gls{LeGO-LOAM} system architecture is shown in figure \ref{fig:hi:LeGO_LOAM_SYSTEM}. System consists of four main modules; scan preprocessing, odometry, map construction and global optimization. Scan preprocessing module projects the \gls{LiDAR} points onto a range image, segments the ground plane and separate the ground plane from the image. Then it applies image based segmentation methods for ground plane segmentation and edge features  are extracted from the projected image. Odometry module takes care of feature matching and transformation optimization for \gls{LiDAR} point cloud registration and generates odometry measurement. Map construction module uses the previous key frames and odometry estimation to construct the map and also adds fast optimization to the odometry estimation. Loop closure module adds global optimization and drift correction to the map and makes the construction much more drift free.
+
+In the existing code, the vehicle is localized on a local map created using the map construction module. However, for our system, we need to get the relative transform of the vehicle as an output. Therefore, the adjustments have been made to the existing algorithm to receive relative transform of the vehicle for every \gls{LiDAR} scan.
+
+The issue of not having a mechanism to obtain the covariance of the pose-estimate error is a limitation of this algorithm, as well. Hence, we expect to find solutions for this issue based on metrics such as the final optimized error in \gls{LM} algorithm \cite{hi:LM_optimization} etc.
+
+
+%%%%%%%%%%%%%%%% hi end %%%%%%%%%%%%%%%%%%%%
 
 
 

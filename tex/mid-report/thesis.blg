@@ -24,46 +24,49 @@ Database file #1: thesis.bib
 -- IEEEtran.bst version 1.14 (2015/08/26) by Michael Shell.
 -- http://www.michaelshell.org/tex/ieeetran/bibtex/
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
+Warning--empty booktitle in hi:LeGO-LOAM
+Warning--empty booktitle in hi:LOAM
 
 Done.
-You've used 34 entries,
+You've used 37 entries,
             4087 wiz_defined-function locations,
-            1058 strings with 15770 characters,
-and the built_in function-call counts, 29273 in all, are:
-= -- 2260
-> -- 800
-< -- 245
-+ -- 452
-- -- 143
-* -- 1380
-:= -- 4052
-add.period$ -- 71
-call.type$ -- 34
-change.case$ -- 34
-chr.to.int$ -- 588
-cite$ -- 34
-duplicate$ -- 2067
-empty$ -- 2387
-format.name$ -- 172
-if$ -- 6981
+            1075 strings with 16227 characters,
+and the built_in function-call counts, 30999 in all, are:
+= -- 2387
+> -- 831
+< -- 256
++ -- 470
+- -- 148
+* -- 1455
+:= -- 4306
+add.period$ -- 77
+call.type$ -- 37
+change.case$ -- 37
+chr.to.int$ -- 615
+cite$ -- 39
+duplicate$ -- 2205
+empty$ -- 2557
+format.name$ -- 179
+if$ -- 7388
 int.to.chr$ -- 0
-int.to.str$ -- 34
-missing$ -- 370
-newline$ -- 139
-num.names$ -- 31
-pop$ -- 930
+int.to.str$ -- 37
+missing$ -- 393
+newline$ -- 148
+num.names$ -- 34
+pop$ -- 997
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 2
-skip$ -- 2302
+skip$ -- 2437
 stack$ -- 0
-substring$ -- 1462
-swap$ -- 1714
-text.length$ -- 49
+substring$ -- 1528
+swap$ -- 1807
+text.length$ -- 51
 text.prefix$ -- 0
 top$ -- 5
-type$ -- 34
-warning$ -- 0
-while$ -- 110
-width$ -- 36
-write$ -- 354
+type$ -- 37
+warning$ -- 2
+while$ -- 116
+width$ -- 39
+write$ -- 378
+(There were 2 warnings)

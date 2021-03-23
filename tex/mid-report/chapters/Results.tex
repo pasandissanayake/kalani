@@ -122,6 +122,20 @@ estimation. Error plots are shown in figures \ref{fig:ch:errorRoll}, \ref{fig:ch
 
 %%%%%%%%%%%%%%%
 \section{Sensor fusion mechanism}
+The effect of fusing relative measurements through stochastic cloning was observed using the \gls{NCLT} dataset. \gls{GNSS} and Magnetometer data were used as absolute measurements and wheel odometry data were used as relative measurements. A 30 s \gls{GNSS} outage was simulated, and the error in the estimate was observed for the two instances; with and without fusing relative measurements. It was observed that with the integration of relative measurement data, the error remained bounded (see figure \ref{fig:pa:relativeMeasurements}).
+\begin{figure}[h]
+	\centering
+    \begin{subfigure}{\textwidth}
+        \includegraphics[width=\textwidth]{figs/euclidean-error-wo-rm.png}
+        \caption{Euclidean error without relative measurements}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \includegraphics[width=\textwidth]{figs/euclidean-error-with-rm.png}
+        \caption{Euclidean error with relative measurements}
+    \end{subfigure}
+    \caption[Effect of relative measurements]{Effect of relative measurements during a \gls{GNSS} interruption. Green: error in \gls{GNSS} measurements, Red: error in estimate, Cyan: estimated upper bound for the error.}
+    \label{fig:pa:relativeMeasurements}
+\end{figure}
 
 Adding \gls{ZUPT} measurements has a significant effect on the accuracy of the yaw estimate, as seen from figure \ref{fig:pa:zuptYaw}. When \gls{ZUPT} measurements are applied, the yaw estimate error remains within the estimated error bounds (3$\sigma$ bounds), despite the fact that the magnetometer-estimated yaw is biased.
 \begin{figure}[h]
@@ -142,16 +156,16 @@ Adding \gls{ZUPT} measurements has a significant effect on the accuracy of the y
 
 
 
+
+
 %%%%%%%%%%%% ra start %%%%%%%%%%%%%%%%%%%%
-
-
 
 \section{Visual Odometry}
 \label{sec:VisualOdometry}
 
-Experiments were conducted using the \gls{KITTI} and \gls{KAIST} datasets on the \gls{ORBSLAM}. Images in the \gls{KITTI} odometry dataset are rectified images and the ones in the \gls{KAIST} dataset are non-rectified. Therefore, images should be rectified in system for the \gls{KAIST} dataset. Results in the subsequent discussion have been obtained using the \gls{KITTI} dataset. Coordinate axes, x, y and z refers to the coordinate axes of the initial camera frame (Coordinate frame of the camera, when the vehicle started moving).
+Experiments were conducted using the \gls{KITTI} and \gls{KAIST} datasets on the \gls{ORBSLAM}. Images in the \gls{KITTI} odometry dataset are rectified images and the ones in the \gls{KAIST} dataset are non-rectified. Therefore, images should be rectified in system for the \gls{KAIST} dataset. Results in the subsequent discussion have been obtained using the \gls{KITTI} dataset. Coordinate axes, x, y and z refer to the coordinate axes of the initial camera frame (Coordinate frame of the camera, when the vehicle started moving).
 
-While running \gls{ORBSLAM} algorithm, it creates a feature points map using the detected feature points (see figure \ref{fig:ra:detected_features}) and localize the vehicle in the feature map. Figure \ref{fig:ra:point_map} shows the estimated path of the vehicle in the map. Blue coloured triangles show the localized vehicle (pose if the camera) for every image frame it receives.
+When running \gls{ORBSLAM} algorithm, it creates a feature points map using the detected feature points (see figure \ref{fig:ra:detected_features}) and localize the vehicle in the feature map. Figure \ref{fig:ra:point_map} shows the estimated path of the vehicle in the map.
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{figs/detected_features.png}
@@ -169,7 +183,7 @@ While running \gls{ORBSLAM} algorithm, it creates a feature points map using the
 	\vspace{0.5cm}
 \end{figure}
 
-Figure \ref{fig:ra:xyz_error} shows the position error in the directions of x, y and z with the frame index, and figure \ref{fig:ra:rpy_error} shows the error in the orientation (roll, pitch and yaw) with frame index. It can be observed that the total position error in a given direction increase with time due to the accumulation of the relative position errors in the estimate.
+Figure \ref{fig:ra:xyz_error} shows the position error in the directions of x, y and z with the frame index, and figure \ref{fig:ra:rpy_error} shows the error in the orientation (roll, pitch and yaw) with the frame index. It can be observed that the total position error in a given direction increase with time due to the accumulation of the relative position errors in the estimate.
 \begin{figure}[h]
 	\centering
 	\includegraphics[ width=\textwidth]{figs/xyz_error.png}
@@ -187,7 +201,7 @@ Figure \ref{fig:ra:xyz_error} shows the position error in the directions of x, y
 	\vspace{0.5cm}
 \end{figure}
 
-In-order to test the effect of error accumulation, we subtracted the error of the previous frame, from the total error of the current frame, thereby removing the effect of accumulated error for each frame. This revealed that the error in the relative position/orientation estimate of the algorithm is extremely low, which is desirable when using the output as a relative measurement in the fusion mechanism (see figures \ref{fig:ra:xyz_error_allred} and \ref{fig:ra:rpy_error_allred}).
+In-order to test the effect of error accumulation, we subtracted the error of the previous frame, from the total error of the current frame, thereby removing the effect of accumulated error, for each frame. This revealed that the error in the relative position/orientation estimate of the algorithm is extremely low (within $\pm$0.1 m for position and $\pm0.2^o$ for orientation, for \gls{KITTI} dataset), which is desirable when using the output as a relative measurement in the fusion mechanism (see figures \ref{fig:ra:xyz_error_allred} and \ref{fig:ra:rpy_error_allred}).
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{figs/xyz_error_allred.png}
@@ -214,15 +228,62 @@ With the intention of obtaining insights for implementing an error covariance es
 	\label{fig:ra:matched_points}
 	\vspace{0.5cm}
 \end{figure}
-Furthermore, we calculated the average \gls{RMS} error obtained for a given number of matched points in a frame (see figure \ref{fig:ra:rms_error}), which showed that up to some optimal number, the \gls{RMS} error decreases with the number of matched points. However, beyond this point, it was observed that the \gls{RMS} error increases. A possible reason for this is the confusion caused by the large number of feature points (with similar features) detected very close to each other.
+
+Furthermore, we calculated the average \gls{RMS} error obtained for a given number of matched points in a frame (see figure \ref{fig:ra:rms_error}), which showed that up to some optimal number, the \gls{RMS} error decreases with the number of matched points. However, beyond this point, it was observed that the \gls{RMS} error increases. A possible reason for this is the confusion caused by the large number of feature points (with similar features) detected very close to each other. When the number of detected features exceeds 1500, only the best 1500 features will be selected for the pose estimation mechanism, leaving the excess features unused. The saturation behaviour observed in the plot is a consequence of this.
 \begin{figure}[h]
 	\centering
 	\includegraphics[ width=\textwidth]{figs/rms_error.png}
 	\vspace{-0.5cm}
-	\caption[Average \gls{RMS} error vs. the number of matched points]{Variation of average \gls{RMS} error, with the number of matched points}
+	\caption[Average \gls{RMS} error vs. the number of matched points]{Variation of average \gls{RMS} error, with the number of matched points (in hundreds)}
 	\label{fig:ra:rms_error}
 	\vspace{0.5cm}
 \end{figure}
 
 
 %%%%%%%%%%% ra end %%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%% hi start %%%%%%%%%%%%%%%%%
+
+
+\section{Lidar Odometry}
+Following results were obtained using the \gls{KITTI} and \gls{KAIST} datasets. The frame of reference for the plots shown in the following discussion is the initial coordinate frame of the \gls{LiDAR} sensor, at the moment the vehicle started moving.
+
+The \gls{LeGO-LOAM} algorithm creates a map of points through the map construction module and localize the vehicle within the map. Figure \ref{fig:ha:lidar_map} shows such a map and the predicted path of the vehicle in the map.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{figs/rviz_lidar.png}
+	\vspace{-0.2cm}
+	\caption[\gls{LeGO-LOAM} generated \gls{SLAM} map using \gls{KAIST}dataset]{\gls{LeGO-LOAM} generated \gls{SLAM} map using \gls{KAIST}dataset. Coloured points are the \gls{LiDAR} point cloud points, based on their intensity level.}
+	\label{fig:ha:lidar_map}
+	\vspace{0.2cm}
+\end{figure}
+
+Figure \ref{fig:hi:xyz_error} shows the \gls{LeGO-LOAM} estimated position error in the directions of x, y and z, with the frame index and figure \ref{fig:hi:rpy_error} shows the error in roll, pitch and yaw with the frame index. It can be seen that, position error increase with time and reduces back to a lower value. The increase is caused by the error accumulation, while adding up the relative translations of the vehicle to obtain the overall position. The reduction in the error is a result of the system using loop closure global optimization method to optimize the path while building the map.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[ width=\textwidth]{figs/lidar_xyz_error.png}
+	\vspace{-0.5cm}
+	\caption{Error in x, y and z direction for \gls{KITTI} sequence 05}
+	\label{fig:hi:xyz_error}
+	\vspace{0.5cm}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[ width=\textwidth]{figs/lidar_rpy_error.png}
+	\vspace{-0.5cm}
+	\caption{Error in roll, pitch and yaw for \gls{KITTI} sequence 05}
+	\label{fig:hi:rpy_error}
+	\vspace{0.5cm}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%% hi end %%%%%%%%%%%%%%%%%%%%

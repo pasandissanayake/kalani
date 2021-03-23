@@ -26,6 +26,10 @@ R.~{Mur-Artal} and J.~D. {Tardós}, ``Orb-slam2: An open-source slam system for
   monocular, stereo, and rgb-d cameras,'' \emph{IEEE Transactions on Robotics},
   vol.~33, no.~5, pp. 1255--1262, 2017.
 
+\bibitem{hi:LeGO-LOAM}
+T.~Shan and B.~Englot, ``Lego-loam: Lightweight and ground-optimized lidar
+  odometry and mapping on variable terrain,'' 10 2018, pp. 4758--4765.
+
 \bibitem{pa:ComputerArchitectures}
 S.~{Liu}, J.~{Tang}, Z.~{Zhang}, and J.~{Gaudiot}, ``Computer architectures for
   autonomous driving,'' \emph{Computer}, vol.~50, no.~8, pp. 18--25, 2017.
@@ -222,5 +226,14 @@ R.~{Mur-Artal}, J.~M.~M. {Montiel}, and J.~D. {Tardos}, ``Orb-slam: A versatile
 E.~{Rublee}, V.~{Rabaud}, K.~{Konolige}, and G.~{Bradski}, ``Orb: An efficient
   alternative to sift or surf,'' in \emph{2011 International Conference on
   Computer Vision}, 2011, pp. 2564--2571.
+
+\bibitem{hi:LOAM}
+J.~Zhang and S.~Singh, ``Loam: Lidar odometry and mapping in real-time,'' 07
+  2014.
+
+\bibitem{hi:LM_optimization}
+M.~Lourakis, ``A brief description of the levenberg-marquardt algorithm
+  implemened by levmar,'' \emph{A Brief Description of the Levenberg-Marquardt
+  Algorithm Implemented by Levmar}, vol.~4, 01 2005.
 
 \end{thebibliography}
