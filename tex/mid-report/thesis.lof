@@ -1,33 +1,34 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces System block diagram\relax }}{5}{figure.caption.9}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces Coordinate frames}}{6}{figure.caption.10}%
-\contentsline {figure}{\numberline {2.3}{\ignorespaces \gls {ORBSLAM} architecture \cite {ra:ORB_SLAM2}\relax }}{15}{figure.caption.14}%
-\contentsline {figure}{\numberline {2.4}{\ignorespaces \gls {LeGO-LOAM} system architecture\cite {hi:LeGO-LOAM}\relax }}{17}{figure.caption.16}%
-\contentsline {figure}{\numberline {2.5}{\ignorespaces \gls {ROS} Node Graph}}{19}{figure.caption.17}%
+\contentsline {figure}{\numberline {2.1}{\ignorespaces System block diagram\relax }}{5}{figure.caption.11}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Coordinate frames}}{6}{figure.caption.12}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces \gls {ORBSLAM} architecture \cite {ra:ORB_SLAM2}\relax }}{14}{figure.caption.16}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces \gls {LeGO-LOAM} system architecture\cite {hi:LeGO-LOAM}\relax }}{17}{figure.caption.18}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces \gls {ROS} Node Graph}}{18}{figure.caption.19}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Filter comparison - error in x direction\relax }}{21}{figure.caption.19}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Filter comparison - error in y direction\relax }}{22}{figure.caption.20}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Filter comparison - error in z direction\relax }}{22}{figure.caption.21}%
-\contentsline {figure}{\numberline {3.4}{\ignorespaces Filter comparison - overall translational error\relax }}{23}{figure.caption.22}%
-\contentsline {figure}{\numberline {3.5}{\ignorespaces Filter comparison - error in roll\relax }}{23}{figure.caption.24}%
-\contentsline {figure}{\numberline {3.6}{\ignorespaces Filter comparison - error in pitch\relax }}{24}{figure.caption.25}%
-\contentsline {figure}{\numberline {3.7}{\ignorespaces Filter comparison - error in yaw\relax }}{24}{figure.caption.26}%
-\contentsline {figure}{\numberline {3.8}{\ignorespaces Nature of \gls {GNSS} errors}}{25}{figure.caption.27}%
-\contentsline {figure}{\numberline {3.9}{\ignorespaces Estimation error in position}}{27}{figure.caption.28}%
-\contentsline {figure}{\numberline {3.10}{\ignorespaces Effect of relative measurements}}{28}{figure.caption.29}%
-\contentsline {figure}{\numberline {3.11}{\ignorespaces Effect of \gls {ZUPT} measurements on the yaw estimate}}{29}{figure.caption.30}%
-\contentsline {figure}{\numberline {3.12}{\ignorespaces Detected feature points}}{30}{figure.caption.31}%
-\contentsline {figure}{\numberline {3.13}{\ignorespaces Map of feature points}}{31}{figure.caption.32}%
-\contentsline {figure}{\numberline {3.14}{\ignorespaces Positional error of \gls {ORBSLAM}}}{32}{figure.caption.33}%
-\contentsline {figure}{\numberline {3.15}{\ignorespaces Rotational error of \gls {ORBSLAM}}}{32}{figure.caption.34}%
-\contentsline {figure}{\numberline {3.16}{\ignorespaces Positional error of \gls {ORBSLAM}, after removing the effect of error accumulation\relax }}{33}{figure.caption.35}%
-\contentsline {figure}{\numberline {3.17}{\ignorespaces Rotational error of \gls {ORBSLAM}, after removing the effect of error accumulation\relax }}{33}{figure.caption.36}%
-\contentsline {figure}{\numberline {3.18}{\ignorespaces Empirical \gls {PDF} of error in \gls {ORBSLAM} relative measurement}}{34}{figure.caption.37}%
-\contentsline {figure}{\numberline {3.19}{\ignorespaces Histogram of the number of matched points}}{34}{figure.caption.38}%
-\contentsline {figure}{\numberline {3.20}{\ignorespaces Average \gls {RMS} error vs. the number of matched points}}{35}{figure.caption.39}%
-\contentsline {figure}{\numberline {3.21}{\ignorespaces \gls {LeGO-LOAM} generated \gls {SLAM} map using \gls {KAIST}dataset}}{36}{figure.caption.40}%
-\contentsline {figure}{\numberline {3.22}{\ignorespaces Error in x, y and z direction for \gls {KITTI} sequence 05\relax }}{37}{figure.caption.41}%
-\contentsline {figure}{\numberline {3.23}{\ignorespaces Error in roll, pitch and yaw for \gls {KITTI} sequence 05\relax }}{37}{figure.caption.42}%
-\contentsline {figure}{\numberline {3.24}{\ignorespaces State of completion (as percentages)\relax }}{38}{figure.caption.43}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Filter comparison - error in x direction\relax }}{21}{figure.caption.21}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Filter comparison - error in y direction\relax }}{22}{figure.caption.22}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Filter comparison - error in z direction\relax }}{22}{figure.caption.23}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Filter comparison - overall translational error\relax }}{23}{figure.caption.24}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Filter comparison - error in roll\relax }}{23}{figure.caption.26}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Filter comparison - error in pitch\relax }}{24}{figure.caption.27}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Filter comparison - error in yaw\relax }}{24}{figure.caption.28}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Nature of \gls {GNSS} errors}}{25}{figure.caption.29}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Estimation error in position}}{26}{figure.caption.30}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Effect of relative measurements}}{27}{figure.caption.31}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Effect of \gls {ZUPT} measurements on the yaw estimate}}{28}{figure.caption.32}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Detected feature points}}{29}{figure.caption.33}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Map of feature points}}{30}{figure.caption.34}%
+\contentsline {figure}{\numberline {3.14}{\ignorespaces Positional error of \gls {ORBSLAM}}}{31}{figure.caption.35}%
+\contentsline {figure}{\numberline {3.15}{\ignorespaces Rotational error of \gls {ORBSLAM}}}{31}{figure.caption.36}%
+\contentsline {figure}{\numberline {3.16}{\ignorespaces Positional error of \gls {ORBSLAM}, after removing the effect of error accumulation\relax }}{32}{figure.caption.37}%
+\contentsline {figure}{\numberline {3.17}{\ignorespaces Rotational error of \gls {ORBSLAM}, after removing the effect of error accumulation\relax }}{32}{figure.caption.38}%
+\contentsline {figure}{\numberline {3.18}{\ignorespaces Empirical \gls {PDF}s of errors in \gls {ORBSLAM} relative measurements}}{33}{figure.caption.39}%
+\contentsline {figure}{\numberline {3.19}{\ignorespaces Histogram of the number of matched points}}{33}{figure.caption.40}%
+\contentsline {figure}{\numberline {3.20}{\ignorespaces Average \gls {RMS} error vs. the number of matched points}}{34}{figure.caption.41}%
+\contentsline {figure}{\numberline {3.21}{\ignorespaces \gls {LeGO-LOAM} generated \gls {SLAM} map using \gls {KAIST}dataset}}{36}{figure.caption.42}%
+\contentsline {figure}{\numberline {3.22}{\ignorespaces Error in x, y and z direction for \gls {KITTI} sequence 05\relax }}{36}{figure.caption.43}%
+\contentsline {figure}{\numberline {3.23}{\ignorespaces Error in roll, pitch and yaw for \gls {KITTI} sequence 05\relax }}{37}{figure.caption.44}%
+\contentsline {figure}{\numberline {3.24}{\ignorespaces Empirical \gls {PDF}s of errors in \gls {LeGO-LOAM} relative measurements}}{37}{figure.caption.45}%
+\contentsline {figure}{\numberline {3.25}{\ignorespaces State of completion (as percentages)\relax }}{38}{figure.caption.46}%
 \addvspace {10\p@ }

@@ -2,7 +2,6 @@ This is BibTeX, Version 0.99d (TeX Live 2020)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: thesis.aux
 A level-1 auxiliary file: chapters/Title.aux
-A level-1 auxiliary file: chapters/Signatures.aux
 A level-1 auxiliary file: chapters/Declaration.aux
 A level-1 auxiliary file: chapters/Declaration_Supervisor.aux
 A level-1 auxiliary file: chapters/Abstract.aux
@@ -14,7 +13,6 @@ A level-1 auxiliary file: chapters/Results.aux
 A level-1 auxiliary file: chapters/Conclusion.aux
 A level-1 auxiliary file: chapters/References.aux
 The style file: IEEEtran.bst
-A level-1 auxiliary file: chapters/Appendix.aux
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
@@ -30,7 +28,7 @@ Warning--empty booktitle in hi:LOAM
 Done.
 You've used 37 entries,
             4087 wiz_defined-function locations,
-            1075 strings with 16227 characters,
+            1073 strings with 16183 characters,
 and the built_in function-call counts, 30999 in all, are:
 = -- 2387
 > -- 831

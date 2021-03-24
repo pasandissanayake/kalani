@@ -1,6 +1,5 @@
 \chapter{Methodology}
-% TODO: overview of the chapter
-
+A detailed description regarding the implementation of the proposed system is discussed under this chapter, along with some design decisions taken, and the reasoning behind them.
 
 
 
@@ -8,7 +7,7 @@
 %%%%%%%%%%%%%%%
 \section{System architecture}
 \label{sec:SystemArchitecture}
-As depicted in figure \ref{fig:pa:systemBlockDiagram}, we use the pose estimates calculated using stereo images and \gls{LiDAR} point clouds as relative measurements. \gls{ORBSLAM} and LegoLOAM algorithms, respectively, are used for this purpose. Furthermore, \gls{GNSS} measurements and orientation estimated from magnetometer measurements act as positional and rotational absolute measurements to the fusion mechanism. The fusion mechanism is an \gls{ES-EKF} with 16 variables in the state space and 15 variables in the error state space. The output of the system consists of a state vector including position, orientation and velocity of the vehicle relative to a global frame of reference. Estimated covariance of the error is also provided, from which, the 99\% confidence interval ($3\sigma$ bound) can be derived. Output is compared with the ground truth provided with the dataset being used, to calculate the resultant error margins.
+As depicted in figure \ref{fig:pa:systemBlockDiagram}, we use the pose estimates calculated using stereo images and \gls{LiDAR} point clouds as relative measurements. \gls{ORBSLAM} and \gls{LeGO-LOAM} algorithms, respectively, are used for this purpose. Furthermore, \gls{GNSS} measurements and orientation estimated from magnetometer measurements act as positional and rotational absolute measurements to the fusion mechanism. The fusion mechanism is an \gls{ES-EKF} with 16 variables in the nominal state space and 15 variables in the error state space. The output of the system consists of a state vector including position, orientation and velocity of the vehicle relative to a global frame of reference. Estimated covariance of the error is also provided, from which, the 99\% confidence interval ($3\sigma$ bound) can be derived. Output is compared with the ground truth provided with the dataset being used, to calculate the resultant error margins.
 \begin{figure}[h]
 	\begin{center}
 	\includegraphics[width=\textwidth]{figs/system-block-diagram.png}
@@ -31,7 +30,7 @@ The system is implemented on \gls{ROS}, along with evaluation and visualization 
 \section{Coordinate frames}
 Apart from each sensor's own coordinate frame, in which they provide measurements, we define the following coordinate frames which will be used in the rest of this report.\\\\
 \begin{tabular}{p{0.2\linewidth} p{0.75\linewidth} } 
-	Inertial frame & An earth fixed right-handed rectilinear coordinate frame with x, y and z axes pointing towards East, North and Up directions respectively(ENU frame). The origin of the frame is determined by the information given in the dataset being used.\\\\
+	Inertial frame & An earth fixed right-handed rectilinear coordinate frame with x, y and z axes pointing towards East, North and Up directions respectively (ENU frame). The origin of the frame is determined by the information given in the dataset being used.\\\\
 	Body frame & A right-handed rectilinear coordinate frame fixed to the vehicle with x, y and z directions pointing lateral, front and upward directions of the vehicle respectively.
 \end{tabular}\\\\
 Figure \ref{fig:pa:coordinateFrames} illustrates the above-mentioned coordinate frames.
@@ -71,6 +70,7 @@ We have been using three public datasets, namely, \gls{NCLT} dataset\cite{pa:NCL
 \end{tabular}
 \caption{Dataset information}
 \label{table:pa:Datasets}
+\vspace{0.5cm}
 \end{table}
 
 
@@ -82,6 +82,8 @@ We have been using three public datasets, namely, \gls{NCLT} dataset\cite{pa:NCL
 %%%%%%%%%%%% ch start %%%%%%%%%%%
 
 \section{Comparison of Bayesian filters}
+As mentioned in the introduction, Bayesian filters are the most used sensor fusion mechanism. However, there is a variety of Bayesian filters with their own advantages and disadvantages. Hence, a thorough study was done in-order to select the most suitable Bayesian framework for this problem, which is presented under this section.
+
 Kalman Filters are the most widely used sensor data fusion algorithms. There 
 are many extensions to the basic Kalman Filter (which is known as the Linear Kalman Filter), allowing them to be used in variety of applications. Table \ref{table:ch:KalmanFilterComparison} provides a 
 comparison between different types of Kalman filters. Note that the computational complexity of the filters increases from left to right.
@@ -89,23 +91,22 @@ comparison between different types of Kalman filters. Note that the computationa
 	\centering
 	\begin{tabular}{|p{3.4cm}|p{3.4cm}|p{3.4cm}|p{3.4cm}|} 
 		\hline
-		% \textbf{Linear Kalman} & \textbf{Extended Kalman} & \textbf{Error State} & \textbf{Unscented} \\
-		% \textbf{Filter} & \textbf{Filter} & \textbf{Kalman Filter} & \textbf{Kalman Filter} \\
 		\textbf{Linear Kalman Filter} & \textbf{Extended Kalman Filter} & \textbf{Error State Extended Kalman Filter} & \textbf{Unscented Kalman Filter} \\
 		\hline
 		Linear Gaussian model&Non-linear Gaussian model&Non-linear  Gaussian model&Non-linear Gaussian model\\
 		\hline
-		Best linear unbiased estimator (Blue)&Linearize the nonlinear dynamics using Jacobeans (Taylor series)&Linearize the nonlinear 
-		dynamics of error using Jacobeans (Taylor series)&Calculate sigma points and use Unscented Transform to approximate the \gls{PDF}s directly\\
+		Best linear unbiased estimator (Blue)&Linearize the nonlinear dynamics using Jacobians (Taylor series)&Linearize the nonlinear 
+		dynamics of error using Jacobians (Taylor series)&Calculate sigma points and use Unscented Transform to approximate the \gls{PDF}s directly\\
 		\hline
 		Estimates the state & Estimates the state& Estimates the error of the state & Estimates the state\\
 		\hline
 	\end{tabular}
 	\caption{Comparison of different types of Kalman Filters}
 	\label{table:ch:KalmanFilterComparison}
+	\vspace{0.5cm}
 \end{table}
 
-Kalman Filters can only be used for Gaussian models. However, we cannot use the Linear Kalman Filter at all because the localization task is not linear. Assuming that the localization problem is Gaussian, other Kalman Filters can be used to tackle the problem. We selected  \gls{UKF} and \gls{ESKF} to implement in python since those two algorithms have shown the best results among Kalman filters according to \cite{ch24:st2004comparison},\cite{ch25:madyastha2011extended} and \cite{ch26:wan2000unscented}.
+Kalman Filters can only be used for Gaussian models. However, we cannot use the Linear Kalman Filter at all because the localization task is not linear. Assuming that the localization problem is Gaussian, other Kalman Filters can be used to tackle the problem. We selected  \gls{UKF} and \gls{ESKF} to implement in python since those two algorithms have shown the best results among Kalman filters, according to \cite{ch24:st2004comparison},\cite{ch25:madyastha2011extended} and \cite{ch26:wan2000unscented}.
 
 \gls{PF} was recently suggested after \gls{KF}s to process arbitrary inertial sensor characteristics, motion dynamics, and noise distributions. When dealing with non-linear models in motion equations and measurement relations with a non-Gaussian noise assumption, the Kalman Filter methods may lead to non-optimal solutions. However, particle filters provide general solutions to many problems where linearization and Gaussian approximations are intractable \cite{ch27:ababsa2004comparison}. A brief comparison of \gls{PF}s and \gls{KF}s is given in Table \ref{table:ch:KFandPFComparison}.
 \begin{table}[h]
@@ -124,9 +125,10 @@ Kalman Filters can only be used for Gaussian models. However, we cannot use the 
 	\end{tabular}
 	\caption{A brief comparison of Kalman Filters and Particle Filters}
 	\label{table:ch:KFandPFComparison}
+	\vspace{0.5cm}
 \end{table}
 
-Three basic level filters (namely, \gls{PF}, \gls{ESKF}, and \gls{UKF}) were implemented and compared using the \gls{NCLT} data set to select the best filter for our application. Afterwards, the performance of the  best filter was improved by increasing the number of elements in the state vector, adding \gls{ZUPT} measurements, and fusing relative measurements (visual and \gls{LiDAR} odometry) etc. The state vector used for the basic filter implementations was
+Three filters (namely, \gls{PF}, \gls{ESKF}, and \gls{UKF}) were implemented in a basic level and, compared using the \gls{NCLT} data set to select the best filter for our application. Afterwards, the performance of the  best filter was improved by increasing the number of elements in the state vector, adding \gls{ZUPT} measurements, and fusing relative measurements (visual and \gls{LiDAR} odometry) etc. The state vector used for the basic filter implementations was
 \begin{align}
 \label{eq:ch:basicStateVector}
    \textbf{x} &= \left[\begin{matrix}{}\textbf{p}\\\textbf{v}\\\textbf{q}\end{matrix}\right]
@@ -169,13 +171,13 @@ where
     \textbf{v} &= (v_x, v_y, v_z) \text{ velocity relative to the inertial frame} \nonumber \\
     \textbf{q} &= (q_w, q_x, q_y, q_z) \text{ quaternion relative to the inertial frame} \nonumber \\
     \boldsymbol{a_b} &= (a_{bx}, a_{by}, a_{bz}) \text{ acceleration biases of the IMU relative to the body frame} \nonumber \\
-    \boldsymbol{\omega_b} &= (\omega_{bx}, \omega_{by}, \omega_{bz}) \text{ angular velocity biases of the IMU relative to the body frame}
+    \boldsymbol{\omega_b} &= (\omega_{bx}, \omega_{by}, \omega_{bz}) \text{ angular velocity biases of the IMU relative to the body frame}\nonumber
 \end{align}
 and
 \begin{align}
 	\text{Error state vector: }\boldsymbol{\delta}\textbf{x} &= \left[\begin{matrix}{}\boldsymbol{\delta}\textbf{p}\\\boldsymbol{\delta}\textbf{v}\\\boldsymbol{\delta}\boldsymbol{\theta}\\\boldsymbol{\delta}\boldsymbol{a_b}\\\boldsymbol{\delta}\boldsymbol{\omega_b}\end{matrix}\right].
 \end{align}
-Here, $\boldsymbol{\delta}\boldsymbol{\theta}$ is the error in orientation, expressed as an axis-angle vector. Furthermore, $\boldsymbol{\delta}\boldsymbol{a_b}$ and $\boldsymbol{\delta}\boldsymbol{\omega_b}$ are the considered as global errors. The motion model for the prediction step of the filter is given below.\\
+Here, $\boldsymbol{\delta}\textbf{p}, \boldsymbol{\delta}\textbf{v}, \boldsymbol{\delta}\boldsymbol{a_b}$ and $\boldsymbol{\delta}\boldsymbol{\omega_b}$ correspond to the error states of position, velocity, accelerometer bias and gyroscope bias, respectively. $\boldsymbol{\delta}\boldsymbol{\theta}$ is the error in orientation, expressed as an axis-angle vector. Furthermore, $\boldsymbol{\delta}\boldsymbol{a_b}$ and $\boldsymbol{\delta}\boldsymbol{\omega_b}$ are considered as global errors. Relationships used for the prediction step of the filter are given below.\\
 Nominal state update:
 \begin{align}
     \check{\textbf{p}}_k &= \hat{\textbf{p}}_{k-1}+\hat{\textbf{v}}_{k-1}\Delta t + \frac{1}{2} \left( \textbf{R}_{inert,body}\left(\textbf{a}_{m_{k-1}}-\hat{\textbf{a}}_{b_{k-1}}\right)+\textbf{g}\right)\Delta t^2 \\
@@ -224,8 +226,7 @@ Here,
 	\oplus &= \text{Operator representing the combination of nominal state and error state }\nonumber\\
 	&\quad\text{ vectors}.
 \end{align}
-For a detailed presentation of the matrices involved in above equations, refer Appendix \ref{appendix:ESEKFMatrices}\cite{pa:Sola2017QuaternionKinematics}.
-
+For a detailed explanation of the \gls{ES-EKF}, we refer the reader to \cite{pa:Sola2017QuaternionKinematics}.
 
 \subsection{Stochastic cloning and backward smoothing}
 Following the works of Emter et. al\cite{pa:Emter2018StochasticCloning},  we have implemented a stochastic cloning framework along with the \gls{ES-EKF}, as a mean of integrating relative measurements obtained from sensors such as wheel odometer and visual/\gls{LiDAR} odometry algorithms. Since a relative measurement relates the current state of the vehicle to a previous state, it is required to propagate the corrections resultant from absolute measurements to all the previous states as well. In-order to achieve this, a \gls{RTS} backward smoother was integrated.
@@ -239,7 +240,7 @@ Other than the estimate itself, the motion model inputs that resulted the predic
 \subsection{Time synchronization}
 Measurements from different sensors arrive at different times, in different rates. These asynchronous arrivals are handled using the \gls{ROS}'s in-built multi-threading behaviour of subscriber callback functions. Each sensor publishes data to its own \gls{ROS} topic, for which the localization module is subscribed to. Hence, each publication will invoke a callback function, which includes the logic for carrying out either a prediction or a correction step, depending on the measurement received.
 
-When an absolute correction is to be carried out, the filter first searches the state buffer, for the state with the closest timestamp to that of the measurement. Then it performs correction steps on that state. After it has been completed, the effect of the correction has to be propagated to all the remaining states in the buffer. States having later timestamps will be adjusted by re-predicting them based on the corrected state. States with earlier timestamps will be adjusted through performing \gls{RTS} smoothing. A similar procedure is carried out upon receiving a relative measurement, except that, backward smoothing with \gls{RTS} will not be performed.
+When an absolute correction is to be carried out, the filter first searches the state buffer, for the state with the closest timestamp to that of the measurement. Then it performs correction steps on that state. After it has been completed, the effect of the correction has to be propagated to all the remaining states in the buffer. States having later timestamps will be adjusted by re-predicting them based on the corrected state. States with earlier timestamps will be adjusted through performing \gls{RTS} smoothing. A similar procedure is carried out upon receiving a relative measurement, except that, backward smoothing with \gls{RTS} smoother will not be performed.
 
 In this manner, a delayed measurement can still contribute to a correction, unless it is too delayed, so that the state corresponding to its timestamp no longer exists in the state buffer.
 
@@ -249,7 +250,7 @@ If a prediction is to be carried out, the filter will only search for the latest
 
 
 \subsection{\acrlong{ZUPT} measurements}
-Some of the physical constraints that govern the motion of a vehicle can be incorporated into the sensor fusion mechanism, in-order to make the estimate more accurate. \gls{ZUPT} measurements, generated based on the fact that the motion of a vehicle is constrained only towards its longitudinal direction, are one such constraint that can be employed to couple the positional measurements with the heading estimation \cite{pa:Dissanayake2001ZUPT}. 
+Some of the physical constraints that govern the motion of a vehicle can be incorporated into the sensor fusion mechanism, in-order to make the estimate more accurate. \gls{ZUPT} measurements, generated based on the fact that the motion of a vehicle is constrained only towards its longitudinal direction, is one such constraint that can be employed to couple the positional measurements with the heading estimation \cite{pa:Dissanayake2001ZUPT}. 
 
 However, it should be noted that, the advantages of \gls{ZUPT} measurements come at a cost. Since they are fed into the \gls{ES-EKF} as ordinary absolute measurements, they reduce the estimated covariance of the error, causing the filter to be overconfident on its estimate. Furthermore, once diverged due to erroneous measurements, the estimate takes a longer time to converge back to the ground truth, after starting to receive correct measurements. These effects should be balanced out by carefully tuning the noise variance of the \gls{ZUPT} measurement.
 
@@ -261,7 +262,7 @@ However, it should be noted that, the advantages of \gls{ZUPT} measurements come
 %%%%%%%%%%%%%%%% ra start %%%%%%%%%%%%%%%%%%
 
 \section{Visual Odometry}
-Out of the sensors that we use for localization process, cameras are the cheapest. However, it is capable of providing rich information of the environment, which allows us to recognize the environment robustly and accurately. Therefore, camera based visual odometry \gls{SLAM} solutions are becoming very popular, and can be used in our system as a solution for \gls{GNSS} outages. 
+Out of the sensors that we use for localization process, cameras are the cheapest. However, they are capable of providing rich information of the environment, which allows us to recognize the environment robustly and accurately. Therefore, camera based visual odometry \gls{SLAM} solutions are becoming very popular, and can be used in our system as a solution for \gls{GNSS} outages. 
 
 \subsection{System Selection}
 \label{subsec:vodomSystemSelection}
@@ -296,7 +297,7 @@ General view of the system architecture is shown in figure \ref{fig:ra:ORB_SYSTE
 	\item the Loop Closing thread to detect large loops and correct the accumulated drift by performing a pose-graph optimization \cite{ra:ORB_SLAM2}.
 \end{enumerate} 
 
-In the existing code, the vehicle is localized on a local map created using the feature points. However, for our system, we needed to get the relative transform of the vehicle, between two stereo frames. Hence, we modified the existing algorithm to receive relative transform of the vehicle, directly, as the output. The result is published as a ROS\gls{ROS} message.
+In the existing code, the vehicle is localized on a local map created using the feature points. However, for our system, we needed to get the relative transform of the vehicle, between two stereo frames. Hence, we modified the existing algorithm to receive relative transform of the vehicle, directly, as the output. The result is published as a \gls{ROS} message.
 
 \gls{ORBSLAM} has been designed and setup only for the \gls{KITTI} and \gls{TUM} datasets. We added the image rectification functionality for the \gls{KAIST}, as we will be using that dataset for our testing purposes.
 
@@ -318,7 +319,7 @@ One drawback of the \gls{ORBSLAM} algorithm is the absence of a reliability metr
 In vehicle localization, out of the sensors that we use, \gls{LiDAR} is the most expensive and accurate sensor. It is capable of providing point clouds of the surrounding environment (well-defined rich information) which allows us to recognize the environment robustly and accurately. 360-degree feature space exploration is the best advantage that we can gain from a high-end \gls{LiDAR}, which we can’t obtain with cameras and other sensors regardless of their quality. However, this elevated accuracy comes at a significantly higher cost, relative to the rest of the sensors.
 
 \subsection{Method Selection}
-As implementation of a \gls{LiDAR} odometry algorithm is not within the scope of this project, we had to find a solution with an existing implementation. The criteria followed in this selection was similar to that as in the case of visual odometry algorithm (see section \ref{subsec:vodomSystemSelection}). 
+As implementation of a \gls{LiDAR} odometry algorithm is not within the scope of this project, we had to find a solution with an existing implementation. The criteria followed in this selection was similar to that as in the case of visual odometry algorithm (see section \ref{subsec:vodomSystemSelection}). Few alternatives that could be used in this respect are listed in table \ref{table:ha:DifferentLOdomMethods}.
 \begin{table}[h]
 	\centering
 	\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.15\textwidth}|p{0.15\textwidth}|} 
@@ -337,9 +338,10 @@ As implementation of a \gls{LiDAR} odometry algorithm is not within the scope of
 	\end{tabular}
 	\caption{Different \gls{LiDAR} odometry algorithms}
 	\label{table:ha:DifferentLOdomMethods}
+	\vspace{0.5cm}
 \end{table}
 
-\gls{LOAM} \cite{hi:LOAM} and the \gls{LeGO-LOAM} \cite{hi:LeGO-LOAM} were the best solutions that we found with a proper implementation in the literature. Comparing the benchmark errors received by testing the algorithms using the \gls{KITTI} dataset, \gls{LeGO-LOAM} showed the better estimation. Depending on the results, along with the comparison presented in table \ref{table:ha:DifferentLOdomMethods}, we selected the \gls{LeGO-LOAM} as the best solution for our localization module.
+\gls{LOAM} \cite{hi:LOAM} and \gls{LeGO-LOAM} \cite{hi:LeGO-LOAM} were the best solutions that we found with a proper implementation. Comparing the benchmark errors received by testing the algorithms using the \gls{KITTI} dataset, \gls{LeGO-LOAM} showed the better estimation. Depending on the results, along with the comparison presented in table \ref{table:ha:DifferentLOdomMethods}, we selected \gls{LeGO-LOAM} as the best solution for our localization module.
 
 \subsection{\gls{LeGO-LOAM}}
 \gls{LeGO-LOAM} algorithm is an extension of the \gls{LOAM} algorithm with new features added to make it more accurate, robust and fast in terms of computation. Following list presents some such modifications.
@@ -361,7 +363,7 @@ As implementation of a \gls{LiDAR} odometry algorithm is not within the scope of
 
 General view of the \gls{LeGO-LOAM} system architecture is shown in figure \ref{fig:hi:LeGO_LOAM_SYSTEM}. System consists of four main modules; scan preprocessing, odometry, map construction and global optimization. Scan preprocessing module projects the \gls{LiDAR} points onto a range image, segments the ground plane and separate the ground plane from the image. Then it applies image based segmentation methods for ground plane segmentation and edge features  are extracted from the projected image. Odometry module takes care of feature matching and transformation optimization for \gls{LiDAR} point cloud registration and generates odometry measurement. Map construction module uses the previous key frames and odometry estimation to construct the map and also adds fast optimization to the odometry estimation. Loop closure module adds global optimization and drift correction to the map and makes the construction much more drift free.
 
-In the existing code, the vehicle is localized on a local map created using the map construction module. However, for our system, we need to get the relative transform of the vehicle as an output. Therefore, the adjustments have been made to the existing algorithm to receive relative transform of the vehicle for every \gls{LiDAR} scan.
+In the existing code, the vehicle is localized on a local map created using the map construction module. However, for our system, we need to get the relative transform of the vehicle as an output. Therefore, the adjustments have been made to the existing algorithm to receive relative transform of the vehicle between every \gls{LiDAR} scan.
 
 The issue of not having a mechanism to obtain the covariance of the pose-estimate error is a limitation of this algorithm, as well. Hence, we expect to find solutions for this issue based on metrics such as the final optimized error in \gls{LM} algorithm \cite{hi:LM_optimization} etc.
 
@@ -388,7 +390,7 @@ The system was implemented on \gls{ROS}, targetting the easy integration with ot
 	\item Debugging (using tools such as Node Graphs, TF Tree etc.)
 	\item Handling transformations (through TF)
 \end{itemize}
-Apart from the nodes for visual and \gls{LiDAR} odometry algorithms, the system consists of 3 main nodes, namely, the Data Feeder, Locator and the Evaluator. Each of these nodes will be described separately, in the following discussion. Figure \ref{fig:pa:nodeGraph} shows the Node Graph obtained for the system.
+Apart from the nodes for visual and \gls{LiDAR} odometry algorithms, the system consists of 3 main nodes, namely, the Data Feeder, Locator and the Evaluator. Each of these nodes will be described separately, in the following sub-sections. Figure \ref{fig:pa:nodeGraph} shows the Node Graph obtained for the system.
 
 \begin{figure}[h]
 	\begin{center}

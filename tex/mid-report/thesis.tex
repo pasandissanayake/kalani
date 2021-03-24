@@ -2,7 +2,7 @@
 %% Description: Generic and customizable thesis/dissertation template.
 %% URL: https://github.com/Bekt/thesis-template
 
-\documentclass[12pt,letterpaper]{report}
+\documentclass[12pt,a4paper]{report}
 \usepackage[left=1.5in, right=1.0in, top=1.0in, bottom=1.0in]{geometry}
 
 % Check if with latex or pdflatex.
@@ -27,8 +27,8 @@
 \usepackage{epsfig}
 \usepackage{subcaption}
 \usepackage[section]{placeins}
-\usepackage[acronym,nomain,toc,nonumberlist,nopostdot]{glossaries}
-
+\usepackage[acronym,nomain,toc,style=super,nonumberlist,nopostdot]{glossaries}
+\usepackage[font=footnotesize]{caption}
 
 
 
@@ -42,7 +42,7 @@
 \newcommand{\indexC}{160246N}
 \newcommand{\indexD}{160318M}
 \newcommand{\supervisorA}{Dr. Peshala Jayasekara}
-\newcommand{\supervisorB}{\;}
+\newcommand{\supervisorB}{Dr. Ranga Rodrigo}
 \input{defs}
 
 % Table of contents.
@@ -51,7 +51,7 @@
 
 % Chapter title format, section format, subsection format.
 \titleformat{\chapter}[display]
-  {\normalfont\Large\bfseries\centering}{\chaptertitlename\;\thechapter}{1em}{\uppercase}
+  {\normalfont\Large\bfseries\centering}{\chaptertitlename\;\thechapter}{1em}{\large\uppercase}
 \titleformat{\section}
   {\normalfont\bfseries}{\thesection}{1em}{}
 \titleformat{\subsection}
@@ -82,7 +82,7 @@
   \pagestyle{plain}
   \pagenumbering{roman}
   
-  \include{chapters/Signatures}
+  % \include{chapters/Signatures}
   \include{chapters/Declaration}
   \include{chapters/Declaration_Supervisor}
   \include{chapters/Abstract}
@@ -90,9 +90,10 @@
   \include{chapters/Dedication}
   \include{chapters/Acknowledgements}
   
+  \renewcommand{\contentsname}{Table of Contents}
   \onehalfspacing
   \tableofcontents
-  \addcontentsline{toc}{chapter}{Contents}
+  \addcontentsline{toc}{chapter}{Table of Contents}
   \pagebreak
   
   \addcontentsline{toc}{chapter}{List of Figures}
@@ -120,6 +121,6 @@
 
   \singlespacing
   \include{chapters/References}
-  \include{chapters/Appendix}
+  % \include{chapters/Appendix}
 
 \end{document}

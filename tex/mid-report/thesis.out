@@ -3,42 +3,42 @@
 \BOOKMARK [0][-]{chapter*.3}{Abstract}{}% 3
 \BOOKMARK [0][-]{chapter*.4}{Dedication}{}% 4
 \BOOKMARK [0][-]{chapter*.5}{Acknowledgements}{}% 5
-\BOOKMARK [0][-]{chapter*.6}{Contents}{}% 6
+\BOOKMARK [0][-]{chapter*.6}{Table of Contents}{}% 6
 \BOOKMARK [0][-]{chapter*.6}{List of Figures}{}% 7
 \BOOKMARK [0][-]{chapter*.7}{List of Tables}{}% 8
-\BOOKMARK [0][-]{chapter.1}{Introduction}{}% 9
-\BOOKMARK [1][-]{section.1.1}{Problem definition and scope}{chapter.1}% 10
-\BOOKMARK [1][-]{section.1.2}{Related work}{chapter.1}% 11
-\BOOKMARK [1][-]{section.1.3}{Method of investigation and results}{chapter.1}% 12
-\BOOKMARK [0][-]{chapter.2}{Methodology}{}% 13
-\BOOKMARK [1][-]{section.2.1}{System architecture}{chapter.2}% 14
-\BOOKMARK [1][-]{section.2.2}{Coordinate frames}{chapter.2}% 15
-\BOOKMARK [1][-]{section.2.3}{Datasets}{chapter.2}% 16
-\BOOKMARK [1][-]{section.2.4}{Comparison of Bayesian filters}{chapter.2}% 17
-\BOOKMARK [1][-]{section.2.5}{Sensor fusion mechanism}{chapter.2}% 18
-\BOOKMARK [2][-]{subsection.2.5.1}{The ES-EKF}{section.2.5}% 19
-\BOOKMARK [2][-]{subsection.2.5.2}{Stochastic cloning and backward smoothing}{section.2.5}% 20
-\BOOKMARK [2][-]{subsection.2.5.3}{State buffer}{section.2.5}% 21
-\BOOKMARK [2][-]{subsection.2.5.4}{Time synchronization}{section.2.5}% 22
-\BOOKMARK [2][-]{subsection.2.5.5}{ZUPT measurements}{section.2.5}% 23
-\BOOKMARK [1][-]{section.2.6}{Visual Odometry}{chapter.2}% 24
-\BOOKMARK [2][-]{subsection.2.6.1}{System Selection}{section.2.6}% 25
-\BOOKMARK [2][-]{subsection.2.6.2}{ORBSLAM algorithm}{section.2.6}% 26
-\BOOKMARK [1][-]{section.2.7}{Lidar Odometry}{chapter.2}% 27
-\BOOKMARK [2][-]{subsection.2.7.1}{Method Selection}{section.2.7}% 28
-\BOOKMARK [2][-]{subsection.2.7.2}{LeGO-LOAM}{section.2.7}% 29
-\BOOKMARK [1][-]{section.2.8}{Implementation on ROS}{chapter.2}% 30
-\BOOKMARK [2][-]{subsection.2.8.1}{Data Feeder}{section.2.8}% 31
-\BOOKMARK [2][-]{subsection.2.8.2}{Locator}{section.2.8}% 32
-\BOOKMARK [2][-]{subsection.2.8.3}{Evaluator}{section.2.8}% 33
-\BOOKMARK [0][-]{chapter.3}{Results}{}% 34
-\BOOKMARK [1][-]{section.3.1}{Comparison of Bayesian filters}{chapter.3}% 35
-\BOOKMARK [2][-]{subsection.3.1.1}{Performance of translation estimation}{section.3.1}% 36
-\BOOKMARK [2][-]{subsection.3.1.2}{Performance of orientation estimation}{section.3.1}% 37
-\BOOKMARK [1][-]{section.3.2}{Sensor fusion mechanism}{chapter.3}% 38
-\BOOKMARK [1][-]{section.3.3}{Visual Odometry}{chapter.3}% 39
-\BOOKMARK [1][-]{section.3.4}{Lidar Odometry}{chapter.3}% 40
-\BOOKMARK [1][-]{section.3.5}{Achievability of goals and State of completion}{chapter.3}% 41
-\BOOKMARK [0][-]{chapter.4}{Discussion and Conclusion}{}% 42
-\BOOKMARK [0][-]{chapter.4}{References}{}% 43
-\BOOKMARK [0][-]{chapter*.45}{Appendix I}{}% 44
+\BOOKMARK [0][-]{section*.9}{Acronyms and Abbreviations}{}% 9
+\BOOKMARK [0][-]{chapter.1}{Introduction}{}% 10
+\BOOKMARK [1][-]{section.1.1}{Problem definition and scope}{chapter.1}% 11
+\BOOKMARK [1][-]{section.1.2}{Related work}{chapter.1}% 12
+\BOOKMARK [1][-]{section.1.3}{Method of investigation and results}{chapter.1}% 13
+\BOOKMARK [0][-]{chapter.2}{Methodology}{}% 14
+\BOOKMARK [1][-]{section.2.1}{System architecture}{chapter.2}% 15
+\BOOKMARK [1][-]{section.2.2}{Coordinate frames}{chapter.2}% 16
+\BOOKMARK [1][-]{section.2.3}{Datasets}{chapter.2}% 17
+\BOOKMARK [1][-]{section.2.4}{Comparison of Bayesian filters}{chapter.2}% 18
+\BOOKMARK [1][-]{section.2.5}{Sensor fusion mechanism}{chapter.2}% 19
+\BOOKMARK [2][-]{subsection.2.5.1}{The ES-EKF}{section.2.5}% 20
+\BOOKMARK [2][-]{subsection.2.5.2}{Stochastic cloning and backward smoothing}{section.2.5}% 21
+\BOOKMARK [2][-]{subsection.2.5.3}{State buffer}{section.2.5}% 22
+\BOOKMARK [2][-]{subsection.2.5.4}{Time synchronization}{section.2.5}% 23
+\BOOKMARK [2][-]{subsection.2.5.5}{ZUPT measurements}{section.2.5}% 24
+\BOOKMARK [1][-]{section.2.6}{Visual Odometry}{chapter.2}% 25
+\BOOKMARK [2][-]{subsection.2.6.1}{System Selection}{section.2.6}% 26
+\BOOKMARK [2][-]{subsection.2.6.2}{ORBSLAM algorithm}{section.2.6}% 27
+\BOOKMARK [1][-]{section.2.7}{Lidar Odometry}{chapter.2}% 28
+\BOOKMARK [2][-]{subsection.2.7.1}{Method Selection}{section.2.7}% 29
+\BOOKMARK [2][-]{subsection.2.7.2}{LeGO-LOAM}{section.2.7}% 30
+\BOOKMARK [1][-]{section.2.8}{Implementation on ROS}{chapter.2}% 31
+\BOOKMARK [2][-]{subsection.2.8.1}{Data Feeder}{section.2.8}% 32
+\BOOKMARK [2][-]{subsection.2.8.2}{Locator}{section.2.8}% 33
+\BOOKMARK [2][-]{subsection.2.8.3}{Evaluator}{section.2.8}% 34
+\BOOKMARK [0][-]{chapter.3}{Results}{}% 35
+\BOOKMARK [1][-]{section.3.1}{Comparison of Bayesian filters}{chapter.3}% 36
+\BOOKMARK [2][-]{subsection.3.1.1}{Performance of translation estimation}{section.3.1}% 37
+\BOOKMARK [2][-]{subsection.3.1.2}{Performance of orientation estimation}{section.3.1}% 38
+\BOOKMARK [1][-]{section.3.2}{Sensor fusion mechanism}{chapter.3}% 39
+\BOOKMARK [1][-]{section.3.3}{Visual Odometry}{chapter.3}% 40
+\BOOKMARK [1][-]{section.3.4}{Lidar Odometry}{chapter.3}% 41
+\BOOKMARK [1][-]{section.3.5}{Achievability of goals and state of completion}{chapter.3}% 42
+\BOOKMARK [0][-]{chapter.4}{Discussion and Conclusion}{}% 43
+\BOOKMARK [0][-]{chapter.4}{References}{}% 44
