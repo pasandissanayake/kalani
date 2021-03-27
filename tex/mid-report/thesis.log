@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.10.16)  24 MAR 2021 22:52
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.10.16)  27 MAR 2021 14:44
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -564,7 +564,7 @@ Package: amsthm 2017/10/31 v2.20.4
 \glo@acronym@file=\write5
 \openout5 = `thesis.acn'.
 
-Package glossaries Info: Writing glossary file thesis.acn on input line 71.
+Package glossaries Info: Writing glossary file thesis.acn on input line 70.
  (/home/pasan/kalani/tex/mid-report/chapters/Acronyms.tex) (/usr/local/texlive/2020/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def
 File: l3backend-pdfmode.def 2020-03-12 L3 backend support: PDF mode
 \l__kernel_color_stack_int=\count327
@@ -572,23 +572,23 @@ File: l3backend-pdfmode.def 2020-03-12 L3 backend support: PDF mode
 ) (/home/pasan/kalani/tex/mid-report/thesis.aux (/home/pasan/kalani/tex/mid-report/chapters/Title.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.aux) (/home/pasan/kalani/tex/mid-report/chapters/Abstract.aux) (/home/pasan/kalani/tex/mid-report/chapters/Dedication.aux) (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.aux) (/home/pasan/kalani/tex/mid-report/chapters/Introduction.aux) (/home/pasan/kalani/tex/mid-report/chapters/Methodology.aux) (/home/pasan/kalani/tex/mid-report/chapters/Results.aux) (/home/pasan/kalani/tex/mid-report/chapters/Conclusion.aux) (/home/pasan/kalani/tex/mid-report/chapters/References.aux))
 \openout1 = `thesis.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 74.
-LaTeX Font Info:    ... okay on input line 74.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 74.
-LaTeX Font Info:    ... okay on input line 74.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 74.
-LaTeX Font Info:    ... okay on input line 74.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 74.
-LaTeX Font Info:    ... okay on input line 74.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 74.
-LaTeX Font Info:    ... okay on input line 74.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 74.
-LaTeX Font Info:    ... okay on input line 74.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 74.
-LaTeX Font Info:    ... okay on input line 74.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 74.
-LaTeX Font Info:    ... okay on input line 74.
-LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 74.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 73.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 )
@@ -646,7 +646,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
 \AtBeginShipoutBox=\box107
-Package hyperref Info: Link coloring OFF on input line 74.
+Package hyperref Info: Link coloring OFF on input line 73.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
  (/usr/local/texlive/2020/texmf-dist/tex/latex/refcount/refcount.sty
@@ -656,9 +656,9 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count334
 )
-LaTeX Info: Redefining \ref on input line 74.
-LaTeX Info: Redefining \pageref on input line 74.
-LaTeX Info: Redefining \nameref on input line 74.
+LaTeX Info: Redefining \ref on input line 73.
+LaTeX Info: Redefining \pageref on input line 73.
+LaTeX Info: Redefining \nameref on input line 73.
  (/home/pasan/kalani/tex/mid-report/thesis.out) (/home/pasan/kalani/tex/mid-report/thesis.out)
 \@outlinefile=\write6
 \openout6 = `thesis.out'.
@@ -737,42 +737,27 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 \tf@toc=\write7
 \openout7 = `thesis.toc'.
 
- [7] (/home/pasan/kalani/tex/mid-report/thesis.lof
-Overfull \hbox (7.60008pt too wide) in paragraph at lines 26--26
- [][] [][]\OT1/ptm/m/n/12 Empirical [][]Prob-a-bil-ity Den-sity Func-tion (PDF)[]s of er-rors in [][]ORBSLAM2[] 
- []
-
-
-Overfull \hbox (10.38757pt too wide) in paragraph at lines 29--29
- [][] [][][][]\OT1/ptm/m/n/12 Lego-LOAM[] gen-er-ated [][]Si-mul-ta-ne-ous Lo-cal-iza-tion and Map-ping (SLAM)[] 
- []
-
-
-Overfull \hbox (34.90404pt too wide) in paragraph at lines 29--29
- \OT1/ptm/m/n/12 map us-ing [][]Ko-rean Ad-vanced In-sti-tute of Sci-ence and Tech-nol-ogy (KAIST)[]dataset[] []  
- []
-
-)
+ [7] (/home/pasan/kalani/tex/mid-report/thesis.lof)
 \tf@lof=\write8
 \openout8 = `thesis.lof'.
 
  [8
 
-] [9] (/home/pasan/kalani/tex/mid-report/thesis.lot)
+] (/home/pasan/kalani/tex/mid-report/thesis.lot)
 \tf@lot=\write9
 \openout9 = `thesis.lot'.
 
- [10
+ [9
 
 ] (/home/pasan/kalani/tex/mid-report/thesis.acr
-Underfull \hbox (badness 10000) in paragraph at lines 69--70
+Underfull \hbox (badness 10000) in paragraph at lines 63--64
 []\OT1/ptm/m/n/12 Lightweight and Ground-Optimized Li-dar
  []
 
-[11
+[10
 
 
-]) [12]
+]) [11]
 \openout2 = `chapters/Introduction.aux'.
 
  (/home/pasan/kalani/tex/mid-report/chapters/Introduction.tex
@@ -789,7 +774,7 @@ l.16 W
 
  (/home/pasan/kalani/tex/mid-report/chapters/Methodology.tex
 Chapter 2.
-<figs/system-block-diagram.png, id=578, 800.9925pt x 385.44pt>
+<figs/system-block-diagram.png, id=530, 800.9925pt x 385.44pt>
 File: figs/system-block-diagram.png Graphic file (type png)
 <use figs/system-block-diagram.png>
 Package pdftex.def Info: figs/system-block-diagram.png  used on input line 13.
@@ -804,7 +789,7 @@ Overfull \hbox (1.831pt too wide) in paragraph at lines 10--20
 
 
  </home/pasan/kalani/tex/mid-report/figs/system-block-diagram.png>]
-<figs/coordinate-frames.jpg, id=590, 284.56313pt x 251.43938pt>
+<figs/coordinate-frames.jpg, id=542, 284.56313pt x 251.43938pt>
 File: figs/coordinate-frames.jpg Graphic file (type jpg)
 <use figs/coordinate-frames.jpg>
 Package pdftex.def Info: figs/coordinate-frames.jpg  used on input line 39.
@@ -980,36 +965,17 @@ Underfull \hbox (badness 7273) in paragraph at lines 99--100
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 99--100
-\OT1/ptm/m/n/12 Func-tion (PDF)[]s
- []
-
-
 Overfull \hbox (20.12381pt too wide) in paragraph at lines 92--104
  [][] 
  []
 
-[7] [8]
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\acrlong' on input line 163.
-
-[9] [10] [11] [12]
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\acrlong' on input line 252.
-
-[13]
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\gls' on input line 280.
-
-<figs/ORB_SYSTEM.png, id=771, 699.36281pt x 305.64188pt>
+[7] [8] [9] [10] [11] [12] [13]
+<figs/ORB_SYSTEM.png, id=712, 699.36281pt x 305.64188pt>
 File: figs/ORB_SYSTEM.png Graphic file (type png)
 <use figs/ORB_SYSTEM.png>
 Package pdftex.def Info: figs/ORB_SYSTEM.png  used on input line 284.
 (pdftex.def)             Requested size: 416.83289pt x 182.1693pt.
-[14 </home/pasan/kalani/tex/mid-report/figs/ORB_SYSTEM.png>]
+ [14 </home/pasan/kalani/tex/mid-report/figs/ORB_SYSTEM.png>]
 Underfull \hbox (badness 10000) in paragraph at lines 329--329
 []|\OT1/ptm/m/n/12 Conventional [][]It-er-a-tive
  []
@@ -1035,27 +1001,18 @@ Overfull \hbox (8.31412pt too wide) in paragraph at lines 325--339
  []
 
 [15]
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\gls' on input line 346.
-
-<figs/loam_architect.png, id=832, 3062.44125pt x 1777.64125pt>
+<figs/loam_architect.png, id=770, 3062.44125pt x 1777.64125pt>
 File: figs/loam_architect.png Graphic file (type png)
 <use figs/loam_architect.png>
 Package pdftex.def Info: figs/loam_architect.png  used on input line 357.
 (pdftex.def)             Requested size: 416.83289pt x 241.95131pt.
-[16]
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\acrlong' on input line 383.
-
-[17 </home/pasan/kalani/tex/mid-report/figs/loam_architect.png>]
-<figs/rosgraph.png, id=865, 2328.44907pt x 1301.61281pt>
+ [16 </home/pasan/kalani/tex/mid-report/figs/loam_architect.png>]
+<figs/rosgraph.png, id=792, 2328.44907pt x 1301.61281pt>
 File: figs/rosgraph.png Graphic file (type png)
 <use figs/rosgraph.png>
 Package pdftex.def Info: figs/rosgraph.png  used on input line 397.
 (pdftex.def)             Requested size: 416.83289pt x 233.0091pt.
- [18 </home/pasan/kalani/tex/mid-report/figs/rosgraph.png>]) [19]
+ [17]) [18 </home/pasan/kalani/tex/mid-report/figs/rosgraph.png>]
 \openout2 = `chapters/Results.aux'.
 
  (/home/pasan/kalani/tex/mid-report/chapters/Results.tex
@@ -1065,291 +1022,215 @@ Overfull \hbox (1.22649pt too wide) in paragraph at lines 15--31
  [][] 
  []
 
-<figs/x_direction.png, id=909, 631.35875pt x 630.355pt>
+<figs/x_direction.png, id=834, 631.35875pt x 630.355pt>
 File: figs/x_direction.png Graphic file (type png)
 <use figs/x_direction.png>
 Package pdftex.def Info: figs/x_direction.png  used on input line 39.
 (pdftex.def)             Requested size: 291.78174pt x 291.32301pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/y_direction.png, id=910, 631.35875pt x 630.355pt>
+<figs/y_direction.png, id=835, 631.35875pt x 630.355pt>
 File: figs/y_direction.png Graphic file (type png)
 <use figs/y_direction.png>
 Package pdftex.def Info: figs/y_direction.png  used on input line 47.
 (pdftex.def)             Requested size: 291.78174pt x 291.32301pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/z_direction.png, id=911, 631.35875pt x 630.355pt>
+<figs/z_direction.png, id=836, 631.35875pt x 630.355pt>
 File: figs/z_direction.png Graphic file (type png)
 <use figs/z_direction.png>
 Package pdftex.def Info: figs/z_direction.png  used on input line 55.
 (pdftex.def)             Requested size: 291.78174pt x 291.32301pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/overall.png, id=912, 641.39626pt x 630.355pt>
+<figs/overall.png, id=837, 641.39626pt x 630.355pt>
 File: figs/overall.png Graphic file (type png)
 <use figs/overall.png>
 Package pdftex.def Info: figs/overall.png  used on input line 64.
 (pdftex.def)             Requested size: 208.41644pt x 204.82446pt.
-<figs/overall_diverge.png, id=915, 634.37pt x 630.355pt>
+<figs/overall_diverge.png, id=838, 634.37pt x 630.355pt>
 File: figs/overall_diverge.png Graphic file (type png)
 <use figs/overall_diverge.png>
 Package pdftex.def Info: figs/overall_diverge.png  used on input line 68.
 (pdftex.def)             Requested size: 208.41644pt x 207.09442pt.
 
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
 Overfull \hbox (3.05289pt too wide) in paragraph at lines 83--98
  [][] 
  []
 
-[20
+[19
 
 
 
-]
-<figs/roll.png, id=933, 625.33624pt x 630.355pt>
+] [20 </home/pasan/kalani/tex/mid-report/figs/x_direction.png> </home/pasan/kalani/tex/mid-report/figs/y_direction.png>] [21 </home/pasan/kalani/tex/mid-report/figs/z_direction.png> </home/pasan/kalani/tex/mid-report/figs/overall.png> </home/pasan/kalani/tex/mid-report/figs/overall_diverge.png>]
+<figs/roll.png, id=865, 625.33624pt x 630.355pt>
 File: figs/roll.png Graphic file (type png)
 <use figs/roll.png>
 Package pdftex.def Info: figs/roll.png  used on input line 104.
 (pdftex.def)             Requested size: 291.78174pt x 294.13159pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/pitch.png, id=934, 625.33624pt x 630.355pt>
+<figs/pitch.png, id=866, 625.33624pt x 630.355pt>
 File: figs/pitch.png Graphic file (type png)
 <use figs/pitch.png>
 Package pdftex.def Info: figs/pitch.png  used on input line 113.
 (pdftex.def)             Requested size: 291.78174pt x 294.13159pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/yaw.png, id=935, 631.35875pt x 630.355pt>
+<figs/yaw.png, id=867, 631.35875pt x 630.355pt>
 File: figs/yaw.png Graphic file (type png)
 <use figs/yaw.png>
 Package pdftex.def Info: figs/yaw.png  used on input line 122.
 (pdftex.def)             Requested size: 291.78174pt x 291.32301pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[21 </home/pasan/kalani/tex/mid-report/figs/x_direction.png>] [22 </home/pasan/kalani/tex/mid-report/figs/y_direction.png> </home/pasan/kalani/tex/mid-report/figs/z_direction.png>] [23 </home/pasan/kalani/tex/mid-report/figs/overall.png> </home/pasan/kalani/tex/mid-report/figs/overall_diverge.png> </home/pasan/kalani/tex/mid-report/figs/roll.png>] [24 </home/pasan/kalani/tex/mid-report/figs/pitch.png> </home/pasan/kalani/tex/mid-report/figs/yaw.png>]
-<figs/coloured_gnss.png, id=975, 857.2025pt x 464.73625pt>
+ [22 </home/pasan/kalani/tex/mid-report/figs/roll.png>] [23 </home/pasan/kalani/tex/mid-report/figs/pitch.png> </home/pasan/kalani/tex/mid-report/figs/yaw.png>]
+<figs/coloured_gnss.png, id=893, 857.2025pt x 464.73625pt>
 File: figs/coloured_gnss.png Graphic file (type png)
 <use figs/coloured_gnss.png>
 Package pdftex.def Info: figs/coloured_gnss.png  used on input line 141.
 (pdftex.def)             Requested size: 416.83289pt x 225.98538pt.
-<figs/easting_error.png, id=982, 1837.86626pt x 786.94pt>
+<figs/easting_error.png, id=894, 1837.86626pt x 786.94pt>
 File: figs/easting_error.png Graphic file (type png)
 <use figs/easting_error.png>
 Package pdftex.def Info: figs/easting_error.png  used on input line 150.
 (pdftex.def)             Requested size: 416.83289pt x 178.47076pt.
-<figs/northing_error.png, id=983, 1837.86626pt x 785.93625pt>
+<figs/northing_error.png, id=895, 1837.86626pt x 785.93625pt>
 File: figs/northing_error.png Graphic file (type png)
 <use figs/northing_error.png>
 Package pdftex.def Info: figs/northing_error.png  used on input line 154.
 (pdftex.def)             Requested size: 416.83289pt x 178.24312pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/euclidean-error-wo-rm.png, id=994, 959.585pt x 475.7775pt>
+<figs/euclidean-error-wo-rm.png, id=900, 959.585pt x 475.7775pt>
 File: figs/euclidean-error-wo-rm.png Graphic file (type png)
 <use figs/euclidean-error-wo-rm.png>
 Package pdftex.def Info: figs/euclidean-error-wo-rm.png  used on input line 167.
 (pdftex.def)             Requested size: 416.83289pt x 206.67114pt.
-<figs/euclidean-error-with-rm.png, id=995, 962.59625pt x 475.7775pt>
+<figs/euclidean-error-with-rm.png, id=901, 962.59625pt x 475.7775pt>
 File: figs/euclidean-error-with-rm.png Graphic file (type png)
 <use figs/euclidean-error-with-rm.png>
 Package pdftex.def Info: figs/euclidean-error-with-rm.png  used on input line 171.
 (pdftex.def)             Requested size: 416.83289pt x 206.02502pt.
-[25
-
- </home/pasan/kalani/tex/mid-report/figs/coloured_gnss.png>]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/yaw-without-zupt.png, id=1007, 974.64125pt x 382.42876pt>
+ [24 </home/pasan/kalani/tex/mid-report/figs/coloured_gnss.png>] [25 </home/pasan/kalani/tex/mid-report/figs/easting_error.png> </home/pasan/kalani/tex/mid-report/figs/northing_error.png>]
+<figs/yaw-without-zupt.png, id=918, 974.64125pt x 382.42876pt>
 File: figs/yaw-without-zupt.png Graphic file (type png)
 <use figs/yaw-without-zupt.png>
-Package pdftex.def Info: figs/yaw-without-zupt.png  used on input line 184.
+Package pdftex.def Info: figs/yaw-without-zupt.png  used on input line 183.
 (pdftex.def)             Requested size: 416.83289pt x 163.55417pt.
-<figs/yaw-with-zupt.png, id=1010, 965.6075pt x 383.4325pt>
+<figs/yaw-with-zupt.png, id=919, 965.6075pt x 383.4325pt>
 File: figs/yaw-with-zupt.png Graphic file (type png)
 <use figs/yaw-with-zupt.png>
-Package pdftex.def Info: figs/yaw-with-zupt.png  used on input line 188.
+Package pdftex.def Info: figs/yaw-with-zupt.png  used on input line 187.
 (pdftex.def)             Requested size: 416.83289pt x 165.51633pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[26 </home/pasan/kalani/tex/mid-report/figs/easting_error.png> </home/pasan/kalani/tex/mid-report/figs/northing_error.png>] [27 </home/pasan/kalani/tex/mid-report/figs/euclidean-error-wo-rm.png> </home/pasan/kalani/tex/mid-report/figs/euclidean-error-with-rm.png>] [28 </home/pasan/kalani/tex/mid-report/figs/yaw-without-zupt.png> </home/pasan/kalani/tex/mid-report/figs/yaw-with-zupt.png>]
-<figs/detected_features.png, id=1040, 925.95938pt x 301.8778pt>
+ [26 </home/pasan/kalani/tex/mid-report/figs/euclidean-error-wo-rm.png> </home/pasan/kalani/tex/mid-report/figs/euclidean-error-with-rm.png>] [27 </home/pasan/kalani/tex/mid-report/figs/yaw-without-zupt.png> </home/pasan/kalani/tex/mid-report/figs/yaw-with-zupt.png>]
+<figs/detected_features.png, id=938, 925.95938pt x 301.8778pt>
 File: figs/detected_features.png Graphic file (type png)
 <use figs/detected_features.png>
-Package pdftex.def Info: figs/detected_features.png  used on input line 214.
+Package pdftex.def Info: figs/detected_features.png  used on input line 213.
 (pdftex.def)             Requested size: 416.83289pt x 135.89442pt.
-<figs/path_pred.png, id=1045, 639.13782pt x 556.32843pt>
+<figs/path_pred.png, id=939, 639.13782pt x 556.32843pt>
 File: figs/path_pred.png Graphic file (type png)
 <use figs/path_pred.png>
-Package pdftex.def Info: figs/path_pred.png  used on input line 222.
+Package pdftex.def Info: figs/path_pred.png  used on input line 221.
 (pdftex.def)             Requested size: 416.83289pt x 362.83159pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/xyz_error.png, id=1052, 1172.2194pt x 604.1772pt>
+<figs/xyz_error.png, id=942, 1172.2194pt x 604.1772pt>
 File: figs/xyz_error.png Graphic file (type png)
 <use figs/xyz_error.png>
-Package pdftex.def Info: figs/xyz_error.png  used on input line 232.
+Package pdftex.def Info: figs/xyz_error.png  used on input line 231.
 (pdftex.def)             Requested size: 416.83289pt x 214.83932pt.
-<figs/rpy_error.png, id=1057, 1183.0599pt x 604.1772pt>
+<figs/rpy_error.png, id=947, 1183.0599pt x 604.1772pt>
 File: figs/rpy_error.png Graphic file (type png)
 <use figs/rpy_error.png>
-Package pdftex.def Info: figs/rpy_error.png  used on input line 240.
+Package pdftex.def Info: figs/rpy_error.png  used on input line 239.
 (pdftex.def)             Requested size: 416.83289pt x 212.87569pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/xyz_error_allred.png, id=1068, 1192.455pt x 591.20876pt>
+<figs/xyz_error_allred.png, id=958, 1192.455pt x 591.20876pt>
 File: figs/xyz_error_allred.png Graphic file (type png)
 <use figs/xyz_error_allred.png>
-Package pdftex.def Info: figs/xyz_error_allred.png  used on input line 250.
+Package pdftex.def Info: figs/xyz_error_allred.png  used on input line 249.
 (pdftex.def)             Requested size: 416.83289pt x 206.66455pt.
-<figs/rpy_error_allred.png, id=1071, 1179.40625pt x 591.20876pt>
+<figs/rpy_error_allred.png, id=959, 1179.40625pt x 591.20876pt>
 File: figs/rpy_error_allred.png Graphic file (type png)
 <use figs/rpy_error_allred.png>
-Package pdftex.def Info: figs/rpy_error_allred.png  used on input line 258.
+Package pdftex.def Info: figs/rpy_error_allred.png  used on input line 257.
 (pdftex.def)             Requested size: 416.83289pt x 208.94688pt.
-<figs/orb_error_pdf_pos.png, id=1074, 1168.16425pt x 372.29088pt>
+<figs/orb_error_pdf_pos.png, id=960, 1168.16425pt x 372.29088pt>
 File: figs/orb_error_pdf_pos.png Graphic file (type png)
 <use figs/orb_error_pdf_pos.png>
-Package pdftex.def Info: figs/orb_error_pdf_pos.png  used on input line 267.
+Package pdftex.def Info: figs/orb_error_pdf_pos.png  used on input line 266.
 (pdftex.def)             Requested size: 416.83289pt x 132.84302pt.
-<figs/orb_error_pdf_rot.png, id=1075, 1177.69987pt x 372.29088pt>
+<figs/orb_error_pdf_rot.png, id=961, 1177.69987pt x 372.29088pt>
 File: figs/orb_error_pdf_rot.png Graphic file (type png)
 <use figs/orb_error_pdf_rot.png>
-Package pdftex.def Info: figs/orb_error_pdf_rot.png  used on input line 271.
+Package pdftex.def Info: figs/orb_error_pdf_rot.png  used on input line 270.
 (pdftex.def)             Requested size: 416.83289pt x 131.76369pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/matched_points.png, id=1085, 625.58719pt x 313.9228pt>
+<figs/matched_points.png, id=971, 625.58719pt x 313.9228pt>
 File: figs/matched_points.png Graphic file (type png)
 <use figs/matched_points.png>
-Package pdftex.def Info: figs/matched_points.png  used on input line 283.
+Package pdftex.def Info: figs/matched_points.png  used on input line 282.
 (pdftex.def)             Requested size: 416.83289pt x 209.17278pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/rms_error.png, id=1090, 846.91406pt x 456.20438pt>
+<figs/rms_error.png, id=976, 846.91406pt x 456.20438pt>
 File: figs/rms_error.png Graphic file (type png)
 <use figs/rms_error.png>
-Package pdftex.def Info: figs/rms_error.png  used on input line 293.
+Package pdftex.def Info: figs/rms_error.png  used on input line 292.
 (pdftex.def)             Requested size: 416.83289pt x 224.53056pt.
-[29
-
- </home/pasan/kalani/tex/mid-report/figs/detected_features.png>]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[30 </home/pasan/kalani/tex/mid-report/figs/path_pred.png>] [31 </home/pasan/kalani/tex/mid-report/figs/xyz_error.png> </home/pasan/kalani/tex/mid-report/figs/rpy_error.png>] [32 </home/pasan/kalani/tex/mid-report/figs/xyz_error_allred.png> </home/pasan/kalani/tex/mid-report/figs/rpy_error_allred.png>] [33 </home/pasan/kalani/tex/mid-report/figs/orb_error_pdf_pos.png> </home/pasan/kalani/tex/mid-report/figs/orb_error_pdf_rot.png> </home/pasan/kalani/tex/mid-report/figs/matched_points.png>] [34 </home/pasan/kalani/tex/mid-report/figs/rms_error.png>]
-<figs/rviz_lidar.png, id=1134, 1394.96156pt x 765.6103pt>
+ [28 </home/pasan/kalani/tex/mid-report/figs/detected_features.png>] [29 </home/pasan/kalani/tex/mid-report/figs/path_pred.png> </home/pasan/kalani/tex/mid-report/figs/xyz_error.png>] [30 </home/pasan/kalani/tex/mid-report/figs/rpy_error.png> </home/pasan/kalani/tex/mid-report/figs/xyz_error_allred.png>] [31 </home/pasan/kalani/tex/mid-report/figs/rpy_error_allred.png> </home/pasan/kalani/tex/mid-report/figs/orb_error_pdf_pos.png> </home/pasan/kalani/tex/mid-report/figs/orb_error_pdf_rot.png>] [32 </home/pasan/kalani/tex/mid-report/figs/matched_points.png> </home/pasan/kalani/tex/mid-report/figs/rms_error.png>]
+<figs/rviz_lidar.png, id=1015, 1394.96156pt x 765.6103pt>
 File: figs/rviz_lidar.png Graphic file (type png)
 <use figs/rviz_lidar.png>
-Package pdftex.def Info: figs/rviz_lidar.png  used on input line 315.
+Package pdftex.def Info: figs/rviz_lidar.png  used on input line 314.
 (pdftex.def)             Requested size: 416.83289pt x 228.77364pt.
-<figs/lidar_xyz_error.png, id=1146, 1176.5556pt x 604.1772pt>
+<figs/lidar_xyz_error.png, id=1027, 1176.5556pt x 604.1772pt>
 File: figs/lidar_xyz_error.png Graphic file (type png)
 <use figs/lidar_xyz_error.png>
-Package pdftex.def Info: figs/lidar_xyz_error.png  used on input line 326.
+Package pdftex.def Info: figs/lidar_xyz_error.png  used on input line 325.
 (pdftex.def)             Requested size: 416.83289pt x 214.0465pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/lidar_rpy_error.png, id=1149, 1183.0599pt x 604.8999pt>
+<figs/lidar_rpy_error.png, id=1028, 1183.0599pt x 604.8999pt>
 File: figs/lidar_rpy_error.png Graphic file (type png)
 <use figs/lidar_rpy_error.png>
-Package pdftex.def Info: figs/lidar_rpy_error.png  used on input line 335.
+Package pdftex.def Info: figs/lidar_rpy_error.png  used on input line 334.
 (pdftex.def)             Requested size: 416.83289pt x 213.13033pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<figs/loam_xyz_pdf.png, id=1154, 1177.69987pt x 372.29088pt>
+<figs/loam_xyz_pdf.png, id=1031, 1177.69987pt x 372.29088pt>
 File: figs/loam_xyz_pdf.png Graphic file (type png)
 <use figs/loam_xyz_pdf.png>
-Package pdftex.def Info: figs/loam_xyz_pdf.png  used on input line 347.
+Package pdftex.def Info: figs/loam_xyz_pdf.png  used on input line 346.
 (pdftex.def)             Requested size: 416.83289pt x 131.76369pt.
-<figs/loam_rpy_pdf.png, id=1155, 1168.16425pt x 372.29088pt>
+<figs/loam_rpy_pdf.png, id=1032, 1168.16425pt x 372.29088pt>
 File: figs/loam_rpy_pdf.png Graphic file (type png)
 <use figs/loam_rpy_pdf.png>
-Package pdftex.def Info: figs/loam_rpy_pdf.png  used on input line 351.
+Package pdftex.def Info: figs/loam_rpy_pdf.png  used on input line 350.
 (pdftex.def)             Requested size: 416.83289pt x 132.84302pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[35
-
-] [36 </home/pasan/kalani/tex/mid-report/figs/rviz_lidar.png (PNG copy)> </home/pasan/kalani/tex/mid-report/figs/lidar_xyz_error.png>] [37 </home/pasan/kalani/tex/mid-report/figs/lidar_rpy_error.png> </home/pasan/kalani/tex/mid-report/figs/loam_xyz_pdf.png> </home/pasan/kalani/tex/mid-report/figs/loam_rpy_pdf.png>]
-<figs/completion_state.png, id=1181, 987.69pt x 502.87875pt>
+ [33 </home/pasan/kalani/tex/mid-report/figs/rviz_lidar.png (PNG copy)>] [34 </home/pasan/kalani/tex/mid-report/figs/lidar_xyz_error.png> </home/pasan/kalani/tex/mid-report/figs/lidar_rpy_error.png>]
+<figs/completion_state.png, id=1052, 987.69pt x 502.87875pt>
 File: figs/completion_state.png Graphic file (type png)
 <use figs/completion_state.png>
-Package pdftex.def Info: figs/completion_state.png  used on input line 375.
+Package pdftex.def Info: figs/completion_state.png  used on input line 374.
 (pdftex.def)             Requested size: 416.83289pt x 212.22818pt.
-) [38
-
- </home/pasan/kalani/tex/mid-report/figs/completion_state.png>]
+) [35 </home/pasan/kalani/tex/mid-report/figs/loam_xyz_pdf.png> </home/pasan/kalani/tex/mid-report/figs/loam_rpy_pdf.png>] [36 </home/pasan/kalani/tex/mid-report/figs/completion_state.png>]
 \openout2 = `chapters/Conclusion.aux'.
 
  (/home/pasan/kalani/tex/mid-report/chapters/Conclusion.tex
 Chapter 4.
-) [39
+) [37
 
 
 
 ]
 \openout2 = `chapters/References.aux'.
 
- (/home/pasan/kalani/tex/mid-report/chapters/References.tex (/home/pasan/kalani/tex/mid-report/thesis.bbl [40
+ (/home/pasan/kalani/tex/mid-report/chapters/References.tex (/home/pasan/kalani/tex/mid-report/thesis.bbl [38
 
 
 
-] [41])) [42]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 126.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 126.
+] [39])) [40]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 125.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 125.
  (/home/pasan/kalani/tex/mid-report/thesis.aux (/home/pasan/kalani/tex/mid-report/chapters/Title.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.aux) (/home/pasan/kalani/tex/mid-report/chapters/Abstract.aux) (/home/pasan/kalani/tex/mid-report/chapters/Dedication.aux) (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.aux) (/home/pasan/kalani/tex/mid-report/chapters/Introduction.aux) (/home/pasan/kalani/tex/mid-report/chapters/Methodology.aux) (/home/pasan/kalani/tex/mid-report/chapters/Results.aux) (/home/pasan/kalani/tex/mid-report/chapters/Conclusion.aux) (/home/pasan/kalani/tex/mid-report/chapters/References.aux))
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 126.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 126.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 125.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 125.
 Package rerunfilecheck Info: File `thesis.out' has not changed.
-(rerunfilecheck)             Checksum: 309C53F6DDB3944E656E4CB666D46418;2828.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 126.
+(rerunfilecheck)             Checksum: 212B331B97D7353CED101C0EB5A5C0AC;2894.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 125.
  ) 
 Here is how much of TeX's memory you used:
- 15982 strings out of 480608
- 248990 string characters out of 5903614
- 588197 words of memory out of 5000000
+ 15978 strings out of 480608
+ 248961 string characters out of 5903614
+ 587098 words of memory out of 5000000
  31165 multiletter control sequences out of 15000+600000
  557774 words of font info for 82 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 51i,18n,81p,2834b,664s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 51i,18n,81p,2834b,533s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on /home/pasan/kalani/tex/mid-report/thesis.pdf (55 pages, 7188345 bytes).
+Output written on /home/pasan/kalani/tex/mid-report/thesis.pdf (52 pages, 7183777 bytes).
 PDF statistics:
- 1331 PDF objects out of 1440 (max. 8388607)
- 1133 compressed objects within 12 object streams
- 248 named destinations out of 1000 (max. 500000)
+ 1206 PDF objects out of 1440 (max. 8388607)
+ 1046 compressed objects within 11 object streams
+ 244 named destinations out of 1000 (max. 500000)
  533 words of extra memory for PDF output out of 10000 (max. 10000000)
 

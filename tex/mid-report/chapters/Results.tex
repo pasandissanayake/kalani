@@ -10,7 +10,7 @@ Results obtained from a variety of evaluations, to test the functionality of eac
 Data from the \gls{NCLT} dataset has been used for this comparison and the results shown in the discussion have been obtained using sequence 2013.01.10. The frame of reference is the inertial frame.
 \subsection{Performance of translation estimation}
 Overall performances (\gls{RMS} error) of all the filters are better than the raw \gls{GNSS} measurements. \gls{UKF} has given the worst estimation while \gls{PF} and \gls{ESKF} have given better results. Table \ref{table:ch:RMSErrorPosition} shows a summary of the results.
-\begin{table}[h]
+\begin{table}[htp]
     \centering
     \begin{tabular}{|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|} 
         \hline
@@ -28,13 +28,13 @@ Overall performances (\gls{RMS} error) of all the filters are better than the ra
         \\
         \hline
     \end{tabular}
-\caption{Translational \gls{RMS} errors for different Bayesian filters}
+\caption{Translational RMS errors for different Bayesian filters}
 \label{table:ch:RMSErrorPosition}
 \end{table}
 
 Even though \gls{PF} has given the most accurate results, as shown in figures \ref{fig:ch:errorX} to \ref{fig:ch:errorPositionOverall}, output of the filter is not smooth. Furthermore, the estimate rapidly diverges upon receiving erroneous \gls{GNSS} measurements (see figure \ref{fig:ch:errorPositionOverall}). Adding random samples or increasing the size of the particle set are alternatives for this problem. However, both of these solutions will increase the computational complexity. If both \gls{RMS} error and smoothness are considered, \gls{ESKF} gives the best solution. Z-direction has shown the worst error in all the three filters resulting a large overall positional error. This behaviour is a result of the large error in the altitude measurement, obtained by the \gls{GNSS} receiver. It can be mitigated by using an Altimeter (which is only present in the \gls{KAIST} dataset, out of the three datasets being used).
 
-\begin{figure}[h]
+\begin{figure}[htp]
     \centering
     \includegraphics[width=0.7\textwidth]{figs/x_direction.png}
     \vspace{-0.5cm}
@@ -42,7 +42,7 @@ Even though \gls{PF} has given the most accurate results, as shown in figures \r
     \label{fig:ch:errorX}
     \vspace{0.5cm}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[htp]
     \centering
     \includegraphics[width=0.7\textwidth]{figs/y_direction.png}
     \caption{Filter comparison - error in y direction}
@@ -50,7 +50,7 @@ Even though \gls{PF} has given the most accurate results, as shown in figures \r
     \label{fig:ch:errorY}
     \vspace{0.5cm}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[htp]
     \centering
     \includegraphics[width=0.7\textwidth]{figs/z_direction.png}
     \vspace{-0.5cm}
@@ -58,15 +58,15 @@ Even though \gls{PF} has given the most accurate results, as shown in figures \r
     \label{fig:ch:errorZ}
     \vspace{0.5cm}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[htp]
     \begin{subfigure}{0.5\textwidth}
         \centering
         \includegraphics[width=1\textwidth]{figs/overall.png}
-        \caption{Excluding the diverged \gls{PF} result}
+        \caption{Excluding the diverged PF result}
     \end{subfigure}%
     \begin{subfigure}{0.5\textwidth}
         \includegraphics[width=1\textwidth]{figs/overall_diverge.png}
-        \caption{Including the diverged \gls{PF} result}
+        \caption{Including the diverged PF result}
     \end{subfigure}
     \vspace{-0.5cm}
     \caption{Filter comparison - overall translational error}
@@ -78,7 +78,7 @@ Even though \gls{PF} has given the most accurate results, as shown in figures \r
 \subsection{Performance of orientation estimation}
 Raw orientation measurement obtained using the \gls{IMU} + Magnetometer is better than the estimates of all the three filters (see table \ref{table:ch:RMSErrorRotation}). This is due to the noise in the angular velocity measurement, which is confirmed from the reduction of the error when the angular measurement noise variance parameter is increased. \gls{PF} has given the worst estimation. Results of the other two filters are somewhat similar. However, \gls{UKF} has given the best
 estimation. Error plots are shown in figures \ref{fig:ch:errorRoll}, \ref{fig:ch:errorPitch} and \ref{fig:ch:errorYaw}.
-\begin{table}[h]
+\begin{table}[htp]
     \centering
     \begin{tabular}{|p{4cm}|p{3cm}|p{3cm}|p{3cm}|} 
         \hline
@@ -95,11 +95,11 @@ estimation. Error plots are shown in figures \ref{fig:ch:errorRoll}, \ref{fig:ch
         \\
         \hline
     \end{tabular}
-    \caption{Rotational \gls{RMS} errors of different Bayesian filters}
+    \caption{Rotational RMS errors of different Bayesian filters}
     \label{table:ch:RMSErrorRotation}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}[htp]
 \centering
 	\includegraphics[width=0.7\textwidth]{figs/roll.png}
     \vspace{-0.5cm}
@@ -108,7 +108,7 @@ estimation. Error plots are shown in figures \ref{fig:ch:errorRoll}, \ref{fig:ch
     \vspace{0.5cm}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[htp]
 \centering
 	\includegraphics[width=0.7\textwidth]{figs/pitch.png}
     \vspace{-0.5cm}
@@ -117,7 +117,7 @@ estimation. Error plots are shown in figures \ref{fig:ch:errorRoll}, \ref{fig:ch
     \vspace{0.5cm}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[htp]
 \centering
 	\includegraphics[width=0.7\textwidth]{figs/yaw.png}
     \vspace{-0.5cm}
@@ -136,15 +136,15 @@ estimation. Error plots are shown in figures \ref{fig:ch:errorRoll}, \ref{fig:ch
 %%%%%%%%%%%%%%%
 \section{Sensor fusion mechanism}
 The overall functionality of the sensor fusion mechanism, along with the \gls{ROS} implementation was tested using the \gls{KAIST} dataset. A major issue encountered in this regard is the correlated nature of the errors in \gls{GNSS} measurements, which violates the assumptions of the \gls{ES-EKF} significantly (see figure \ref{fig:pa:colouredGNSS}). This causes the estimate to drift away from the ground truth, frequently resulting an error beyond the estimated error bounds. This is an issue that we are searching solutions for, at the moment. Hence, in-order to evaluate the functionality of the estimation mechanism, artificial \gls{GNSS} measurements were generated by adding white Gaussian noise (with variance = 10 m\textsuperscript{2}) to the ground truth. The resultant estimation error for East and North directions is shown in the figures \ref{fig:pa:estimationError} (a) and (b) respectively. The plots show that the estimation error lies well within the estimated error bounds. Achieved \gls{RMS} error was 1.46 m, for \gls{KAIST} sequence 28, while the \gls{GNSS} measurements alone having a \gls{RMS} error of 5.51 m. Note that the variance of the artificially generated \gls{GNSS} measurements are significantly higher than that of the actual \gls{GNSS} measurements given in the dataset. Hence, we expect that the actual \gls{GNSS} measurements will perform similarly or better, once treated for correlated-ness of the error.
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
 	\includegraphics[width=\textwidth]{figs/coloured_gnss.png}
 	\vspace{-0.5cm}
-	\caption[Nature of \gls{GNSS} errors]{Error in \gls{GNSS} measurements, of a portion of the \gls{NCLT} and \gls{KAIST} datasets are shown, in blue and green, respectively. Top figure shows the error in East direction and bottom figure shows the error in North direction. The small pink square is a zoomed-in section of the top graph.}
+	\caption[Nature of GNSS errors]{Error in GNSS measurements, of a portion of the NCLT and KAIST datasets are shown, in blue and green, respectively. Top figure shows the error in East direction and bottom figure shows the error in North direction. The small pink square is a zoomed-in section of the top graph.}
 	\label{fig:pa:colouredGNSS}
 	\vspace{0.5cm}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
     \begin{subfigure}{\textwidth}
         \includegraphics[width=\textwidth]{figs/easting_error.png}
@@ -155,13 +155,13 @@ The overall functionality of the sensor fusion mechanism, along with the \gls{RO
         \caption{Northing error}
     \end{subfigure}
     \vspace{-0.5cm}
-    \caption[Estimation error in position]{Estimation error in position. Black: The error in estimate, Red: Error in \gls{GNSS} measurement, Violet and Blue: Estimated upper and lower 3$\sigma$ bounds for the error. Results are presented w.r.t a local \gls{ENU} coordinate frame. Dataset: \gls{KAIST} dataset, sequence 28. Duration: ~15 minutes}
+    \caption[Estimation error in position]{Estimation error in position. Black: The error in estimate, Red: Error in GNSS measurement, Violet and Blue: Estimated upper and lower 3$\sigma$ bounds for the error. Results are presented w.r.t a local ENU coordinate frame. Dataset: KAIST dataset, sequence 28. Duration: ~15 minutes}
     \label{fig:pa:estimationError}
     \vspace{0.5cm}
 \end{figure}
 
 The effect of fusing relative measurements through stochastic cloning was observed using the \gls{NCLT} dataset. \gls{GNSS} and Magnetometer data were used as absolute measurements and wheel odometry data were used as relative measurements. A 30 s \gls{GNSS} outage was simulated, and the error in the estimate was observed for the two instances; with and without fusing relative measurements. It was observed that with the integration of relative measurement data, the error remained bounded (see figure \ref{fig:pa:relativeMeasurements}).
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
     \begin{subfigure}{\textwidth}
         \includegraphics[width=\textwidth]{figs/euclidean-error-wo-rm.png}
@@ -171,25 +171,24 @@ The effect of fusing relative measurements through stochastic cloning was observ
         \includegraphics[width=\textwidth]{figs/euclidean-error-with-rm.png}
         \caption{Euclidean error with relative measurements}
     \end{subfigure}
-    \vspace{-0.5cm}
-    \caption[Effect of relative measurements]{Effect of relative measurements during a \gls{GNSS} interruption. Green: error in \gls{GNSS} measurements, Red: error in estimate, Cyan: estimated upper bound for the error.}
+    \caption[Effect of relative measurements]{Effect of relative measurements during a GNSS interruption. Green: error in GNSS measurements, Red: error in estimate, Cyan: estimated upper bound for the error.}
     \label{fig:pa:relativeMeasurements}
     \vspace{0.5cm}
 \end{figure}
 
 Adding \gls{ZUPT} measurements has a significant effect on the accuracy of the yaw estimate, as seen from figure \ref{fig:pa:zuptYaw}. When \gls{ZUPT} measurements are applied, the yaw estimate error remains within the estimated error bounds (3$\sigma$ bounds), despite the fact that the magnetometer-estimated yaw is biased.
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
     \begin{subfigure}{\textwidth}
         \includegraphics[width=\textwidth]{figs/yaw-without-zupt.png}
-        \caption{Yaw estimate without \gls{ZUPT} measurements}
+        \caption{Yaw estimate without ZUPT measurements}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \includegraphics[width=\textwidth]{figs/yaw-with-zupt.png}
-        \caption{Yaw estimate with \gls{ZUPT} measurements}
+        \caption{Yaw estimate with ZUPT measurements}
     \end{subfigure}
     \vspace{-0.5cm}
-    \caption[Effect of \gls{ZUPT} measurements on the yaw estimate]{Effect of \gls{ZUPT} measurements on the yaw estimate. Pink: Magnetometer estimated yaw, Red: Filter output, Orange (dashed): Estimated upper bound of the error, Violet (dashed): Estimated lower bound of the error.}
+    \caption[Effect of ZUPT measurements on the yaw estimate]{Effect of ZUPT measurements on the yaw estimate. Pink: Magnetometer estimated yaw, Red: Filter output, Orange (dashed): Estimated upper bound of the error, Violet (dashed): Estimated lower bound of the error.}
     \label{fig:pa:zuptYaw}
     \vspace{0.5cm}
 \end{figure}
@@ -209,59 +208,59 @@ Adding \gls{ZUPT} measurements has a significant effect on the accuracy of the y
 Experiments were conducted using the \gls{KITTI} and \gls{KAIST} datasets on the \gls{ORBSLAM} algorithm. Images in the \gls{KITTI} odometry dataset are rectified images and the ones in the \gls{KAIST} dataset are non-rectified. Therefore, images should be rectified in system for the \gls{KAIST} dataset. Results in the subsequent discussion have been obtained using the \gls{KITTI} dataset. Coordinate axes, x, y and z refer to the coordinate axes of the initial camera frame (Coordinate frame of the camera, when the vehicle started moving).
 
 When running \gls{ORBSLAM} algorithm, it creates a feature points map using the detected feature points (see figure \ref{fig:ra:detected_features}) and localize the vehicle in the feature map. Figure \ref{fig:ra:point_map} shows the estimated path of the vehicle in the map.
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
 	\includegraphics[width=\textwidth]{figs/detected_features.png}
 	\vspace{-0.5cm}
-	\caption[Detected feature points]{Feature points detected in a frame of \gls{KITTI} sequence 09 when running \gls{ORBSLAM}. Green colour squares indicate the feature points.}
+	\caption[Detected feature points]{Feature points detected in a frame of KITTI sequence 09 when running ORB SLAM 2. Green colour squares indicate the feature points.}
 	\label{fig:ra:detected_features}
 	\vspace{0.5cm}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
 	\includegraphics[width=\textwidth]{figs/path_pred.png}
 	\vspace{-0.5cm}
-	\caption[Map of feature points]{Part of the feature point map generated from \gls{ORBSLAM}, using \gls{KITTI} sequence 00. Estimated path of the vehicle is shown in green colour. Blue triangles show the pose of the camera, in the respective frames.}
+	\caption[Map of feature points]{Part of the feature point map generated from ORB SLAM 2, using KITTI sequence 00. Estimated path of the vehicle is shown in green colour. Blue triangles show the pose of the camera, in the respective frames.}
 	\label{fig:ra:point_map}
 	\vspace{0.5cm}
 \end{figure}
 
 Figure \ref{fig:ra:xyz_error} shows the position error in the directions of x, y and z with the frame index, and figure \ref{fig:ra:rpy_error} shows the error in the orientation (roll, pitch and yaw) with the frame index. Total duration of the sequence used was nearly 165 s, and the distance was 1705 m. It can be observed that the total position error in a given direction increase with time due to the accumulation of the relative position errors in the estimate.
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
 	\includegraphics[ width=\textwidth]{figs/xyz_error.png}
 	\vspace{-0.5cm}
-	\caption[Positional error of \gls{ORBSLAM}]{Positional error of \gls{ORBSLAM} (\gls{KITTI} sequence 09)}
+	\caption[Positional error of ORB SLAM 2]{Positional error of \gls{ORBSLAM} (\gls{KITTI} sequence 09)}
 	\label{fig:ra:xyz_error}
 	\vspace{0.5cm}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
 	\includegraphics[ width=\textwidth]{figs/rpy_error.png}
 	\vspace{-0.5cm}
-	\caption[Rotational error of \gls{ORBSLAM}]{Rotational error of \gls{ORBSLAM} (\gls{KITTI} sequence 09)}
+	\caption[Rotational error of ORB SLAM 2]{Rotational error of \gls{ORBSLAM} (\gls{KITTI} sequence 09)}
 	\label{fig:ra:rpy_error}
 	\vspace{0.5cm}
 \end{figure}
 
 In-order to test the effect of error accumulation, we subtracted the error of the previous frame, from the total error of the current frame, thereby removing the effect of accumulated error, for each frame. This revealed that the error in the relative position/orientation estimate of the algorithm is extremely low (within $\pm$0.1 m for position and $\pm0.2^o$ for orientation, for \gls{KITTI} dataset), which is within the tolerable range, when using the output as a relative measurement in the fusion mechanism (see figures \ref{fig:ra:xyz_error_allred} and \ref{fig:ra:rpy_error_allred}). Furthermore, the \gls{PDF}s of these errors were calculated and compared with a Gaussian distribution with the same variance. The results (shown in figure \ref{fig:ra:orbErrorPdf}) agree well with the assumptions of \gls{ES-EKF}. 
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
 	\includegraphics[width=\textwidth]{figs/xyz_error_allred.png}
 	\vspace{-0.5cm}
-	\caption{Positional error of \gls{ORBSLAM}, after removing the effect of error accumulation}
+	\caption{Positional error of ORB SLAM 2, after adjusting error accumulation}
 	\label{fig:ra:xyz_error_allred}
 	\vspace{0.5cm}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
 	\includegraphics[ width=\textwidth]{figs/rpy_error_allred.png}
 	\vspace{-0.5cm}
-	\caption{Rotational error of \gls{ORBSLAM}, after removing the effect of error accumulation}
+	\caption{Rotational error of ORB SLAM 2, after adjusting error accumulation}
 	\label{fig:ra:rpy_error_allred}
 	\vspace{0.5cm}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
     \begin{subfigure}{\textwidth}
         \includegraphics[ width=\textwidth]{figs/orb_error_pdf_pos.png}
@@ -272,13 +271,13 @@ In-order to test the effect of error accumulation, we subtracted the error of th
         \caption{Rotational error}
     \end{subfigure}
     \vspace{-0.5cm}
-	\caption[Empirical \gls{PDF}s of errors in \gls{ORBSLAM} relative measurements]{Empirical \gls{PDF}s of errors in \gls{ORBSLAM} relative measurements. Blue: empirical \gls{PDF} (histogram), Orange: Gaussian distribution with the same variance.}
+	\caption[Empirical PDFs of errors in ORB SLAM 2 relative measurements]{Empirical \gls{PDF}s of errors in \gls{ORBSLAM} relative measurements. Blue: empirical \gls{PDF} (histogram), Orange: Gaussian distribution with the same variance.}
 	\label{fig:ra:orbErrorPdf}
     \vspace{0.5cm}
 \end{figure}
 
 With the intention of obtaining insights for implementing an error covariance estimation mechanism for \gls{ORBSLAM}, a histogram was obtained by counting the number of feature points detected in a given frame. It appeared to be concentrated around 300 for the \gls{KITTI} dataset (figure \ref{fig:ra:matched_points}).
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
 	\includegraphics[ width=\textwidth]{figs/matched_points.png}
 	\vspace{-0.5cm}
@@ -288,11 +287,11 @@ With the intention of obtaining insights for implementing an error covariance es
 \end{figure}
 
 Furthermore, we calculated the average \gls{RMS} error obtained for a given number of matched points in a frame (see figure \ref{fig:ra:rms_error}), which showed that up to some optimal number, the \gls{RMS} error decreases with the number of matched points. However, beyond this point, it was observed that the \gls{RMS} error increases. A possible reason for this is the confusion caused by the large number of feature points (with similar features) detected very close to each other. When the number of detected features exceeds 1500, only the best 1500 features will be selected for the pose estimation mechanism, leaving the excess features unused. The saturation behaviour observed in the plot is a consequence of this.
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
 	\includegraphics[ width=\textwidth]{figs/rms_error.png}
 	\vspace{-0.5cm}
-	\caption[Average \gls{RMS} error vs. the number of matched points]{Variation of average \gls{RMS} error, with the number of matched points (in hundreds)}
+	\caption[Average RMS error vs. the number of matched points]{Variation of average \gls{RMS} error, with the number of matched points (in hundreds)}
 	\label{fig:ra:rms_error}
 	\vspace{0.5cm}
 \end{figure}
@@ -314,34 +313,34 @@ The \gls{LeGO-LOAM} algorithm creates a map of points through the map constructi
 	\centering
 	\includegraphics[width=\textwidth]{figs/rviz_lidar.png}
 	\vspace{-0.5cm}
-	\caption[\gls{LeGO-LOAM} generated \gls{SLAM} map using \gls{KAIST}dataset]{\gls{LeGO-LOAM} generated \gls{SLAM} map using \gls{KAIST}dataset. Coloured points are the \gls{LiDAR} point cloud points, based on their intensity level.}
+	\caption[Lego-LOAM generated SLAM map using KAIST dataset]{\gls{LeGO-LOAM} generated \gls{SLAM} map using \gls{KAIST}dataset. Coloured points are the \gls{LiDAR} point cloud points, based on their intensity level.}
 	\label{fig:ha:lidar_map}
 	\vspace{0.5cm}
 \end{figure}
 
 Figure \ref{fig:hi:xyz_error} shows the \gls{LeGO-LOAM} estimated position error in the directions of x, y and z, with the frame index and figure \ref{fig:hi:rpy_error} shows the error in roll, pitch and yaw with the frame index. It can be seen that, position error increase with time and reduces back to a lower value. The increase is caused by the error accumulation, while adding up the relative translations of the vehicle to obtain the overall position. The reduction in the error is a result of the system using loop closure global optimization method to optimize the path while building the map.
 
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
 	\includegraphics[ width=\textwidth]{figs/lidar_xyz_error.png}
 	\vspace{-0.5cm}
-	\caption{Error in x, y and z direction for \gls{KITTI} sequence 05}
+	\caption{Error in x, y and z direction for KITTI sequence 05}
 	\label{fig:hi:xyz_error}
 	\vspace{0.5cm}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
 	\includegraphics[ width=\textwidth]{figs/lidar_rpy_error.png}
 	\vspace{-0.5cm}
-	\caption{Error in roll, pitch and yaw for \gls{KITTI} sequence 05}
+	\caption{Error in roll, pitch and yaw for KITTI sequence 05}
 	\label{fig:hi:rpy_error}
 	\vspace{0.5cm}
 \end{figure}
 
 Similar distributions for relative transformation errors (after compensating for the error accumulation effect) were observed, as in the case of section \ref{sec:VisualOdometry}, which are shown in figure \ref{fig:hi:loamErrorPdf}.
 
-\begin{figure}[h]
+\begin{figure}[htp]
 	\centering
     \begin{subfigure}{\textwidth}
         \includegraphics[ width=\textwidth]{figs/loam_xyz_pdf.png}
@@ -352,7 +351,7 @@ Similar distributions for relative transformation errors (after compensating for
         \caption{Rotational error}
     \end{subfigure}
     \vspace{-0.5cm}
-	\caption[Empirical \gls{PDF}s of errors in \gls{LeGO-LOAM} relative measurements]{Empirical \gls{PDF}s of errors in \gls{LeGO-LOAM} relative measurement. Blue: empirical \gls{PDF} (histogram), Orange: Gaussian distribution with the same variance.}
+	\caption[Empirical PDFs of errors in Lego-LOAM relative measurements]{Empirical \gls{PDF}s of errors in \gls{LeGO-LOAM} relative measurement. Blue: empirical \gls{PDF} (histogram), Orange: Gaussian distribution with the same variance.}
 	\label{fig:hi:loamErrorPdf}
     \vspace{0.5cm}
 \end{figure}
@@ -370,7 +369,7 @@ By observing the results discussed previously, we believe that the required sub-
     \item As the filter is designed in a manner, such that it supports easy modification of the state vector and motion model, lots of redundant matrix multiplications are done in the estimation process. These can be eliminated once the structure is finalized.
 \end{itemize}
 However, the functionality demonstration using actual sensors is highly unlikely to be achieved under the given circumstances and the time frame. State of completion of the major sub-goals of the project is presented in figure \ref{fig:pa:completionState}.
-\begin{figure}[h]
+\begin{figure}[t]
 	\centering
 	\includegraphics[width=\textwidth]{figs/completion_state.png}
 	\vspace{-0.5cm}

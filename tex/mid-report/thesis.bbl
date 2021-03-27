@@ -21,15 +21,6 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
-\bibitem{ra:ORB_SLAM2}
-R.~{Mur-Artal} and J.~D. {Tardós}, ``Orb-slam2: An open-source slam system for
-  monocular, stereo, and rgb-d cameras,'' \emph{IEEE Transactions on Robotics},
-  vol.~33, no.~5, pp. 1255--1262, 2017.
-
-\bibitem{hi:LeGO-LOAM}
-T.~Shan and B.~Englot, ``Lego-loam: Lightweight and ground-optimized lidar
-  odometry and mapping on variable terrain,'' 10 2018, pp. 4758--4765.
-
 \bibitem{pa:ComputerArchitectures}
 S.~{Liu}, J.~{Tang}, Z.~{Zhang}, and J.~{Gaudiot}, ``Computer architectures for
   autonomous driving,'' \emph{Computer}, vol.~50, no.~8, pp. 18--25, 2017.
@@ -207,6 +198,11 @@ G.~{Dissanayake}, S.~{Sukkarieh}, E.~{Nebot}, and H.~{Durrant-Whyte}, ``The
   constraints for land vehicle applications,'' \emph{IEEE Transactions on
   Robotics and Automation}, vol.~17, no.~5, pp. 731--747, 2001.
 
+\bibitem{ra:ORB_SLAM2}
+R.~{Mur-Artal} and J.~D. {Tardós}, ``Orb-slam2: An open-source slam system for
+  monocular, stereo, and rgb-d cameras,'' \emph{IEEE Transactions on Robotics},
+  vol.~33, no.~5, pp. 1255--1262, 2017.
+
 \bibitem{ra:S-PTAM}
 T.~Pire, T.~Fischer, G.~Castro, P.~De Cristóforis, J.~Civera, and
   J.~Jacobo Berlles, ``S-ptam: Stereo parallel tracking and mapping,''
@@ -230,6 +226,10 @@ E.~{Rublee}, V.~{Rabaud}, K.~{Konolige}, and G.~{Bradski}, ``Orb: An efficient
 \bibitem{hi:LOAM}
 J.~Zhang and S.~Singh, ``Loam: Lidar odometry and mapping in real-time,'' 07
   2014.
+
+\bibitem{hi:LeGO-LOAM}
+T.~Shan and B.~Englot, ``Lego-loam: Lightweight and ground-optimized lidar
+  odometry and mapping on variable terrain,'' 10 2018, pp. 4758--4765.
 
 \bibitem{hi:LM_optimization}
 M.~Lourakis, ``A brief description of the levenberg-marquardt algorithm

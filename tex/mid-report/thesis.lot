@@ -3,8 +3,8 @@
 \contentsline {table}{\numberline {2.1}{\ignorespaces Dataset information\relax }}{7}{table.caption.13}%
 \contentsline {table}{\numberline {2.2}{\ignorespaces Comparison of different types of Kalman Filters\relax }}{8}{table.caption.14}%
 \contentsline {table}{\numberline {2.3}{\ignorespaces A brief comparison of Kalman Filters and Particle Filters\relax }}{8}{table.caption.15}%
-\contentsline {table}{\numberline {2.4}{\ignorespaces Different \gls {LiDAR} odometry algorithms\relax }}{16}{table.caption.17}%
+\contentsline {table}{\numberline {2.4}{\ignorespaces Different LiDAR odometry algorithms\relax }}{16}{table.caption.17}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Translational \gls {RMS} errors for different Bayesian filters\relax }}{20}{table.caption.20}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces Rotational \gls {RMS} errors of different Bayesian filters\relax }}{21}{table.caption.25}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Translational RMS errors for different Bayesian filters\relax }}{19}{table.caption.20}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Rotational RMS errors of different Bayesian filters\relax }}{22}{table.caption.25}%
 \addvspace {10\p@ }
