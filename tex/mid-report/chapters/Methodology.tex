@@ -5,7 +5,7 @@ A detailed description regarding the implementation of the proposed system is di
 
 
 %%%%%%%%%%%%%%%
-\section{System architecture}
+\section{System Architecture}
 \label{sec:SystemArchitecture}
 As depicted in figure \ref{fig:pa:systemBlockDiagram}, we use the pose estimates calculated using stereo images and \gls{LiDAR} point clouds as relative measurements. \gls{ORBSLAM} and \gls{LeGO-LOAM} algorithms, respectively, are used for this purpose. Furthermore, \gls{GNSS} measurements and orientation estimated from magnetometer measurements act as positional and rotational absolute measurements to the fusion mechanism. The fusion mechanism is an \gls{ES-EKF} with 16 variables in the nominal state space and 15 variables in the error state space. The output of the system consists of a state vector including position, orientation and velocity of the vehicle relative to a global frame of reference. Estimated covariance of the error is also provided, from which, the 99\% confidence interval ($3\sigma$ bound) can be derived. Output is compared with the ground truth provided with the dataset being used, to calculate the resultant error margins.
 \begin{figure}[htp]
@@ -27,7 +27,7 @@ The system is implemented on \gls{ROS}, along with evaluation and visualization 
 
 
 %%%%%%%%%%%%%%%
-\section{Coordinate frames}
+\section{Coordinate Frames}
 Apart from each sensor's own coordinate frame, in which they provide measurements, we define the following coordinate frames which will be used in the rest of this report.\\\\
 \begin{tabular}{p{0.2\linewidth} p{0.75\linewidth} } 
 	Inertial frame & An earth fixed right-handed rectilinear coordinate frame with x, y and z axes pointing towards East, North and Up directions respectively (ENU frame). The origin of the frame is determined by the information given in the dataset being used.\\\\
@@ -81,7 +81,7 @@ We have been using three public datasets, namely, \gls{NCLT} dataset\cite{pa:NCL
 
 %%%%%%%%%%%% ch start %%%%%%%%%%%
 
-\section{Comparison of Bayesian filters}
+\section{Comparison of Bayesian Filters}
 As mentioned in the introduction, Bayesian filters are the most used sensor fusion mechanism. However, there is a variety of Bayesian filters with their own advantages and disadvantages. Hence, a thorough study was done in-order to select the most suitable Bayesian framework for this problem, which is presented under this section.
 
 Kalman Filters are the most widely used sensor data fusion algorithms. There 
@@ -159,7 +159,7 @@ Based on the results obtained (see section \ref{sec:BayesianFilterComparison}), 
 
 
 %%%%%%%%%%%%%%%
-\section{Sensor fusion mechanism}
+\section{Sensor Fusion Mechanism}
 \subsection{The Error State Extended Kalman Filter}
 The \gls{ES-EKF} acts as the component responsible for fusing sensor data. As mentioned in section \ref{sec:SystemArchitecture}, our \gls{ES-EKF} currently has 16 nominal state space variables and 15 error state space variables, grouped into 5 sub-vectors, as listed below;
 \begin{align}
@@ -264,7 +264,7 @@ However, it should be noted that, the advantages of \gls{ZUPT} measurements come
 \section{Visual Odometry}
 Out of the sensors that we use for localization process, cameras are the cheapest. However, they are capable of providing rich information of the environment, which allows us to recognize the environment robustly and accurately. Therefore, camera based visual odometry \gls{SLAM} solutions are becoming very popular, and can be used in our system as a solution for \gls{GNSS} outages. 
 
-\subsection{System Selection}
+\subsection{System selection}
 \label{subsec:vodomSystemSelection}
 Monocular camera based systems are the most commonly used for visual odometry because of the low cost and the smaller sensor setup. However, estimations are not reliable and inaccurate because depth cannot be calculated using one camera \cite{ra:ORB_SLAM2}. Therefore, stereo camera based systems were selected as the best solution for our system. As implementation of this algorithm was not within the project scope, we had to find a solution with an existing implementation. Following criteria were used when selecting a suitable method:
 \begin{itemize}
@@ -318,7 +318,7 @@ One drawback of the \gls{ORBSLAM} algorithm is the absence of a reliability metr
 \section{Lidar Odometry}
 In vehicle localization, out of the sensors that we use, \gls{LiDAR} is the most expensive and accurate sensor. It is capable of providing point clouds of the surrounding environment (well-defined rich information) which allows us to recognize the environment robustly and accurately. 360-degree feature space exploration is the best advantage that we can gain from a high-end \gls{LiDAR}, which we can’t obtain with cameras and other sensors regardless of their quality. However, this elevated accuracy comes at a significantly higher cost, relative to the rest of the sensors.
 
-\subsection{Method Selection}
+\subsection{Method selection}
 As implementation of a \gls{LiDAR} odometry algorithm is not within the scope of this project, we had to find a solution with an existing implementation. The criteria followed in this selection was similar to that as in the case of visual odometry algorithm (see section \ref{subsec:vodomSystemSelection}). Few alternatives that could be used in this respect are listed in table \ref{table:ha:DifferentLOdomMethods}.
 \begin{table}[htp]
 	\centering
@@ -394,7 +394,7 @@ Apart from the nodes for visual and \gls{LiDAR} odometry algorithms, the system 
 
 \begin{figure}[htp]
 	\begin{center}
-	\includegraphics[width=\textwidth]{figs/rosgraph.png}
+	\includegraphics[width=1.5\textwidth, angle=90]{figs/rosgraph.png}
 	\end{center}
 	\vspace{-0.5cm}
 	\caption[ROS Node Graph]{ROS Node Graph}

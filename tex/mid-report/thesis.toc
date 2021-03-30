@@ -8,37 +8,37 @@
 \contentsline {chapter}{List of Tables}{ix}{chapter*.7}%
 \contentsline {chapter}{Acronyms and Abbreviations}{x}{section*.9}%
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
-\contentsline {section}{\numberline {1.1}Problem definition and scope}{1}{section.1.1}%
-\contentsline {section}{\numberline {1.2}Related work}{2}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Method of investigation and results}{4}{section.1.3}%
+\contentsline {section}{\numberline {1.1}Problem Definition and Scope}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Related Work}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Method of Investigation and Results}{4}{section.1.3}%
 \contentsline {chapter}{\numberline {2}Methodology}{5}{chapter.2}%
-\contentsline {section}{\numberline {2.1}System architecture}{5}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Coordinate frames}{6}{section.2.2}%
+\contentsline {section}{\numberline {2.1}System Architecture}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Coordinate Frames}{6}{section.2.2}%
 \contentsline {section}{\numberline {2.3}Datasets}{6}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Comparison of Bayesian filters}{7}{section.2.4}%
-\contentsline {section}{\numberline {2.5}Sensor fusion mechanism}{9}{section.2.5}%
+\contentsline {section}{\numberline {2.4}Comparison of Bayesian Filters}{7}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Sensor Fusion Mechanism}{9}{section.2.5}%
 \contentsline {subsection}{\numberline {2.5.1}The Error State Extended Kalman Filter}{9}{subsection.2.5.1}%
 \contentsline {subsection}{\numberline {2.5.2}Stochastic cloning and backward smoothing}{12}{subsection.2.5.2}%
 \contentsline {subsection}{\numberline {2.5.3}State buffer}{12}{subsection.2.5.3}%
 \contentsline {subsection}{\numberline {2.5.4}Time synchronization}{12}{subsection.2.5.4}%
 \contentsline {subsection}{\numberline {2.5.5}Zero Velocity Update measurements}{13}{subsection.2.5.5}%
 \contentsline {section}{\numberline {2.6}Visual Odometry}{13}{section.2.6}%
-\contentsline {subsection}{\numberline {2.6.1}System Selection}{13}{subsection.2.6.1}%
+\contentsline {subsection}{\numberline {2.6.1}System selection}{14}{subsection.2.6.1}%
 \contentsline {subsection}{\numberline {2.6.2}ORB SLAM 2 algorithm}{14}{subsection.2.6.2}%
 \contentsline {section}{\numberline {2.7}Lidar Odometry}{15}{section.2.7}%
-\contentsline {subsection}{\numberline {2.7.1}Method Selection}{15}{subsection.2.7.1}%
+\contentsline {subsection}{\numberline {2.7.1}Method selection}{16}{subsection.2.7.1}%
 \contentsline {subsection}{\numberline {2.7.2}Lego-LOAM}{16}{subsection.2.7.2}%
 \contentsline {section}{\numberline {2.8}Implementation on Robot Operating System}{17}{section.2.8}%
 \contentsline {subsection}{\numberline {2.8.1}Data Feeder}{18}{subsection.2.8.1}%
 \contentsline {subsection}{\numberline {2.8.2}Locator}{18}{subsection.2.8.2}%
 \contentsline {subsection}{\numberline {2.8.3}Evaluator}{18}{subsection.2.8.3}%
-\contentsline {chapter}{\numberline {3}Results}{19}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Comparison of Bayesian filters}{19}{section.3.1}%
-\contentsline {subsection}{\numberline {3.1.1}Performance of translation estimation}{19}{subsection.3.1.1}%
-\contentsline {subsection}{\numberline {3.1.2}Performance of orientation estimation}{22}{subsection.3.1.2}%
-\contentsline {section}{\numberline {3.2}Sensor fusion mechanism}{24}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Visual Odometry}{28}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Lidar Odometry}{33}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Achievability of goals and state of completion}{35}{section.3.5}%
-\contentsline {chapter}{\numberline {4}Discussion and Conclusion}{37}{chapter.4}%
-\contentsline {chapter}{References}{38}{chapter.4}%
+\contentsline {chapter}{\numberline {3}Results}{20}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Comparison of Bayesian Filters}{20}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Performance of translation estimation}{20}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Performance of orientation estimation}{23}{subsection.3.1.2}%
+\contentsline {section}{\numberline {3.2}Sensor Fusion Mechanism}{25}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Visual Odometry}{29}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Lidar Odometry}{34}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Achievability of Goals and State of Completion}{36}{section.3.5}%
+\contentsline {chapter}{\numberline {4}Discussion and Conclusion}{38}{chapter.4}%
+\contentsline {chapter}{References}{39}{chapter.4}%
