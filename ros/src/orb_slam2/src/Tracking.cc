@@ -454,13 +454,13 @@ void Tracking::Track()
             }
             mlpTemporalPoints.clear();
 
-            //if(true)
-            //    CreateNewKeyFrame();
+            if(true)
+                CreateNewKeyFrame();
 
 
             // Check if we need to insert a new keyframe
-            if(NeedNewKeyFrame())
-                CreateNewKeyFrame();
+            //if(NeedNewKeyFrame())
+            //    CreateNewKeyFrame();
 
             // We allow points with high innovation (considererd outliers by the Huber Function)
             // pass to the new keyframe, so that bundle adjustment will finally decide
@@ -907,7 +907,7 @@ bool Tracking::TrackWithMotionModel()
 
     // Optimize frame pose with all matches
     Optimizer::PoseOptimization(&mCurrentFrame);
-    
+    cout << "sanath ce:" << Optimizer::sanath_chi2e <<"\n";
 
     // Discard outliers
     int nmatchesMap = 0;
@@ -1047,7 +1047,8 @@ bool Tracking::NeedNewKeyFrame()
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
     const bool c2 = ((mnMatchesInliers<nRefMatches*thRefRatio|| bNeedToInsertClose) && mnMatchesInliers>15);
 
-    if((c1a||c1b||c1c)&&c2)
+    //if((c1a||c1b||c1c)&&c2)
+    if(true)
     {
         // If the mapping accepts keyframes, insert keyframe.
         // Otherwise send a signal to interrupt BA
@@ -1063,14 +1064,17 @@ bool Tracking::NeedNewKeyFrame()
                 if(mpLocalMapper->KeyframesInQueue()<3)
                     return true;
                 else
-                    return false;
+                    //return false;
+                    return true;
             }
             else
-                return false;
+                //return false;
+                return true;
         }
     }
     else
-        return false;
+        //return false;
+        return true;
 }
 
 void Tracking::CreateNewKeyFrame()
@@ -1154,6 +1158,10 @@ void Tracking::CreateNewKeyFrame()
 
     mnLastKeyFrameId = mCurrentFrame.mnId;
     mpLastKeyFrame = pKF;
+    if(KeyFrameID>=750)
+    {
+    mpSystem->Reset();
+    }
 }
 
 void Tracking::SearchLocalPoints()

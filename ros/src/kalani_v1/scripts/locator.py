@@ -37,11 +37,7 @@ seq_altimeter = -1
 stationary = False
 
 def is_stationary():
-    if stationary:
-        # log.log('stationary!')
-        return True
-    else:
-        return False
+    return stationary
 
 
 def publish_state(transform_only=False):
@@ -106,7 +102,8 @@ def gnss_callback(data):
         def hx_fun(ns):
             return np.concatenate([np.eye(2),np.zeros((2,14))], axis=1)
         if not is_stationary():
-            kf.correct_absolute(meas_fun, gnss_fix, cov, t, hx_fun=hx_fun, measurement_name='gnss')
+            # kf.correct_absolute(meas_fun, gnss_fix, cov, t, hx_fun=hx_fun, measurement_name='gnss')
+            pass
         publish_gnss(t, gnss_fix)
 
         # zero velocity update
@@ -264,12 +261,10 @@ def visualodom_callback(data):
     
     vgt_w = (p1 - p0) / (0.1)
     vgt_v = np.matmul(R1.T, vgt_w)
-    if tft.vector_norm(vgt_v) < 1e-3:
+    if tft.vector_norm(vgt_v) < 1e-2:
         stationary = True
     else:
         stationary = False
-    # log.log('vgt_v  :', vgt_v)
-    # log.log('*******************************')
     def meas_fun(ns):
         R = tft.quaternion_matrix(ns.q())[0:3,0:3]
         return np.matmul(R.T, ns.v())

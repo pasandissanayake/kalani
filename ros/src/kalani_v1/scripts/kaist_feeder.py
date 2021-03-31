@@ -54,7 +54,7 @@ def publish_data():
                 msg.header.frame_id = general_config['tf_frame_gnss_receiver']
                 msg.pose.pose.position.x = kd.gnss.x[next_data[1]]
                 msg.pose.pose.position.y = kd.gnss.y[next_data[1]]
-                msg.pose.covariance = np.diag(np.concatenate([sequence_config['var_gnss_position'], np.zeros(4)])).ravel()
+                msg.pose.covariance = np.diag(np.concatenate([sensor_config['var_gnss_position'], np.zeros(4)])).ravel()
                 gnss_pub.publish(msg)
 
             elif name == kd.ALTITUDE_CLASS_NAME:
@@ -62,7 +62,7 @@ def publish_data():
                 msg.header.stamp = rospy.Time.from_sec(next_data[2])
                 msg.header.frame_id = general_config['tf_frame_altimeter']
                 msg.pose.pose.position.z = kd.altitude.z[next_data[1]]
-                msg.pose.covariance = np.diag(np.concatenate([[0, 0], sequence_config['var_altitude'], [0, 0, 0]])).ravel()
+                msg.pose.covariance = np.diag(np.concatenate([[0, 0], sensor_config['var_altitude'], [0, 0, 0]])).ravel()
                 altitude_pub.publish(msg)
 
             elif name == kd.IMU_CLASS_NAME:
@@ -72,11 +72,11 @@ def publish_data():
                 msg_imu.linear_acceleration.x = kd.imu.acceleration.x[next_data[1]]
                 msg_imu.linear_acceleration.y = kd.imu.acceleration.y[next_data[1]]
                 msg_imu.linear_acceleration.z = kd.imu.acceleration.z[next_data[1]]
-                msg_imu.linear_acceleration_covariance = np.diag(sequence_config['var_imu_linear_acceleration']).ravel()
+                msg_imu.linear_acceleration_covariance = np.diag(sensor_config['var_imu_linear_acceleration']).ravel()
                 msg_imu.angular_velocity.x = kd.imu.angular_rate.x[next_data[1]]
                 msg_imu.angular_velocity.y = kd.imu.angular_rate.y[next_data[1]]
                 msg_imu.angular_velocity.z = kd.imu.angular_rate.z[next_data[1]]
-                msg_imu.angular_velocity_covariance = np.diag(sequence_config['var_imu_angular_velocity']).ravel()
+                msg_imu.angular_velocity_covariance = np.diag(sensor_config['var_imu_angular_velocity']).ravel()
                 imu_pub.publish(msg_imu)
 
                 msg_mag = MagneticField()
@@ -85,14 +85,14 @@ def publish_data():
                 msg_mag.magnetic_field.x = kd.imu.magnetic_field.x[next_data[1]]
                 msg_mag.magnetic_field.y = kd.imu.magnetic_field.y[next_data[1]]
                 msg_mag.magnetic_field.z = kd.imu.magnetic_field.z[next_data[1]]
-                msg_mag.magnetic_field_covariance = np.diag(sequence_config['var_magnetometer_orientation']).ravel()
+                msg_mag.magnetic_field_covariance = np.diag(sensor_config['var_magnetometer_orientation']).ravel()
                 magneto_pub.publish(msg_mag)
 
             elif name == kd.VLP_LEFT_CLASS_NAME:
                 msg = PointCloud2()
                 msg.header.stamp = rospy.Time.from_sec(next_data[2])
                 msg.header.frame_id = general_config['tf_frame_lidar']
-		msg.is_dense = True
+                msg.is_dense = True
                 pointcloud_pub.publish(kd.vlpLeft.get_point_cloud2(msg.header))
 
             elif name == kd.STEREO_IMAGE_CLASS_NAME:
@@ -114,7 +114,7 @@ def publish_data():
                 rmsg.width = width
                 rmsg.step = width
                 rmsg.encoding = 'mono8'
-                rmsg.data = limage.flatten().tolist()
+                rmsg.data = rimage.flatten().tolist()
                 stereo_left_pub.publish(lmsg)
                 stereo_right_pub.publish(rmsg)
 
@@ -123,7 +123,8 @@ def publish_data():
 
 if __name__ == '__main__':
     kaist_config = get_config_dict()['kaist_dataset']
-    sequence_config = kaist_config['sensor_characteristics']
+    sensor_config = kaist_config['sensor_characteristics']
+    sequence_config = kaist_config[kaist_config['sequence']]
     general_config = get_config_dict()['general']
     log = Log(kaist_config['feeder_node_name'])
     rospy.init_node(kaist_config['feeder_node_name'], anonymous=True)
@@ -184,15 +185,15 @@ if __name__ == '__main__':
     tf2_static_broadcaster.sendTransform([vehicle2lidar_static_tf, vehicle2stereo_static_tf])
 
     # set initial values (for unobserved biases and velocity)
-    rospy.set_param('/kalani/init/var_imu_linear_acceleration_bias', sequence_config['var_imu_linear_acceleration_bias'])
-    rospy.set_param('/kalani/init/var_imu_angular_velocity_bias', sequence_config['var_imu_angular_velocity_bias'])
-    rospy.set_param('/kalani/init/init_velocity', sequence_config['init_velocity'])
-    rospy.set_param('/kalani/init/init_var_velocity', sequence_config['init_var_velocity'])
-    rospy.set_param('/kalani/init/init_imu_linear_acceleration_bias', sequence_config['init_imu_linear_acceleration_bias'])
-    rospy.set_param('/kalani/init/init_imu_angular_velocity_bias', sequence_config['init_imu_angular_velocity_bias'])
+    rospy.set_param('/kalani/init/var_imu_linear_acceleration_bias', sensor_config['var_imu_linear_acceleration_bias'])
+    rospy.set_param('/kalani/init/var_imu_angular_velocity_bias', sensor_config['var_imu_angular_velocity_bias'])
+    rospy.set_param('/kalani/init/init_velocity', sensor_config['init_velocity'])
+    rospy.set_param('/kalani/init/init_var_velocity', sensor_config['init_var_velocity'])
+    rospy.set_param('/kalani/init/init_imu_linear_acceleration_bias', sensor_config['init_imu_linear_acceleration_bias'])
+    rospy.set_param('/kalani/init/init_imu_angular_velocity_bias', sensor_config['init_imu_angular_velocity_bias'])
 
     # start data player
-    pl = kd.get_player(starttime=kd.imu.time[0])
+    pl = kd.get_player(starttime=sequence_config['time_start_motion'])
 
     try:
         thread.start_new_thread(publish_data, ())

@@ -135,11 +135,11 @@ int main(int argc, char **argv)
     // Stop all threads
     SLAM.Shutdown();
 
-    // Save camera trajectory
+    //Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory_TUM_Format.txt");
 	//SLAM.SaveKeyFrameTrajectoryKITTI("KeyFrameTrajectory_KITTI_Format.txt");
-    //SLAM.SaveTrajectoryTUM("FrameTrajectory_TUM_Format.txt");
-    //SLAM.SaveTrajectoryKITTI("FrameTrajectory_KITTI_Format.txt");
+    SLAM.SaveTrajectoryTUM("FrameTrajectory_TUM_Format.txt");
+    SLAM.SaveTrajectoryKITTI("FrameTrajectory_KITTI_Format.txt");
 	SLAM.SaveNumMatches("NumMatches.txt");
 	//SLAM.SaveKeyFramesTest("KeyFramesTest.txt");
 	
@@ -201,9 +201,11 @@ void ImageGrabber::GrabStereo(const sensor_msgs::ImageConstPtr& msgLeft,const se
     visualOdometry.pose.pose.position.x = current_frame[6];
     visualOdometry.pose.pose.position.y = current_frame[7];
     visualOdometry.pose.pose.position.z = current_frame[8];
-    visualOdometry.twist.twist.linear.x = current_frame[9];
-    visualOdometry.twist.twist.linear.y = current_frame[10];
-    visualOdometry.twist.twist.linear.z = current_frame[11];
+    visualOdometry.twist.twist.angular.x = current_frame[9];
+    visualOdometry.twist.twist.angular.y = current_frame[10];
+    visualOdometry.twist.twist.angular.z = current_frame[11];
+    visualOdometry.twist.twist.linear.x = current_frame[12];
+    visualOdometry.twist.twist.linear.z = current_frame[13];
     pubVisualOdometry.publish(visualOdometry);
     }
 

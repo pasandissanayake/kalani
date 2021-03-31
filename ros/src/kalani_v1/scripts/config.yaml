@@ -49,7 +49,7 @@ general:
   tf_frame_magnetometer: 'magnetometer'
   tf_frame_odometer: 'odometer'
   tf_frame_lidar: 'lidar'
-  tf_frame_camera: 'camera'
+  tf_frame_camera: 'cam'
 
   gravity: -9.8 # Gravitational acceleration in up direction (in m s^-2)
 
@@ -138,7 +138,7 @@ kaist_dataset:
     var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
     var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
     var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
-    var_magnetometer_orientation: [1.0e-0, 1.0e-0, 5.0e-0] # in rad^2
+    var_magnetometer_orientation: [1.0e-0, 1.0e-0, 1.0e+1] # in rad^2
     var_gnss_position: [1.0e+1, 1.0e+1] # in m^2
     var_altitude: [1.0e+1] # in m^2
     # # theoretical values from the datasheets
@@ -179,10 +179,78 @@ kaist_dataset:
     
       
   urban28:
-    time_start_motion: 1335704128.61069  # in seconds
+    time_start_motion: 1544590814.503533610  # in seconds
 
     map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
       # these are used in relocating the origin, only to reduce the coordinate magnitudes
       easting: 332459.3619
       northing: 4140617.766
       alt: 7.95616831
+
+
+
+
+
+
+
+
+
+#################################################
+########## KITTI DATASET ########################
+#################################################
+
+kitti_dataset:
+  feeder_node_name: 'kitti_feeder'
+  evaluator_node_name: 'kitti_evaluator'
+
+  # info of current dataset to use
+  data_root: '/home/entc/kalani-data/kitti'
+  sequence: '2011_09_26'
+
+  # common info
+  dir_oxts_data: 'oxts/data'
+  file_name_oxts_timestamps: 'oxts/timestamps.txt'
+  dir_lidar: 'velodyne_points/data'
+  file_name_lidar_timestamps: 'velodyne_points/timestamps.txt'
+  dir_left_camera: 'image_00/data'
+  dir_right_camera: 'image_01/data'
+  file_name_camera_timestamps: 'image_00/timestamps.txt'
+  
+  sensor_calibrations: # R and T separately
+    vehicle_R_imu:
+      R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+      T: [-0.07, 0, 1.7]
+    vehicle_R_gnss:
+      R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+      T: [-0.32, 0, 1.7]
+    vehicle_R_leftvlp:
+      R: [-0.514066, -0.702201, -0.492595, 0.486485, -0.711672, 0.506809, -0.706447, 0.0208933, 0.707457]
+      T: [-0.440699, 0.397052, 1.90953]
+    vehicle_R_stereo:
+      R: [-0.00680499, -0.0153215, 0.99985, -0.999977, 0.000334627, -0.00680066, -0.000230383, -0.999883, -0.0153234] 
+      T: [1.64239, 0.247401, 1.58411]
+
+  sensor_characteristics:
+    var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
+    var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
+    var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
+    var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
+    var_magnetometer_orientation: [1.0e-0, 1.0e-0, 1.0e+1] # in rad^2
+    var_gnss_position: [1.0e+1, 1.0e+1] # in m^2
+    var_altitude: [1.0e+1] # in m^2
+
+    init_velocity: [0.0, 0.0, 0.0] # in m s^(-1)
+    init_var_velocity: [1.0e-3, 1.0e-3, 1.0e-3] # in (m s^(-1))^2
+    init_imu_linear_acceleration_bias: [0.0, 0.0, 0.0] # in m s^(-2)
+    init_imu_angular_velocity_bias: [0.0, 0.0, 0.0] # in rad s^(-1)
+
+  # sequence specific info
+  urban17:
+    time_start_motion: 1335704128.61069  # in seconds
+
+    map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
+      # these are used in relocating the origin, only to reduce the coordinate magnitudes
+      easting: 316001.6098
+      northing: 4155469.996
+      alt: 16.88669620379847
+      

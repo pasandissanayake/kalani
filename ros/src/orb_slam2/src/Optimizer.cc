@@ -33,11 +33,12 @@
 #include "Converter.h"
 
 #include<mutex>
-
+#include<unistd.h>
 
 namespace ORB_SLAM2
 {
 
+float Optimizer::sanath_chi2e = 0.0;
 
 void Optimizer::GlobalBundleAdjustemnt(Map* pMap, int nIterations, bool* pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
 {
@@ -276,7 +277,7 @@ int Optimizer::PoseOptimization(Frame *pFrame)
 
     /* changed!! */
     //Optimizer::errorout.pushback(optimizer.edges());
-    optimizer.setVerbose(true);
+    //optimizer.setVerbose(true);
     /*************/
 
 
@@ -414,6 +415,7 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 e->setRobustKernel(0);
         }
 
+
         for(size_t i=0, iend=vpEdgesStereo.size(); i<iend; i++)
         {
             g2o::EdgeStereoSE3ProjectXYZOnlyPose* e = vpEdgesStereo[i];
@@ -426,6 +428,11 @@ int Optimizer::PoseOptimization(Frame *pFrame)
             }
 
             const float chi2 = e->chi2();
+            //************changed***************//
+            Optimizer::sanath_chi2e = chi2;
+            //************changed***************//
+
+
 
             if(chi2>chi2Stereo[it])
             {
@@ -443,9 +450,8 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 e->setRobustKernel(0);
         }
 
-        if(optimizer.edges().size()<10)
-			//errorout.push_back(chi2);
-            break;
+        if(optimizer.edges().size()<10) break;
+        
     }    
 
     // Recover optimized pose and return number of inliers
@@ -458,6 +464,12 @@ int Optimizer::PoseOptimization(Frame *pFrame)
     
     return nInitialCorrespondences-nBad;
 }
+
+//************changed****************/
+// float Optimizer::getSanathCE(void){
+//     return Optimizer::sanath_ce;
+// }
+//************changed****************/
 
 void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap)
 {    

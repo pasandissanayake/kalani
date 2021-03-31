@@ -130,15 +130,14 @@ cv::Mat System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const
         {
             mpLocalMapper->RequestStop();
 
-            // Wait until Local Mapping has effectively stopped
+            //wait until Local Mapping has effectively stopped
             while(!mpLocalMapper->isStopped())
             {
                 usleep(1000);
             }
-
             mpTracker->InformOnlyTracking(true);
             mbActivateLocalizationMode = false;
-        }
+        } 
         if(mbDeactivateLocalizationMode)
         {
             mpTracker->InformOnlyTracking(false);
@@ -585,7 +584,7 @@ std::vector<double> System::PublishKeyFrame()
     // After a loop closure the first keyframe might not be at the origin.
     //cv::Mat Two = vpKFs[0]->GetPoseInver
 
-    if (newKeyFrameID>lastKeyFrameID)
+    if (newKeyFrameID>lastKeyFrameID || newKeyFrameID == 0)
     {
 		//cout << endl << "Publishing Keyframes " << endl;
        KeyFrame* pKF = numkey;
@@ -595,21 +594,23 @@ std::vector<double> System::PublishKeyFrame()
        vector<float> q = Converter::toQuaternion(R);
        cv::Mat t = pKF->GetCameraCenter();
 	   
-	   //std::vector<double> qdouble(q.begin(), q.end());
 	   
-	   //vector<double> qnew;
-	   //qnew[0] = qdouble[0] - lastq[0];
-	   //qnew[1] = qdouble[1] - lastq[1];
-	   //qnew[2] = qdouble[2] - lastq[2];
-	   //qnew[3] = qdouble[3] - lastq[3];
 	   
 	   float tnew1 = t.at<float>(0) - t1;
        float tnew2 = t.at<float>(1) - t2;
        float tnew3 = t.at<float>(2) - t3;
+
+       //float tnew1 = t.at<float>(0);
+       //float tnew2 = t.at<float>(1);
+       //float tnew3 = t.at<float>(2);
 	   
        double tdif = timenew - pt;
+        if (newKeyFrameID == 0)
+        {
+            pt = -500;
+        }
 
-	   vector<double> KeyFramet = {1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};	   
+	   vector<double> KeyFramet = {1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};	   
 	   KeyFramet.insert(KeyFramet.begin()+1,timenew);
 	   KeyFramet.insert(KeyFramet.begin()+2,q[0]);
 	   KeyFramet.insert(KeyFramet.begin()+3,q[1]);
@@ -618,17 +619,21 @@ std::vector<double> System::PublishKeyFrame()
        KeyFramet.insert(KeyFramet.begin()+6,tnew1);
 	   KeyFramet.insert(KeyFramet.begin()+7,tnew2);
 	   KeyFramet.insert(KeyFramet.begin()+8,tnew3);
-	   KeyFramet.insert(KeyFramet.begin()+9,tnew1/tdif);
-	   KeyFramet.insert(KeyFramet.begin()+10,tnew2/tdif);
-	   KeyFramet.insert(KeyFramet.begin()+11,tnew3/tdif);
+       KeyFramet.insert(KeyFramet.begin()+9,q1);
+       KeyFramet.insert(KeyFramet.begin()+10,q2);
+       KeyFramet.insert(KeyFramet.begin()+11,q3);
+       KeyFramet.insert(KeyFramet.begin()+12,q4);
+       KeyFramet.insert(KeyFramet.begin()+13,pt);
 	 
-	   //lastq.insert(lastq.begin(),q[0]);
-	   //lastq.insert(lastq.begin()+1,q[1]);
-	   //lastq.insert(lastq.begin()+2,q[2]);
-	   //lastq.insert(lastq.begin()+3,q[3]);
+
 	   t1 = t.at<float>(0);
        t2 = t.at<float>(1);
        t3 = t.at<float>(2);
+
+       q1 = q[0];
+       q2 = q[1];
+       q3 = q[2];
+       q4 = q[3];
 
 	   
 	   lastKeyFrameID = newKeyFrameID;
@@ -668,5 +673,6 @@ vector<cv::KeyPoint> System::GetTrackedKeyPointsUn()
     unique_lock<mutex> lock(mMutexState);
     return mTrackedKeyPointsUn;
 }
+
 
 } //namespace ORB_SLAM

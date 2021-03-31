@@ -119,6 +119,8 @@ class StereoImage:
         self._left_file_list = [f for f in os.listdir(left_dir) if os.path.isfile(os.path.join(left_dir, f))]
         self._left_file_list.sort()
         self._right_file_list = [f for f in os.listdir(right_dir) if os.path.isfile(os.path.join(right_dir, f))]
+        self._right_file_list.sort()
+        log.log("l:{}, r:{}".format(len(self._left_file_list), len(self._right_file_list)))
         self.time = np.loadtxt(timestamps, delimiter=',') * 1e-9
 
     def get_stereo_images(self, time, nearesttimestamp=True):
@@ -193,12 +195,12 @@ class KAISTData:
         self.groundtruth.p = eulers[:, 0]
         self.groundtruth.h = eulers[:, 2] - np.pi / 2
 
-        self.groundtruth.interp_x = interp1d(self.groundtruth.time, self.groundtruth.x, axis=0, bounds_error=False, fill_value=self.groundtruth.x[0], kind='linear')
-        self.groundtruth.interp_y = interp1d(self.groundtruth.time, self.groundtruth.y, axis=0, bounds_error=False, fill_value=self.groundtruth.y[0], kind='linear')
-        self.groundtruth.interp_z = interp1d(self.groundtruth.time, self.groundtruth.z, axis=0, bounds_error=False, fill_value=self.groundtruth.z[0], kind='linear')
-        self.groundtruth.interp_r = interp1d(self.groundtruth.time, self.groundtruth.r, axis=0, bounds_error=False, fill_value=self.groundtruth.r[0], kind='linear')
-        self.groundtruth.interp_p = interp1d(self.groundtruth.time, self.groundtruth.p, axis=0, bounds_error=False, fill_value=self.groundtruth.p[0], kind='linear')
-        self.groundtruth.interp_h = interp1d(self.groundtruth.time, self.groundtruth.h, axis=0, bounds_error=False, fill_value=self.groundtruth.h[0], kind='linear')
+        self.groundtruth.interp_x = interp1d(self.groundtruth.time, self.groundtruth.x, axis=0, bounds_error=False, fill_value="extrapolate", kind='linear')
+        self.groundtruth.interp_y = interp1d(self.groundtruth.time, self.groundtruth.y, axis=0, bounds_error=False, fill_value="extrapolate", kind='linear')
+        self.groundtruth.interp_z = interp1d(self.groundtruth.time, self.groundtruth.z, axis=0, bounds_error=False, fill_value="extrapolate", kind='linear')
+        self.groundtruth.interp_r = interp1d(self.groundtruth.time, self.groundtruth.r, axis=0, bounds_error=False, fill_value="extrapolate", kind='linear')
+        self.groundtruth.interp_p = interp1d(self.groundtruth.time, self.groundtruth.p, axis=0, bounds_error=False, fill_value="extrapolate", kind='linear')
+        self.groundtruth.interp_h = interp1d(self.groundtruth.time, self.groundtruth.h, axis=0, bounds_error=False, fill_value="extrapolate", kind='linear')
 
     def load_gnss_from_numpy(self, gnss_array, origin):
         if np.ndim(gnss_array) != 2:

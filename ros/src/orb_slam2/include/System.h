@@ -138,6 +138,12 @@ public:
     
     int lastKeyFrameID=0;
     
+    float q1 = 0.0;
+    float q2 = 0.0;
+    float q3 = 0.0;
+    float q4 = 0.0;
+
+
     float t1 = 0.0;
     float t2 = 0.0;
     float t3 = 0.0;
