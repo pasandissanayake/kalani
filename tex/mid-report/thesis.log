@@ -1,0 +1,1238 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.10.16)  29 MAR 2021 15:18
+entering extended mode
+ restricted \write18 enabled.
+ file:line:error style messages enabled.
+ %&-line parsing enabled.
+**/home/pasan/kalani/tex/mid-report/thesis.tex
+(/home/pasan/kalani/tex/mid-report/thesis.tex
+LaTeX2e <2020-02-02> patch level 5
+L3 programming layer <2020-03-06> (/usr/local/texlive/2020/texmf-dist/tex/latex/base/report.cls
+Document Class: report 2019/12/20 v1.4l Standard LaTeX document class
+(/usr/local/texlive/2020/texmf-dist/tex/latex/base/size12.clo
+File: size12.clo 2019/12/20 v1.4l Standard LaTeX file (size option)
+)
+\c@part=\count167
+\c@chapter=\count168
+\c@section=\count169
+\c@subsection=\count170
+\c@subsubsection=\count171
+\c@paragraph=\count172
+\c@subparagraph=\count173
+\c@figure=\count174
+\c@table=\count175
+\abovecaptionskip=\skip47
+\belowcaptionskip=\skip48
+\bibindent=\dimen134
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks15
+) (/usr/local/texlive/2020/texmf-dist/tex/generic/iftex/ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+ (/usr/local/texlive/2020/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2020/03/06 v1.0d TeX engine tests
+))
+\Gm@cnth=\count176
+\Gm@cntv=\count177
+\c@Gm@tempcnt=\count178
+\Gm@bindingoffset=\dimen135
+\Gm@wd@mp=\dimen136
+\Gm@odd@mp=\dimen137
+\Gm@even@mp=\dimen138
+\Gm@layoutwidth=\dimen139
+\Gm@layoutheight=\dimen140
+\Gm@layouthoffset=\dimen141
+\Gm@layoutvoffset=\dimen142
+\Gm@dimlist=\toks16
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2019/11/30 v1.2a Enhanced LaTeX Graphics (DPC,SPQR)
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2019/11/30 v1.4a Standard LaTeX Graphics (DPC,SPQR)
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 105.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen143
+\Gin@req@width=\dimen144
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/setspace/setspace.sty
+Package: setspace 2011/12/19 v6.7a set line spacing
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/titlesec/titlesec.sty
+Package: titlesec 2019/10/16 v2.13 Sectioning titles
+\ttl@box=\box45
+\beforetitleunit=\skip49
+\aftertitleunit=\skip50
+\ttl@plus=\dimen145
+\ttl@minus=\dimen146
+\ttl@toksa=\toks17
+\titlewidth=\dimen147
+\titlewidthlast=\dimen148
+\titlewidthfirst=\dimen149
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/tools/enumerate.sty
+Package: enumerate 2015/07/23 v3.00 enumerate extensions (DPC)
+\@enLab=\toks18
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/enumitem/enumitem.sty
+Package: enumitem 2019/06/20 v3.9 Customized lists
+\labelindent=\skip51
+\enit@outerparindent=\dimen150
+\enit@toks=\toks19
+\enit@inbox=\box46
+\enit@count@id=\count179
+\enitdp@description=\count180
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2020/01/20 v2.17e AMS math features
+\@mathmargin=\skip52
+
+For additional information on amsmath, use the `?' option.
+(/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2000/06/29 v2.01 AMS text
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks20
+\ex@=\dimen151
+)) (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen152
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2016/03/08 v2.02 operator names
+)
+\inf@bad=\count181
+LaTeX Info: Redefining \frac on input line 227.
+\uproot@=\count182
+\leftroot@=\count183
+LaTeX Info: Redefining \overline on input line 389.
+\classnum@=\count184
+\DOTSCASE@=\count185
+LaTeX Info: Redefining \ldots on input line 486.
+LaTeX Info: Redefining \dots on input line 489.
+LaTeX Info: Redefining \cdots on input line 610.
+\Mathstrutbox@=\box47
+\strutbox@=\box48
+\big@size=\dimen153
+LaTeX Font Info:    Redeclaring font encoding OML on input line 733.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 734.
+\macc@depth=\count186
+\c@MaxMatrixCols=\count187
+\dotsspace@=\muskip16
+\c@parentequation=\count188
+\dspbrk@lvl=\count189
+\tag@help=\toks21
+\row@=\count190
+\column@=\count191
+\maxfields@=\count192
+\andhelp@=\toks22
+\eqnshift@=\dimen154
+\alignsep@=\dimen155
+\tagshift@=\dimen156
+\tagwidth@=\dimen157
+\totwidth@=\dimen158
+\lineht@=\dimen159
+\@envbody=\toks23
+\multlinegap=\skip53
+\multlinetaggap=\skip54
+\mathdisplay@stack=\toks24
+LaTeX Info: Redefining \[ on input line 2859.
+LaTeX Info: Redefining \] on input line 2860.
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/amsfonts/amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)) (/usr/local/texlive/2020/texmf-dist/tex/latex/fancyvrb/fancyvrb.sty
+Package: fancyvrb 2020/01/13 v3.5 verbatim text (tvz,hv)
+\FV@CodeLineNo=\count193
+\FV@InFile=\read2
+\FV@TabBox=\box49
+\c@FancyVerbLine=\count194
+\FV@StepNumber=\count195
+\FV@OutFile=\write3
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count196
+\float@exts=\toks25
+\float@box=\box50
+\@float@everytoks=\toks26
+\@floatcapt=\box51
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/hyperref/hyperref.sty
+Package: hyperref 2020/01/14 v7.00d Hypertext links for LaTeX
+ (/usr/local/texlive/2020/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+Package: ltxcmds 2019/12/15 v1.24 LaTeX kernel commands for general use (HO)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/pdftexcmds/pdftexcmds.sty
+Package: pdftexcmds 2019/11/24 v0.31 Utility functions of pdfTeX for LuaTeX (HO)
+ (/usr/local/texlive/2020/texmf-dist/tex/generic/infwarerr/infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+) (/usr/local/texlive/2020/texmf-dist/tex/generic/kvsetkeys/kvsetkeys.sty
+Package: kvsetkeys 2019/12/15 v1.18 Key value parser (HO)
+) (/usr/local/texlive/2020/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+) (/usr/local/texlive/2020/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/hycolor/hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/letltxmacro/letltxmacro.sty
+Package: letltxmacro 2019/12/03 v1.6 Let assignment for LaTeX macros (HO)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/auxhook/auxhook.sty
+Package: auxhook 2019-12-17 v1.6 Hooks for auxiliary files (HO)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+Package: kvoptions 2019/11/29 v3.13 Key value format for package options (HO)
+)
+\@linkdim=\dimen160
+\Hy@linkcounter=\count197
+\Hy@pagecounter=\count198
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/hyperref/pd1enc.def
+File: pd1enc.def 2020/01/14 v7.00d Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+) (/usr/local/texlive/2020/texmf-dist/tex/generic/intcalc/intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+) (/usr/local/texlive/2020/texmf-dist/tex/generic/etexcmds/etexcmds.sty
+Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
+)
+\Hy@SavedSpaceFactor=\count199
+Package hyperref Info: Hyper figures OFF on input line 4547.
+Package hyperref Info: Link nesting OFF on input line 4552.
+Package hyperref Info: Hyper index ON on input line 4555.
+Package hyperref Info: Plain pages OFF on input line 4562.
+Package hyperref Info: Backreferencing OFF on input line 4567.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4800.
+\c@Hy@tempcnt=\count266
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip17
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 5159.
+\XeTeXLinkMargin=\dimen161
+ (/usr/local/texlive/2020/texmf-dist/tex/generic/bitset/bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+ (/usr/local/texlive/2020/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
+))
+\Fld@menulength=\count267
+\Field@Width=\dimen162
+\Fld@charsize=\dimen163
+Package hyperref Info: Hyper figures OFF on input line 6430.
+Package hyperref Info: Link nesting OFF on input line 6435.
+Package hyperref Info: Hyper index ON on input line 6438.
+Package hyperref Info: backreferencing OFF on input line 6445.
+Package hyperref Info: Link coloring OFF on input line 6450.
+Package hyperref Info: Link coloring with OCG OFF on input line 6455.
+Package hyperref Info: PDF/A mode OFF on input line 6460.
+LaTeX Info: Redefining \ref on input line 6500.
+LaTeX Info: Redefining \pageref on input line 6504.
+ (/usr/local/texlive/2020/texmf-dist/tex/generic/atbegshi/atbegshi.sty
+Package: atbegshi 2019/12/05 v1.19 At begin shipout hook (HO)
+)
+\Hy@abspage=\count268
+\c@Item=\count269
+\c@Hfootnote=\count270
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/hyperref/hpdftex.def
+File: hpdftex.def 2020/01/14 v7.00d Hyperref driver for pdfTeX
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/atveryend/atveryend.sty
+Package: atveryend 2019-12-11 v1.11 Hooks at the very end of document (HO)
+Package atveryend Info: \enddocument detected (standard20110627).
+)
+\Fld@listcount=\count271
+\c@bookmark@seq@number=\count272
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+Package: rerunfilecheck 2019/12/05 v1.9 Rerun checks for auxiliary files (HO)
+ (/usr/local/texlive/2020/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 286.
+)
+\Hy@SectionHShift=\skip55
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/tabulary/tabulary.sty
+Package: tabulary 2014/06/11 v0.10 tabulary package (DPC)
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/tools/array.sty
+Package: array 2019/08/31 v2.4l Tabular extension package (FMi)
+\col@sep=\dimen164
+\ar@mcellbox=\box52
+\extrarowheight=\dimen165
+\NC@list=\toks27
+\extratabsurround=\skip56
+\backup@length=\skip57
+\ar@cellbox=\box53
+)
+\TY@count=\count273
+\TY@linewidth=\dimen166
+\tymin=\dimen167
+\tymax=\dimen168
+\TY@tablewidth=\dimen169
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/tools/multicol.sty
+Package: multicol 2019/12/09 v1.8y multicolumn formatting (FMi)
+\c@tracingmulticols=\count274
+\mult@box=\box54
+\multicol@leftmargin=\dimen170
+\c@unbalance=\count275
+\c@collectmore=\count276
+\doublecol@number=\count277
+\multicoltolerance=\count278
+\multicolpretolerance=\count279
+\full@width=\dimen171
+\page@free=\dimen172
+\premulticols=\dimen173
+\postmulticols=\dimen174
+\multicolsep=\skip58
+\multicolbaselineskip=\skip59
+\partial@page=\box55
+\last@line=\box56
+\maxbalancingoverflow=\dimen175
+\mult@rightbox=\box57
+\mult@grightbox=\box58
+\mult@gfirstbox=\box59
+\mult@firstbox=\box60
+\@tempa=\box61
+\@tempa=\box62
+\@tempa=\box63
+\@tempa=\box64
+\@tempa=\box65
+\@tempa=\box66
+\@tempa=\box67
+\@tempa=\box68
+\@tempa=\box69
+\@tempa=\box70
+\@tempa=\box71
+\@tempa=\box72
+\@tempa=\box73
+\@tempa=\box74
+\@tempa=\box75
+\@tempa=\box76
+\@tempa=\box77
+\@tempa=\box78
+\@tempa=\box79
+\@tempa=\box80
+\@tempa=\box81
+\@tempa=\box82
+\@tempa=\box83
+\@tempa=\box84
+\@tempa=\box85
+\@tempa=\box86
+\@tempa=\box87
+\@tempa=\box88
+\@tempa=\box89
+\@tempa=\box90
+\@tempa=\box91
+\@tempa=\box92
+\@tempa=\box93
+\@tempa=\box94
+\@tempa=\box95
+\@tempa=\box96
+\@tempa=\box97
+\c@minrows=\count280
+\c@columnbadness=\count281
+\c@finalcolumnbadness=\count282
+\last@try=\dimen176
+\multicolovershoot=\dimen177
+\multicolundershoot=\dimen178
+\mult@nat@firstbox=\box98
+\colbreak@box=\box99
+\mc@col@check@num=\count283
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/psnfss/times.sty
+Package: times 2005/04/12 PSNFSS-v9.2a (SPQR) 
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/graphics/epsfig.sty
+Package: epsfig 2017/06/25 v1.7b (e)psfig emulation (SPQR)
+\epsfxsize=\dimen179
+\epsfysize=\dimen180
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/caption/subcaption.sty
+Package: subcaption 2020/01/22 v1.3d Sub-captions (AR)
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2020/01/03 v3.4h Customizing captions (AR)
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2020/01/03 v1.8h caption3 kernel (AR)
+Package caption3 Info: TeX engine: e-TeX on input line 61.
+\captionmargin=\dimen181
+\captionmargin@=\dimen182
+\captionwidth=\dimen183
+\caption@tempdima=\dimen184
+\caption@indent=\dimen185
+\caption@parindent=\dimen186
+\caption@hangindent=\dimen187
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count284
+\c@continuedfloat=\count285
+Package caption Info: float package is loaded.
+Package caption Info: hyperref package is loaded.
+)
+\c@subfigure=\count286
+\c@subtable=\count287
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/placeins/placeins.sty
+Package: placeins 2005/04/18  v 2.2
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/glossaries/base/glossaries.sty
+Package: glossaries 2020/03/19 v4.46 (NLCT)
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/base/ifthen.sty
+Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+Package: xkeyval 2014/12/03 v2.7a package option processing (HA)
+ (/usr/local/texlive/2020/texmf-dist/tex/generic/xkeyval/xkeyval.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/xkeyval/xkvutils.tex
+\XKV@toks=\toks28
+\XKV@tempa@toks=\toks29
+)
+\XKV@depth=\count288
+File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
+)) (/usr/local/texlive/2020/texmf-dist/tex/latex/mfirstuc/mfirstuc.sty
+Package: mfirstuc 2017/11/14 v2.06 (NLCT)
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2019/09/21 v2.5h e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count289
+)
+\@glsmfirst=\toks30
+\@glsmrest=\toks31
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/textcase/textcase.sty
+Package: textcase 2019/09/14 v1.00 Text only upper/lower case changing (DPC)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/xfor/xfor.sty
+Package: xfor 2009/02/05 v1.05 (NLCT)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/datatool/datatool-base.sty
+Package: datatool-base 2019/09/27 v2.32 (NLCT)
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/substr/substr.sty
+Package: substr 2009/10/20 v1.2 Handle substrings
+\c@su@anzahl=\count290
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/datatool/datatool-fp.sty
+Package: datatool-fp 2019/09/27 v2.32 (NLCT)
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/fp/fp.sty
+Package: fp 1995/04/02
+ `Fixed Point Package', Version 0.8, April 2, 1995 (C) Michael Mehlich (/usr/local/texlive/2020/texmf-dist/tex/latex/fp/defpattern.sty
+Package: defpattern 1994/10/12
+\actioncount=\count291
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/fp/fp-basic.sty
+Package: fp-basic 1996/05/13
+\FP@xs=\count292
+\FP@xia=\count293
+\FP@xib=\count294
+\FP@xfa=\count295
+\FP@xfb=\count296
+\FP@rega=\count297
+\FP@regb=\count298
+\FP@regs=\count299
+\FP@times=\count300
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/fp/fp-addons.sty
+Package: fp-addons 1995/03/15
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/fp/fp-snap.sty
+Package: fp-snap 1995/04/05
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/fp/fp-exp.sty
+Package: fp-exp 1995/04/03
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/fp/fp-trigo.sty
+Package: fp-trigo 1995/04/14
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/fp/fp-pas.sty
+Package: fp-pas 1994/08/29
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/fp/fp-random.sty
+Package: fp-random 1995/02/23
+\FPseed=\count301
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/fp/fp-eqn.sty
+Package: fp-eqn 1995/04/03
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/fp/fp-upn.sty
+Package: fp-upn 1996/10/21
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/fp/fp-eval.sty
+Package: fp-eval 1995/04/03
+)))
+\@dtl@toks=\toks32
+\@dtl@tmpcount=\count302
+\dtl@tmplength=\skip60
+\dtl@sortresult=\count303
+\@dtl@numgrpsepcount=\count304
+\@dtl@datatype=\count305
+\dtl@codeA=\count306
+\dtl@codeB=\count307
+\@dtl@foreach@level=\count308
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/glossaries/base/glossaries-compatible-307.sty
+Package: glossaries-compatible-307 2020/03/19 v4.46 (NLCT)
+)
+\gls@level=\count309
+\@gls@tmpb=\toks33
+\gls@tmplen=\skip61
+\glskeylisttok=\toks34
+\glslabeltok=\toks35
+\glsshorttok=\toks36
+\glslongtok=\toks37
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/glossaries/styles/glossary-hypernav.sty
+Package: glossary-hypernav 2020/03/19 v4.46 (NLCT)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/glossaries/styles/glossary-list.sty
+Package: glossary-list 2020/03/19 v4.46 (NLCT)
+\glslistdottedwidth=\skip62
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/glossaries/styles/glossary-long.sty
+Package: glossary-long 2020/03/19 v4.46 (NLCT)
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/tools/longtable.sty
+Package: longtable 2020/01/07 v4.13 Multi-page Table package (DPC)
+\LTleft=\skip63
+\LTright=\skip64
+\LTpre=\skip65
+\LTpost=\skip66
+\LTchunksize=\count310
+\LTcapwidth=\dimen188
+\LT@head=\box100
+\LT@firsthead=\box101
+\LT@foot=\box102
+\LT@lastfoot=\box103
+\LT@cols=\count311
+\LT@rows=\count312
+\c@LT@tables=\count313
+\c@LT@chunks=\count314
+\LT@p@ftn=\toks38
+)
+\glsdescwidth=\skip67
+\glspagelistwidth=\skip68
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/glossaries/styles/glossary-super.sty
+Package: glossary-super 2020/03/19 v4.46 (NLCT)
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/supertabular/supertabular.sty
+Package: supertabular 2020/02/02 v4.1g the supertabular environment
+\c@tracingst=\count315
+\ST@wd=\dimen189
+\ST@rightskip=\skip69
+\ST@leftskip=\skip70
+\ST@parfillskip=\skip71
+\ST@pageleft=\dimen190
+\ST@headht=\dimen191
+\ST@tailht=\dimen192
+\ST@pagesofar=\dimen193
+\ST@pboxht=\dimen194
+\ST@lineht=\dimen195
+\ST@prevht=\dimen196
+\ST@toadd=\dimen197
+\ST@dimen=\dimen198
+\ST@pbox=\box104
+)) (/usr/local/texlive/2020/texmf-dist/tex/latex/glossaries/styles/glossary-tree.sty
+Package: glossary-tree 2020/03/19 v4.46 (NLCT)
+\glstreeindent=\skip72
+))
+\@float@every@table=\toks39
+ (/home/pasan/kalani/tex/mid-report/defs.tex (/usr/local/texlive/2020/texmf-dist/tex/latex/tools/tabularx.sty
+Package: tabularx 2020/01/15 v2.11c `tabularx' package (DPC)
+\TX@col@width=\dimen199
+\TX@old@table=\dimen256
+\TX@old@col=\dimen257
+\TX@target=\dimen258
+\TX@delta=\dimen259
+\TX@cols=\count316
+\TX@ftn=\toks40
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/multirow/multirow.sty
+Package: multirow 2019/05/31 v2.5 Span multiple rows of a table
+\multirow@colwidth=\skip73
+\multirow@cntb=\count317
+\multirow@dima=\skip74
+\bigstrutjot=\dimen260
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/algorithms/algorithm.sty
+Package: algorithm 2009/08/24 v0.1 Document Style `algorithm' - floating environment
+\@float@every@algorithm=\toks41
+\c@algorithm=\count318
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/algorithmicx/algpseudocode.sty
+Package: algpseudocode 
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/algorithmicx/algorithmicx.sty
+Package: algorithmicx 2005/04/27 v1.2 Algorithmicx
+
+Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
+\c@ALG@line=\count319
+\c@ALG@rem=\count320
+\c@ALG@nested=\count321
+\ALG@tlm=\skip75
+\ALG@thistlm=\skip76
+\c@ALG@Lnr=\count322
+\c@ALG@blocknr=\count323
+\c@ALG@storecount=\count324
+\c@ALG@tmpcounter=\count325
+\ALG@tmplength=\skip77
+)
+Document Style - pseudocode environments for use with the `algorithmicx' style
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/amscls/amsthm.sty
+Package: amsthm 2017/10/31 v2.20.4
+\thm@style=\toks42
+\thm@bodyfont=\toks43
+\thm@headfont=\toks44
+\thm@notefont=\toks45
+\thm@headpunct=\toks46
+\thm@preskip=\skip78
+\thm@postskip=\skip79
+\thm@headsep=\skip80
+\dth@everypar=\toks47
+)
+\c@thm=\count326
+)
+\glswrite=\write4
+\glo@acronym@file=\write5
+\openout5 = `thesis.acn'.
+
+Package glossaries Info: Writing glossary file thesis.acn on input line 72.
+ (/home/pasan/kalani/tex/mid-report/chapters/Acronyms.tex) (/usr/local/texlive/2020/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def
+File: l3backend-pdfmode.def 2020-03-12 L3 backend support: PDF mode
+\l__kernel_color_stack_int=\count327
+\l__pdf_internal_box=\box105
+) (/home/pasan/kalani/tex/mid-report/thesis.aux (/home/pasan/kalani/tex/mid-report/chapters/Title.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.aux) (/home/pasan/kalani/tex/mid-report/chapters/Abstract.aux) (/home/pasan/kalani/tex/mid-report/chapters/Dedication.aux) (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.aux) (/home/pasan/kalani/tex/mid-report/chapters/Introduction.aux) (/home/pasan/kalani/tex/mid-report/chapters/Methodology.aux) (/home/pasan/kalani/tex/mid-report/chapters/Results.aux) (/home/pasan/kalani/tex/mid-report/chapters/Conclusion.aux) (/home/pasan/kalani/tex/mid-report/chapters/References.aux))
+\openout1 = `thesis.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 75.
+LaTeX Font Info:    ... okay on input line 75.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 75.
+LaTeX Font Info:    ... okay on input line 75.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 75.
+LaTeX Font Info:    ... okay on input line 75.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 75.
+LaTeX Font Info:    ... okay on input line 75.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 75.
+LaTeX Font Info:    ... okay on input line 75.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 75.
+LaTeX Font Info:    ... okay on input line 75.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 75.
+LaTeX Font Info:    ... okay on input line 75.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 75.
+LaTeX Font Info:    ... okay on input line 75.
+LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 75.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/psnfss/ot1ptm.fd
+File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
+)
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(108.405pt, 416.83289pt, 72.26999pt)
+* v-part:(T,H,B)=(72.26999pt, 700.50687pt, 72.26999pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=416.83289pt
+* \textheight=700.50687pt
+* \oddsidemargin=36.13501pt
+* \evensidemargin=36.13501pt
+* \topmargin=-37.0pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=12.0pt
+* \footskip=30.0pt
+* \marginparwidth=35.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=14.22636pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+(/usr/local/texlive/2020/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count328
+\scratchdimen=\dimen261
+\scratchbox=\box106
+\nofMPsegments=\count329
+\nofMParguments=\count330
+\everyMPshowfont=\toks48
+\MPscratchCnt=\count331
+\MPscratchDim=\dimen262
+\MPnumerator=\count332
+\makeMPintoPDFobject=\count333
+\everyMPtoPDFconversion=\toks49
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
+))
+\AtBeginShipoutBox=\box107
+Package hyperref Info: Link coloring OFF on input line 75.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/hyperref/nameref.sty
+Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/refcount/refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+) (/usr/local/texlive/2020/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+)
+\c@section@level=\count334
+)
+LaTeX Info: Redefining \ref on input line 75.
+LaTeX Info: Redefining \pageref on input line 75.
+LaTeX Info: Redefining \nameref on input line 75.
+ (/home/pasan/kalani/tex/mid-report/thesis.out) (/home/pasan/kalani/tex/mid-report/thesis.out)
+\@outlinefile=\write6
+\openout6 = `thesis.out'.
+
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: longtable package is loaded.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/caption/ltcaption.sty
+Package: ltcaption 2018/08/26 v1.4a longtable captions (AR)
+)
+Package caption Info: supertabular package is loaded.
+Package caption Info: End \AtBeginDocument code.
+ (/home/pasan/kalani/tex/mid-report/thesis.glsdefs)
+\openout2 = `chapters/Title.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Title.tex [1
+
+\openout4 = `thesis.ist'.
+
+
+{/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map}])
+\openout2 = `chapters/Declaration.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Declaration.tex
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 12.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/psnfss/ts1ptm.fd
+File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
+)) [1
+
+
+
+]
+\openout2 = `chapters/Declaration_Supervisor.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.tex) [2
+
+
+
+]
+\openout2 = `chapters/Abstract.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Abstract.tex
+Underfull \hbox (badness 10000) in paragraph at lines 14--15
+
+ []
+
+) [3
+
+
+
+]
+\openout2 = `chapters/Dedication.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Dedication.tex) [4
+
+
+
+]
+\openout2 = `chapters/Acknowledgements.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.tex) [5
+
+
+
+] (/home/pasan/kalani/tex/mid-report/thesis.toc
+LaTeX Font Info:    Trying to load font information for U+msa on input line 11.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 11.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) [6
+
+
+])
+\tf@toc=\write7
+\openout7 = `thesis.toc'.
+
+ [7] (/home/pasan/kalani/tex/mid-report/thesis.lof)
+\tf@lof=\write8
+\openout8 = `thesis.lof'.
+
+ [8
+
+] (/home/pasan/kalani/tex/mid-report/thesis.lot)
+\tf@lot=\write9
+\openout9 = `thesis.lot'.
+
+ [9
+
+] (/home/pasan/kalani/tex/mid-report/thesis.acr
+Underfull \hbox (badness 10000) in paragraph at lines 63--64
+[]\OT1/ptm/m/n/12 Lightweight and Ground-Optimized Li-dar
+ []
+
+[10
+
+
+]) [11]
+\openout2 = `chapters/Introduction.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Introduction.tex
+Chapter 1.
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.16 W
+      hile self-driving is itself a novel concept in the Sri Lankan context,... [1
+
+
+] [2] [3]) [4]
+\openout2 = `chapters/Methodology.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Methodology.tex
+Chapter 2.
+<figs/system-block-diagram.png, id=530, 800.9925pt x 385.44pt>
+File: figs/system-block-diagram.png Graphic file (type png)
+<use figs/system-block-diagram.png>
+Package pdftex.def Info: figs/system-block-diagram.png  used on input line 13.
+(pdftex.def)             Requested size: 416.83289pt x 200.58287pt.
+
+Overfull \hbox (1.831pt too wide) in paragraph at lines 10--20
+\OT1/ptm/m/n/12 Optimized Li-dar Odom-e-try and Map-ping on Vari-able Ter-rain (Lego-LOAM)[] al-go-rithms,
+ []
+
+[5
+
+
+
+ </home/pasan/kalani/tex/mid-report/figs/system-block-diagram.png>]
+<figs/coordinate-frames.jpg, id=542, 284.56313pt x 251.43938pt>
+File: figs/coordinate-frames.jpg Graphic file (type jpg)
+<use figs/coordinate-frames.jpg>
+Package pdftex.def Info: figs/coordinate-frames.jpg  used on input line 39.
+(pdftex.def)             Requested size: 250.10226pt x 220.99875pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 31--46
+
+ []
+
+
+Overfull \hbox (3.15707pt too wide) in paragraph at lines 31--46
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 31--46
+
+ []
+
+
+Overfull \hbox (2.30562pt too wide) in paragraph at lines 60--60
+[]|\OT1/ptm/b/n/12 Distance| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 62--62
+[]|\OT1/ptm/m/n/12 scene flow,
+ []
+
+
+Underfull \hbox (badness 2189) in paragraph at lines 62--62
+\OT1/ptm/m/n/12 odom-e-try ob-ject
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 62--62
+\OT1/ptm/m/n/12 de-tec-tion and
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 62--62
+\OT1/ptm/m/n/12 track-ing, road
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 62--63
+\OT1/ptm/m/n/12 txt(GPA-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 64--64
+\OT1/cmr/m/n/12 1\OMS/cmsy/m/n/12 ^^B$ \OT1/ptm/m/n/12 consumer-level
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 64--64
+[]|$\OT1/cmr/m/n/12 190\OML/cmm/m/it/12 :\OT1/cmr/m/n/12 989$
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 64--65
+\OT1/ptm/m/n/12 csv(GPS-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 66--66
+\OT1/cmr/m/n/12 1\OMS/cmsy/m/n/12 ^^B$ \OT1/ptm/m/n/12 consumer-level
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 66--66
+[]|$\OT1/cmr/m/n/12 147\OML/cmm/m/it/12 :\OT1/cmr/m/n/12 4$
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 66--67
+\OT1/ptm/m/n/12 csv(GPS-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--68
+[]|\OT1/ptm/m/n/12 EU-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--68
+\OT1/ptm/m/n/12 Long
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--68
+[]|\OT1/ptm/m/n/12 GPS-RTK/IMU
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--68
+\OT1/ptm/m/n/12 for ve-hi-cle
+ []
+
+[6 </home/pasan/kalani/tex/mid-report/figs/coordinate-frames.jpg>]
+Underfull \hbox (badness 10000) in paragraph at lines 94--94
+[]|\OT1/ptm/b/n/12 Linear Kalman
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 94--94
+[]|\OT1/ptm/b/n/12 Error State Ex-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 94--94
+\OT1/ptm/b/n/12 tended Kalman
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 94--95
+[]|\OT1/ptm/b/n/12 Unscented
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 96--96
+[]|\OT1/ptm/m/n/12 Linear Gaus-sian
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 96--96
+[]|\OT1/ptm/m/n/12 Non-linear Gaus-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 96--96
+[]|\OT1/ptm/m/n/12 Non-linear Gaus-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 96--97
+[]|\OT1/ptm/m/n/12 Non-linear Gaus-
+ []
+
+
+Underfull \hbox (badness 1442) in paragraph at lines 98--98
+[]|\OT1/ptm/m/n/12 Linearize the non-
+ []
+
+
+Underfull \hbox (badness 1442) in paragraph at lines 98--99
+[]|\OT1/ptm/m/n/12 Linearize the non-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 98--99
+\OT1/ptm/m/n/12 lin-ear dy-nam-ics
+ []
+
+
+Underfull \hbox (badness 1902) in paragraph at lines 98--99
+\OT1/ptm/m/n/12 of er-ror us-ing Ja-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 98--99
+\OT1/ptm/m/n/12 co-bians (Tay-lor
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 99--100
+[]|\OT1/ptm/m/n/12 Calculate sigma
+ []
+
+
+Underfull \hbox (badness 7273) in paragraph at lines 99--100
+\OT1/ptm/m/n/12 scented Trans-form
+ []
+
+
+Overfull \hbox (20.12381pt too wide) in paragraph at lines 92--104
+ [][] 
+ []
+
+[7] [8] [9] [10] [11] [12] [13]
+<figs/ORB_SYSTEM.png, id=711, 699.36281pt x 305.64188pt>
+File: figs/ORB_SYSTEM.png Graphic file (type png)
+<use figs/ORB_SYSTEM.png>
+Package pdftex.def Info: figs/ORB_SYSTEM.png  used on input line 284.
+(pdftex.def)             Requested size: 416.83289pt x 182.1693pt.
+ [14 </home/pasan/kalani/tex/mid-report/figs/ORB_SYSTEM.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 329--329
+[]|\OT1/ptm/m/n/12 Conventional [][]It-er-a-tive
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 329--330
+\OT1/ptm/m/n/12 on the cor-re-spon-dence
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 332--332
+[]|[][]\OT1/ptm/m/n/12 Normal Dis-tri-bu-tion
+ []
+
+
+Underfull \hbox (badness 2435) in paragraph at lines 332--332
+[]|\OT1/ptm/m/n/12 No cor-re-spon-dence fea-
+ []
+
+
+Overfull \hbox (8.31412pt too wide) in paragraph at lines 325--339
+ [][] 
+ []
+
+[15]
+<figs/loam_architect.png, id=767, 3062.44125pt x 1777.64125pt>
+File: figs/loam_architect.png Graphic file (type png)
+<use figs/loam_architect.png>
+Package pdftex.def Info: figs/loam_architect.png  used on input line 357.
+(pdftex.def)             Requested size: 416.83289pt x 241.95131pt.
+ [16] [17 </home/pasan/kalani/tex/mid-report/figs/loam_architect.png>]
+<figs/rosgraph.png, id=799, 2328.44907pt x 1301.61281pt>
+File: figs/rosgraph.png Graphic file (type png)
+<use figs/rosgraph.png>
+Package pdftex.def Info: figs/rosgraph.png  used on input line 397.
+(pdftex.def)             Requested size: 625.24933pt x 349.51364pt.
+) [18] [19 </home/pasan/kalani/tex/mid-report/figs/rosgraph.png>]
+\openout2 = `chapters/Results.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Results.tex
+Chapter 3.
+
+Overfull \hbox (1.22649pt too wide) in paragraph at lines 15--31
+ [][] 
+ []
+
+<figs/x_direction.png, id=839, 631.35875pt x 630.355pt>
+File: figs/x_direction.png Graphic file (type png)
+<use figs/x_direction.png>
+Package pdftex.def Info: figs/x_direction.png  used on input line 39.
+(pdftex.def)             Requested size: 291.78174pt x 291.32301pt.
+<figs/y_direction.png, id=840, 631.35875pt x 630.355pt>
+File: figs/y_direction.png Graphic file (type png)
+<use figs/y_direction.png>
+Package pdftex.def Info: figs/y_direction.png  used on input line 47.
+(pdftex.def)             Requested size: 291.78174pt x 291.32301pt.
+<figs/z_direction.png, id=841, 631.35875pt x 630.355pt>
+File: figs/z_direction.png Graphic file (type png)
+<use figs/z_direction.png>
+Package pdftex.def Info: figs/z_direction.png  used on input line 55.
+(pdftex.def)             Requested size: 291.78174pt x 291.32301pt.
+<figs/overall.png, id=842, 641.39626pt x 630.355pt>
+File: figs/overall.png Graphic file (type png)
+<use figs/overall.png>
+Package pdftex.def Info: figs/overall.png  used on input line 64.
+(pdftex.def)             Requested size: 208.41644pt x 204.82446pt.
+<figs/overall_diverge.png, id=843, 634.37pt x 630.355pt>
+File: figs/overall_diverge.png Graphic file (type png)
+<use figs/overall_diverge.png>
+Package pdftex.def Info: figs/overall_diverge.png  used on input line 68.
+(pdftex.def)             Requested size: 208.41644pt x 207.09442pt.
+
+Overfull \hbox (3.05289pt too wide) in paragraph at lines 83--98
+ [][] 
+ []
+
+[20
+
+
+
+] [21 </home/pasan/kalani/tex/mid-report/figs/x_direction.png> </home/pasan/kalani/tex/mid-report/figs/y_direction.png>] [22 </home/pasan/kalani/tex/mid-report/figs/z_direction.png> </home/pasan/kalani/tex/mid-report/figs/overall.png> </home/pasan/kalani/tex/mid-report/figs/overall_diverge.png>]
+<figs/roll.png, id=869, 625.33624pt x 630.355pt>
+File: figs/roll.png Graphic file (type png)
+<use figs/roll.png>
+Package pdftex.def Info: figs/roll.png  used on input line 104.
+(pdftex.def)             Requested size: 291.78174pt x 294.13159pt.
+<figs/pitch.png, id=870, 625.33624pt x 630.355pt>
+File: figs/pitch.png Graphic file (type png)
+<use figs/pitch.png>
+Package pdftex.def Info: figs/pitch.png  used on input line 113.
+(pdftex.def)             Requested size: 291.78174pt x 294.13159pt.
+<figs/yaw.png, id=871, 631.35875pt x 630.355pt>
+File: figs/yaw.png Graphic file (type png)
+<use figs/yaw.png>
+Package pdftex.def Info: figs/yaw.png  used on input line 122.
+(pdftex.def)             Requested size: 291.78174pt x 291.32301pt.
+ [23 </home/pasan/kalani/tex/mid-report/figs/roll.png>] [24 </home/pasan/kalani/tex/mid-report/figs/pitch.png> </home/pasan/kalani/tex/mid-report/figs/yaw.png>]
+<figs/coloured_gnss.png, id=897, 857.2025pt x 464.73625pt>
+File: figs/coloured_gnss.png Graphic file (type png)
+<use figs/coloured_gnss.png>
+Package pdftex.def Info: figs/coloured_gnss.png  used on input line 141.
+(pdftex.def)             Requested size: 416.83289pt x 225.98538pt.
+<figs/easting_error.png, id=898, 1837.86626pt x 786.94pt>
+File: figs/easting_error.png Graphic file (type png)
+<use figs/easting_error.png>
+Package pdftex.def Info: figs/easting_error.png  used on input line 150.
+(pdftex.def)             Requested size: 416.83289pt x 178.47076pt.
+<figs/northing_error.png, id=899, 1837.86626pt x 785.93625pt>
+File: figs/northing_error.png Graphic file (type png)
+<use figs/northing_error.png>
+Package pdftex.def Info: figs/northing_error.png  used on input line 154.
+(pdftex.def)             Requested size: 416.83289pt x 178.24312pt.
+<figs/euclidean-error-wo-rm.png, id=904, 959.585pt x 475.7775pt>
+File: figs/euclidean-error-wo-rm.png Graphic file (type png)
+<use figs/euclidean-error-wo-rm.png>
+Package pdftex.def Info: figs/euclidean-error-wo-rm.png  used on input line 167.
+(pdftex.def)             Requested size: 416.83289pt x 206.67114pt.
+<figs/euclidean-error-with-rm.png, id=905, 962.59625pt x 475.7775pt>
+File: figs/euclidean-error-with-rm.png Graphic file (type png)
+<use figs/euclidean-error-with-rm.png>
+Package pdftex.def Info: figs/euclidean-error-with-rm.png  used on input line 171.
+(pdftex.def)             Requested size: 416.83289pt x 206.02502pt.
+ [25 </home/pasan/kalani/tex/mid-report/figs/coloured_gnss.png>] [26 </home/pasan/kalani/tex/mid-report/figs/easting_error.png> </home/pasan/kalani/tex/mid-report/figs/northing_error.png>]
+<figs/yaw-without-zupt.png, id=922, 974.64125pt x 382.42876pt>
+File: figs/yaw-without-zupt.png Graphic file (type png)
+<use figs/yaw-without-zupt.png>
+Package pdftex.def Info: figs/yaw-without-zupt.png  used on input line 183.
+(pdftex.def)             Requested size: 416.83289pt x 163.55417pt.
+<figs/yaw-with-zupt.png, id=923, 965.6075pt x 383.4325pt>
+File: figs/yaw-with-zupt.png Graphic file (type png)
+<use figs/yaw-with-zupt.png>
+Package pdftex.def Info: figs/yaw-with-zupt.png  used on input line 187.
+(pdftex.def)             Requested size: 416.83289pt x 165.51633pt.
+ [27 </home/pasan/kalani/tex/mid-report/figs/euclidean-error-wo-rm.png> </home/pasan/kalani/tex/mid-report/figs/euclidean-error-with-rm.png>] [28 </home/pasan/kalani/tex/mid-report/figs/yaw-without-zupt.png> </home/pasan/kalani/tex/mid-report/figs/yaw-with-zupt.png>]
+<figs/detected_features.png, id=942, 925.95938pt x 301.8778pt>
+File: figs/detected_features.png Graphic file (type png)
+<use figs/detected_features.png>
+Package pdftex.def Info: figs/detected_features.png  used on input line 213.
+(pdftex.def)             Requested size: 416.83289pt x 135.89442pt.
+<figs/path_pred.png, id=943, 639.13782pt x 556.32843pt>
+File: figs/path_pred.png Graphic file (type png)
+<use figs/path_pred.png>
+Package pdftex.def Info: figs/path_pred.png  used on input line 221.
+(pdftex.def)             Requested size: 416.83289pt x 362.83159pt.
+<figs/xyz_error.png, id=946, 1172.2194pt x 604.1772pt>
+File: figs/xyz_error.png Graphic file (type png)
+<use figs/xyz_error.png>
+Package pdftex.def Info: figs/xyz_error.png  used on input line 231.
+(pdftex.def)             Requested size: 416.83289pt x 214.83932pt.
+<figs/rpy_error.png, id=951, 1183.0599pt x 604.1772pt>
+File: figs/rpy_error.png Graphic file (type png)
+<use figs/rpy_error.png>
+Package pdftex.def Info: figs/rpy_error.png  used on input line 239.
+(pdftex.def)             Requested size: 416.83289pt x 212.87569pt.
+<figs/xyz_error_allred.png, id=962, 1192.455pt x 591.20876pt>
+File: figs/xyz_error_allred.png Graphic file (type png)
+<use figs/xyz_error_allred.png>
+Package pdftex.def Info: figs/xyz_error_allred.png  used on input line 249.
+(pdftex.def)             Requested size: 416.83289pt x 206.66455pt.
+<figs/rpy_error_allred.png, id=963, 1179.40625pt x 591.20876pt>
+File: figs/rpy_error_allred.png Graphic file (type png)
+<use figs/rpy_error_allred.png>
+Package pdftex.def Info: figs/rpy_error_allred.png  used on input line 257.
+(pdftex.def)             Requested size: 416.83289pt x 208.94688pt.
+<figs/orb_error_pdf_pos.png, id=964, 1168.16425pt x 372.29088pt>
+File: figs/orb_error_pdf_pos.png Graphic file (type png)
+<use figs/orb_error_pdf_pos.png>
+Package pdftex.def Info: figs/orb_error_pdf_pos.png  used on input line 266.
+(pdftex.def)             Requested size: 416.83289pt x 132.84302pt.
+<figs/orb_error_pdf_rot.png, id=965, 1177.69987pt x 372.29088pt>
+File: figs/orb_error_pdf_rot.png Graphic file (type png)
+<use figs/orb_error_pdf_rot.png>
+Package pdftex.def Info: figs/orb_error_pdf_rot.png  used on input line 270.
+(pdftex.def)             Requested size: 416.83289pt x 131.76369pt.
+<figs/matched_points.png, id=975, 625.58719pt x 313.9228pt>
+File: figs/matched_points.png Graphic file (type png)
+<use figs/matched_points.png>
+Package pdftex.def Info: figs/matched_points.png  used on input line 282.
+(pdftex.def)             Requested size: 416.83289pt x 209.17278pt.
+<figs/rms_error.png, id=980, 846.91406pt x 456.20438pt>
+File: figs/rms_error.png Graphic file (type png)
+<use figs/rms_error.png>
+Package pdftex.def Info: figs/rms_error.png  used on input line 292.
+(pdftex.def)             Requested size: 416.83289pt x 224.53056pt.
+ [29 </home/pasan/kalani/tex/mid-report/figs/detected_features.png>] [30 </home/pasan/kalani/tex/mid-report/figs/path_pred.png> </home/pasan/kalani/tex/mid-report/figs/xyz_error.png>] [31 </home/pasan/kalani/tex/mid-report/figs/rpy_error.png> </home/pasan/kalani/tex/mid-report/figs/xyz_error_allred.png>] [32 </home/pasan/kalani/tex/mid-report/figs/rpy_error_allred.png> </home/pasan/kalani/tex/mid-report/figs/orb_error_pdf_pos.png> </home/pasan/kalani/tex/mid-report/figs/orb_error_pdf_rot.png>] [33 </home/pasan/kalani/tex/mid-report/figs/matched_points.png> </home/pasan/kalani/tex/mid-report/figs/rms_error.png>]
+<figs/rviz_lidar.png, id=1019, 1394.96156pt x 765.6103pt>
+File: figs/rviz_lidar.png Graphic file (type png)
+<use figs/rviz_lidar.png>
+Package pdftex.def Info: figs/rviz_lidar.png  used on input line 314.
+(pdftex.def)             Requested size: 416.83289pt x 228.77364pt.
+<figs/lidar_xyz_error.png, id=1031, 1176.5556pt x 604.1772pt>
+File: figs/lidar_xyz_error.png Graphic file (type png)
+<use figs/lidar_xyz_error.png>
+Package pdftex.def Info: figs/lidar_xyz_error.png  used on input line 325.
+(pdftex.def)             Requested size: 416.83289pt x 214.0465pt.
+<figs/lidar_rpy_error.png, id=1032, 1183.0599pt x 604.8999pt>
+File: figs/lidar_rpy_error.png Graphic file (type png)
+<use figs/lidar_rpy_error.png>
+Package pdftex.def Info: figs/lidar_rpy_error.png  used on input line 334.
+(pdftex.def)             Requested size: 416.83289pt x 213.13033pt.
+<figs/loam_xyz_pdf.png, id=1035, 1177.69987pt x 372.29088pt>
+File: figs/loam_xyz_pdf.png Graphic file (type png)
+<use figs/loam_xyz_pdf.png>
+Package pdftex.def Info: figs/loam_xyz_pdf.png  used on input line 346.
+(pdftex.def)             Requested size: 416.83289pt x 131.76369pt.
+<figs/loam_rpy_pdf.png, id=1036, 1168.16425pt x 372.29088pt>
+File: figs/loam_rpy_pdf.png Graphic file (type png)
+<use figs/loam_rpy_pdf.png>
+Package pdftex.def Info: figs/loam_rpy_pdf.png  used on input line 350.
+(pdftex.def)             Requested size: 416.83289pt x 132.84302pt.
+ [34 </home/pasan/kalani/tex/mid-report/figs/rviz_lidar.png (PNG copy)>] [35 </home/pasan/kalani/tex/mid-report/figs/lidar_xyz_error.png> </home/pasan/kalani/tex/mid-report/figs/lidar_rpy_error.png>]
+<figs/completion_state.png, id=1056, 987.69pt x 502.87875pt>
+File: figs/completion_state.png Graphic file (type png)
+<use figs/completion_state.png>
+Package pdftex.def Info: figs/completion_state.png  used on input line 374.
+(pdftex.def)             Requested size: 416.83289pt x 212.22818pt.
+) [36 </home/pasan/kalani/tex/mid-report/figs/loam_xyz_pdf.png> </home/pasan/kalani/tex/mid-report/figs/loam_rpy_pdf.png>] [37 </home/pasan/kalani/tex/mid-report/figs/completion_state.png>]
+\openout2 = `chapters/Conclusion.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/Conclusion.tex
+Chapter 4.
+) [38
+
+
+
+]
+\openout2 = `chapters/References.aux'.
+
+ (/home/pasan/kalani/tex/mid-report/chapters/References.tex (/home/pasan/kalani/tex/mid-report/thesis.bbl [39
+
+
+
+] [40])) [41]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 127.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 127.
+ (/home/pasan/kalani/tex/mid-report/thesis.aux (/home/pasan/kalani/tex/mid-report/chapters/Title.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration.aux) (/home/pasan/kalani/tex/mid-report/chapters/Declaration_Supervisor.aux) (/home/pasan/kalani/tex/mid-report/chapters/Abstract.aux) (/home/pasan/kalani/tex/mid-report/chapters/Dedication.aux) (/home/pasan/kalani/tex/mid-report/chapters/Acknowledgements.aux) (/home/pasan/kalani/tex/mid-report/chapters/Introduction.aux) (/home/pasan/kalani/tex/mid-report/chapters/Methodology.aux) (/home/pasan/kalani/tex/mid-report/chapters/Results.aux) (/home/pasan/kalani/tex/mid-report/chapters/Conclusion.aux) (/home/pasan/kalani/tex/mid-report/chapters/References.aux))
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 127.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 127.
+Package rerunfilecheck Info: File `thesis.out' has not changed.
+(rerunfilecheck)             Checksum: F0716B207611A2BBC52816A7D0EFB471;2894.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 127.
+ ) 
+Here is how much of TeX's memory you used:
+ 15983 strings out of 480608
+ 248987 string characters out of 5903614
+ 587093 words of memory out of 5000000
+ 31169 multiletter control sequences out of 15000+600000
+ 557774 words of font info for 82 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 51i,18n,81p,2834b,533s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on /home/pasan/kalani/tex/mid-report/thesis.pdf (53 pages, 7184192 bytes).
+PDF statistics:
+ 1210 PDF objects out of 1440 (max. 8388607)
+ 1049 compressed objects within 11 object streams
+ 245 named destinations out of 1000 (max. 500000)
+ 533 words of extra memory for PDF output out of 10000 (max. 10000000)
+

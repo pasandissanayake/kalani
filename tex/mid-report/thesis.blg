@@ -1,0 +1,70 @@
+This is BibTeX, Version 0.99d (TeX Live 2020)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: thesis.aux
+A level-1 auxiliary file: chapters/Title.aux
+A level-1 auxiliary file: chapters/Declaration.aux
+A level-1 auxiliary file: chapters/Declaration_Supervisor.aux
+A level-1 auxiliary file: chapters/Abstract.aux
+A level-1 auxiliary file: chapters/Dedication.aux
+A level-1 auxiliary file: chapters/Acknowledgements.aux
+A level-1 auxiliary file: chapters/Introduction.aux
+A level-1 auxiliary file: chapters/Methodology.aux
+A level-1 auxiliary file: chapters/Results.aux
+A level-1 auxiliary file: chapters/Conclusion.aux
+A level-1 auxiliary file: chapters/References.aux
+The style file: IEEEtran.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Database file #1: thesis.bib
+-- IEEEtran.bst version 1.14 (2015/08/26) by Michael Shell.
+-- http://www.michaelshell.org/tex/ieeetran/bibtex/
+-- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
+Warning--empty booktitle in hi:LOAM
+Warning--empty booktitle in hi:LeGO-LOAM
+
+Done.
+You've used 37 entries,
+            4087 wiz_defined-function locations,
+            1073 strings with 16183 characters,
+and the built_in function-call counts, 30999 in all, are:
+= -- 2387
+> -- 831
+< -- 256
++ -- 470
+- -- 148
+* -- 1455
+:= -- 4306
+add.period$ -- 77
+call.type$ -- 37
+change.case$ -- 37
+chr.to.int$ -- 615
+cite$ -- 39
+duplicate$ -- 2205
+empty$ -- 2557
+format.name$ -- 179
+if$ -- 7388
+int.to.chr$ -- 0
+int.to.str$ -- 37
+missing$ -- 393
+newline$ -- 148
+num.names$ -- 34
+pop$ -- 997
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 2
+skip$ -- 2437
+stack$ -- 0
+substring$ -- 1528
+swap$ -- 1807
+text.length$ -- 51
+text.prefix$ -- 0
+top$ -- 5
+type$ -- 37
+warning$ -- 2
+while$ -- 116
+width$ -- 39
+write$ -- 378
+(There were 2 warnings)
