@@ -347,7 +347,7 @@ class KalmanFilter:
                     self.predict(so_i.mm_inputs, so_i.mm_inputs_cov, so_i.timestamp, i - 1,
                                  measurement_name + '_correction @ ' + str(timestamp))
 
-            for j in range(so_index, 1):
+            for j in range(so_index, 1, -1):
                 self.backward_smooth(j)
 
 
@@ -399,6 +399,8 @@ class KalmanFilter:
         dx1 = K1.dot(measurement - meas_fun(so1.ns, so0.ns))
         dx0 = K[0:self._es_len].dot(measurement - meas_fun(so1.ns, so0.ns))
         corrected_ns1 = self._combination(so1.ns, -dx1)
+
+        log.log('dx0:{}'.format(dx0))
 
         so_new = StateObject(self._ns_template, self._es_template, self._mmi_template)
         so_new.ns = sarray(self._ns_template, corrected_ns1)

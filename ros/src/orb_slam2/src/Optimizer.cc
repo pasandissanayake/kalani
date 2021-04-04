@@ -39,6 +39,8 @@ namespace ORB_SLAM2
 {
 
 float Optimizer::sanath_chi2e = 0.0;
+float Optimizer::sanath_inliers = 0.0;
+double Optimizer::sanath_error = 0.0;
 
 void Optimizer::GlobalBundleAdjustemnt(Map* pMap, int nIterations, bool* pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
 {
@@ -380,6 +382,7 @@ int Optimizer::PoseOptimization(Frame *pFrame)
     int nBad=0;
     for(size_t it=0; it<4; it++)
     {
+        //optimizer.setVerbose(true);
 
         vSE3->setEstimate(Converter::toSE3Quat(pFrame->mTcw));
         optimizer.initializeOptimization(0);
@@ -430,6 +433,7 @@ int Optimizer::PoseOptimization(Frame *pFrame)
             const float chi2 = e->chi2();
             //************changed***************//
             Optimizer::sanath_chi2e = chi2;
+            Optimizer::sanath_error = *e->errorData();
             //************changed***************//
 
 
@@ -460,16 +464,13 @@ int Optimizer::PoseOptimization(Frame *pFrame)
     cv::Mat pose = Converter::toCvMat(SE3quat_recov);
     pFrame->SetPose(pose);
 
-    optimizer.vertex(10000);
+    optimizer.vertex(10000);\
+
+    Optimizer::sanath_inliers = nInitialCorrespondences-nBad;
     
     return nInitialCorrespondences-nBad;
 }
 
-//************changed****************/
-// float Optimizer::getSanathCE(void){
-//     return Optimizer::sanath_ce;
-// }
-//************changed****************/
 
 void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap)
 {    

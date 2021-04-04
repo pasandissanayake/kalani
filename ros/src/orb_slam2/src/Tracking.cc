@@ -908,6 +908,8 @@ bool Tracking::TrackWithMotionModel()
     // Optimize frame pose with all matches
     Optimizer::PoseOptimization(&mCurrentFrame);
     cout << "sanath ce:" << Optimizer::sanath_chi2e <<"\n";
+    cout << "inliers:" << Optimizer::sanath_inliers <<"\n";
+    cout << "error:" << Optimizer::sanath_error <<"\n";
 
     // Discard outliers
     int nmatchesMap = 0;

@@ -106,7 +106,7 @@ kaist_dataset:
 
   # info of current dataset to use
   data_root: '/home/entc/kalani-data/kaist'
-  sequence: 'urban28'
+  sequence: 'urban27'
 
   # common info
   file_name_imu: 'data/xsens_imu.csv'
@@ -136,10 +136,10 @@ kaist_dataset:
   sensor_characteristics:
     var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
     var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
-    var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
+    var_imu_angular_velocity: [2.5e-6, 2.5e-6, 2.5e-6] # in (rad s^(-1))^2
     var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
     var_magnetometer_orientation: [1.0e-0, 1.0e-0, 1.0e+1] # in rad^2
-    var_gnss_position: [1.0e+1, 1.0e+1] # in m^2
+    var_gnss_position: [5.0e+0, 5.0e+0] # in m^2
     var_altitude: [1.0e+1] # in m^2
     # # theoretical values from the datasheets
     # var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
@@ -187,6 +187,17 @@ kaist_dataset:
       northing: 4140617.766
       alt: 7.95616831
 
+  
+
+  urban34:
+    time_start_motion: 1544682597.120223923 # in seconds
+
+    map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
+      # these are used in relocating the origin, only to reduce the coordinate magnitudes
+      easting: 316995.2876
+      northing: 4155550.097
+      alt: 17.42392609
+
 
 
 
@@ -205,7 +216,8 @@ kitti_dataset:
 
   # info of current dataset to use
   data_root: '/home/entc/kalani-data/kitti'
-  sequence: '2011_09_26'
+  date: '2011_10_03'
+  drive: '0027'
 
   # common info
   dir_oxts_data: 'oxts/data'
@@ -216,10 +228,7 @@ kitti_dataset:
   dir_right_camera: 'image_01/data'
   file_name_camera_timestamps: 'image_00/timestamps.txt'
   
-  sensor_calibrations: # R and T separately
-    vehicle_R_imu:
-      R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
-      T: [-0.07, 0, 1.7]
+  sensor_calibrations: # R and T separatelyt
     vehicle_R_gnss:
       R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
       T: [-0.32, 0, 1.7]
@@ -245,7 +254,7 @@ kitti_dataset:
     init_imu_angular_velocity_bias: [0.0, 0.0, 0.0] # in rad s^(-1)
 
   # sequence specific info
-  urban17:
+  2011_10_03_0027:
     time_start_motion: 1335704128.61069  # in seconds
 
     map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern

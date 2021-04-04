@@ -59,6 +59,8 @@ public:
     // float static getSanathCE(void);
 
     static float sanath_chi2e;
+    static float sanath_inliers;
+    static double sanath_error;
 
 public:
     

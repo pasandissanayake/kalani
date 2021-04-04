@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import os
 import struct
 import cv2
+import time
+import datetime as dt
 
 import pcl
 import sensor_msgs.point_cloud2 as pc2
@@ -13,6 +15,15 @@ from utilities import *
 
 log = Log(prefix='kaist_datahandle')
 config = get_config_dict()['kaist_dataset']
+
+def extract_timestamps(file_path):
+    timestamps  = []
+    with open(file_path, 'r') as f:
+        for line in f.readlines():
+            t = dt.datetime.strptime(line[:-4], '%Y-%m-%d %H:%M:%S.%f')
+            cal = time.mktime(t.timetuple()) + t.microsecond * 1e-6
+            timestamps.append(cal)
+    return np.array(timestamps)
 
 class Vector:
     def __init__(self):
@@ -72,7 +83,7 @@ class LaserScan:
         self._file_list = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
         self._file_list.sort()
         self._timestamp_file = timestamp_file
-        self._time = 
+        self._time = extract_timestamps(timestamp_file)
 
     def get_points(self, time, format='XYZI', nearesttimestamp=True):
             if nearesttimestamp:
@@ -123,7 +134,7 @@ class StereoImage:
         self._right_file_list = [f for f in os.listdir(right_dir) if os.path.isfile(os.path.join(right_dir, f))]
         self._right_file_list.sort()
         log.log("l:{}, r:{}".format(len(self._left_file_list), len(self._right_file_list)))
-        self.time = np.loadtxt(timestamps, delimiter=',') * 1e-9
+        self.time = extract_timestamps(timestamps)
 
     def get_stereo_images(self, time, nearesttimestamp=True):
         if nearesttimestamp:
@@ -149,7 +160,7 @@ class Calibrations:
         self.VEHICLE_R_STEREO = np.eye(4)
 
 
-class KAISTData:
+class KITTIData:
 
     def __init__(self):
         self.groundtruth = GroundTruth()
@@ -204,32 +215,22 @@ class KAISTData:
         self.groundtruth.interp_p = interp1d(self.groundtruth.time, self.groundtruth.p, axis=0, bounds_error=False, fill_value=self.groundtruth.p[0], kind='linear')
         self.groundtruth.interp_h = interp1d(self.groundtruth.time, self.groundtruth.h, axis=0, bounds_error=False, fill_value=self.groundtruth.h[0], kind='linear')
 
-    def load_gnss_from_numpy(self, gnss_array, origin):
-        if np.ndim(gnss_array) != 2:
-            log.log('GNSS array dimension mismatch.')
-            return
+    def load_gnss_from_numpy(self, timestamps, gnss_array, origin):
+        self.gnss.time = timestamps
 
-        # gnss timestamp conversion (ns to s)
-        self.gnss.time = gnss_array[:, 0] / 1e9
-
-        lat = gnss_array[:, 1]
-        lon = gnss_array[:, 2]
+        lat = gnss_array[:, 0]
+        lon = gnss_array[:, 1]
 
         # convert latitudes and longitudes (in degrees) to ENU frame coordinates of the vehicle origin
         # position = get_position_from_gnss_fix(np.array([lat, lon]).T, origin, fixunit='deg', originunit='deg')
-        position = get_utm_from_gnss_fix(np.array([lat, lon]).T, origin, '52S', 'north', fixunit='deg')
+        position = get_utm_from_gnss_fix(np.array([lat, lon]).T, origin, '32U', 'north', fixunit='deg')
         self.gnss.x = position[:, 0] - self.calibrations.VEHICLE_R_GNSS[0, 3]
         self.gnss.y = position[:, 1] - self.calibrations.VEHICLE_R_GNSS[1, 3]
 
         self.gnss.covariance = np.array([gnss_array[:, 4], gnss_array[:, 5], gnss_array[:, 7], gnss_array[:, 8]]).T
 
-    def load_imu_from_numpy(self, imu_array):
-        if np.ndim(imu_array) != 2:
-            log.log('IMU array dimension mismatch.')
-            return
-
-        # imu timestamp correction (ns to s)
-        self.imu.time = imu_array[:, 0] / 1e9
+    def load_imu_from_numpy(self, timestamps, imu_array):
+        self.imu.time = timestamps
 
         # dataset's imu frame:
         # x--> towards front of the vehicle
@@ -245,9 +246,9 @@ class KAISTData:
         # our z = their  z
 
         # imu angular rates (originally in rad s-1, so nothing to convert)
-        self.imu.angular_rate.x = -imu_array[:, 9]
-        self.imu.angular_rate.y =  imu_array[:, 8]
-        self.imu.angular_rate.z = imu_array[:, 10]
+        self.imu.angular_rate.x = -imu_array[:, 18]
+        self.imu.angular_rate.y =  imu_array[:, 17]
+        self.imu.angular_rate.z =  imu_array[:, 19]
 
         # imu accelerations (originally in ms-2, so nothing to convert)
         self.imu.acceleration.x = -imu_array[:, 12]
@@ -255,19 +256,15 @@ class KAISTData:
         self.imu.acceleration.z =  imu_array[:, 13]
 
         # imu magnetic field (original units: gauss, converted to Tesla)
-        self.imu.magnetic_field.x = -imu_array[:, 15] * 1e-4
-        self.imu.magnetic_field.y =  imu_array[:, 14] * 1e-4
-        self.imu.magnetic_field.z =  imu_array[:, 16] * 1e-4
+        # self.imu.magnetic_field.x = -imu_array[:, 15] * 1e-4
+        # self.imu.magnetic_field.y =  imu_array[:, 14] * 1e-4
+        # self.imu.magnetic_field.z =  imu_array[:, 16] * 1e-4
 
-    def load_altitude_from_numpy(self, altitude_array, origin):
-        if np.ndim(altitude_array) != 2:
-            log.log('Altitude array dimension mismatch.')
-            return
-
+    def load_altitude_from_numpy(self, timestamps, altitude_array, origin):
         # altitude time conversion (ns to s)
         # altitude originally in meters, so no unit conversions
-        self.altitude.time = altitude_array[:, 0] / 1e9
-        self.altitude.z = altitude_array[:, 1] - altitude_array[0, 1]
+        self.altitude.time = timestamps
+        self.altitude.z = altitude_array[:, 2] - origin[2]
 
     @staticmethod
     def vector_nwu_to_enu(vector):
@@ -307,15 +304,15 @@ class KAISTData:
         self.calibrations.VEHICLE_R_IMU = ov_R_imu
 
         tv_R_gnss = np.zeros((4, 4))
-        tv_R_gnss[0:3, 0:3] = np.reshape(sensor_calibrations['vehicle_R_gnss']['R'], (3, 3))
-        tv_R_gnss[0:3, 3] = np.array(sensor_calibrations['vehicle_R_gnss']['T'])
+        tv_R_gnss[0:3, 0:3] = np.reshape(sensor_calibrations['vehicle_R_imu']['R'], (3, 3))
+        tv_R_gnss[0:3, 3] = np.array(sensor_calibrations['vehicle_R_imu']['T'])
         tv_R_gnss[3, 3] = 1
         ov_R_gnss = np.matmul(ov_R_tv, tv_R_gnss)
         self.calibrations.VEHICLE_R_GNSS = ov_R_gnss
 
         tv_R_leftvlp = np.zeros((4, 4))
-        tv_R_leftvlp[0:3, 0:3] = np.reshape(sensor_calibrations['vehicle_R_leftvlp']['R'], (3, 3))
-        tv_R_leftvlp[0:3, 3] = np.array(sensor_calibrations['vehicle_R_leftvlp']['T'])
+        tv_R_leftvlp[0:3, 0:3] = np.reshape(sensor_calibrations['vehicle_R_vlp']['R'], (3, 3))
+        tv_R_leftvlp[0:3, 3] = np.array(sensor_calibrations['vehicle_R_vlp']['T'])
         tv_R_leftvlp[3, 3] = 1
         ov_R_leftvlp = np.matmul(ov_R_tv, tv_R_leftvlp)
         self.calibrations.VEHICLE_R_LEFTVLP = ov_R_leftvlp
@@ -327,43 +324,35 @@ class KAISTData:
         ov_R_stereo = np.matmul(ov_R_tv, tv_R_stereo)
         self.calibrations.VEHICLE_R_STEREO = ov_R_stereo
 
-    def load_data(self, dataroot=None, sequence=None, groundtruth=False, imu=False, gnss=False, altitude=False, vlpleft=False, stereoimage=False, calibrations=False):
-        kaist_config = get_config_dict()['kaist_dataset']
+    def load_data(self, dataroot=None, date=None, drive=None, oxts=False, vlp=False, stereoimage=False, calibrations=False):
+        kitti_config = get_config_dict()['kitti_dataset']
 
         if dataroot is None:
-            dataroot = kaist_config['data_root']
-        if sequence is None:
-            sequence = kaist_config['sequence']
-
-        groundtruth_file = '{}/{}/{}'.format(dataroot, sequence, kaist_config['file_name_groundtruth'])
-        imu_file = '{}/{}/{}'.format(dataroot, sequence, kaist_config['file_name_imu'])
-        gnss_file = '{}/{}/{}'.format(dataroot, sequence, kaist_config['file_name_gnss'])
-        altimeter_file = '{}/{}/{}'.format(dataroot, sequence, kaist_config['file_name_altimeter'])
-
-        if groundtruth:
-            gt_array = np.loadtxt(groundtruth_file, delimiter=',')
-            gt_array = gt_array[np.argsort(gt_array[:,0])]
-            origin = np.array([kaist_config[sequence]['map_origin']['easting'], kaist_config[sequence]['map_origin']['northing'], kaist_config[sequence]['map_origin']['alt']])
-            self.load_groundtruth_from_numpy(gt_array, origin)
-        if imu:
-            imu_array = np.loadtxt(imu_file, delimiter=',')
-            imu_array = imu_array[np.argsort(imu_array[:,0])]
-            self.load_imu_from_numpy(imu_array)
+            dataroot = kitti_config['data_root']
+        if date is None:
+            date = kitti_config['date']
+        if drive is None:
+            drive = kitti_config['drive']
+       
+        if oxts:
+            oxts_dir = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['dir_oxts_data'])
+            timestamp_file = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['file_name_oxts_timestamps'])
+            timestamps = extract_timestamps(timestamp_file)
+            oxts_files = os.listdir(oxts_dir)
+            oxts_files.sort()
+            oxts_data = []
+            for oxts_file in oxts_files:
+                o = np.loadtxt('{}/{}'.format(oxts_dir, oxts_file), delimiter=' ')
+                oxts_data.append(o)
+            oxts_array = np.array(oxts_data)            
+            self.load_imu_from_numpy(timestamps, oxts_array)
             self._IMU_FLAG = True
-        if gnss:
-            gnss_array = np.loadtxt(gnss_file, delimiter=',')
-            gnss_array = gnss_array[np.argsort(gnss_array[:, 0])]
-            origin = np.array([kaist_config[sequence]['map_origin']['easting'], kaist_config[sequence]['map_origin']['northing']])
-            self.load_gnss_from_numpy(gnss_array, origin)
+            self.load_gnss_from_numpy(timestamps, oxts_array, np.array([455392.89, 8.390346]))
             self._GNSS_FLAG = True
-        if altitude:
-            altitude_array = np.loadtxt(altimeter_file, delimiter=',')
-            altitude_array = altitude_array[np.argsort(altitude_array[:, 0])]
-            origin = kaist_config[sequence]['map_origin']['alt']
-            self.load_altitude_from_numpy(altitude_array, origin)
-            self._ALTITUDE_FLAG = True
-        if vlpleft:
-            directory = '{}/{}/{}'.format(dataroot, sequence, kaist_config['dir_left_lidar'])
+            
+
+        if vlp:
+            directory = '{}/{}/{}'.format(dataroot, sequence, kitti_config['dir_lidar'])
             self.vlpLeft.set_directory(directory)
             self._VLP_LEFT_FLAG = True
         if stereoimage:
