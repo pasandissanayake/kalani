@@ -97,10 +97,10 @@ def gnss_callback(data):
     seq_gnss = data.header.seq
 
     # prepare pseudo-gnss fix
-    cov = np.reshape(data.pose.covariance, (6,6))[0:2, 0:2]
+    cov = np.reshape(data.pose.covariance, (6,6))[0:2, 0:2] * 4
     gt_fix = np.array([kd.groundtruth.interp_x(t), kd.groundtruth.interp_y(t), kd.groundtruth.interp_z(t)])
-    gnss_fix = gt_fix[0:2] + np.random.normal(0, np.sqrt(np.max(cov)), (2))
-    # gnss_fix = np.array([data.pose.pose.position.x, data.pose.pose.position.y]) # original gnss
+    # gnss_fix = gt_fix[0:2] + np.random.normal(0, np.sqrt(np.max(cov)), (2))
+    gnss_fix = np.array([data.pose.pose.position.x, data.pose.pose.position.y]) # original gnss
         
     if kf.is_initialized:
         # gnss correction
@@ -110,10 +110,11 @@ def gnss_callback(data):
             return np.concatenate([np.eye(2),np.zeros((2,14))], axis=1)
         if not is_stationary():
             # simulate GNSS outage
-            if t > 1544590977.84 - 5.0 and t < 1544590977.84 + 25.0:
+            if t > 1544583043.23 - 15.0 and t < 1544583043.23 + 15.0:
                 pass
-            else:
-                kf.correct_absolute(meas_fun, gnss_fix, cov, t, hx_fun=hx_fun, measurement_name='gnss')
+            elif seq_gnss % 10 == 0:
+                pass
+                # kf.correct_absolute(meas_fun, gnss_fix, cov, t, hx_fun=hx_fun, measurement_name='gnss')
             publish_gnss(t, gnss_fix)
             
         # ZUPT correction
@@ -156,7 +157,7 @@ def alt_callback(data):
             return np.array([ns.p()[2]])
         def hx_fun(ns):
             return np.concatenate([[0,0,1], np.zeros(13)]).reshape((1, 16))
-        kf.correct_absolute(meas_fun, np.array([altitude]), var_altitude.reshape((1,1)), t, hx_fun=hx_fun, measurement_name='altitude')
+        # kf.correct_absolute(meas_fun, np.array([altitude]), var_altitude.reshape((1,1)), t, hx_fun=hx_fun, measurement_name='altitude')
 
 
 def imu_callback(data):
@@ -335,7 +336,7 @@ def visualodom_callback(data):
     v0qv1 = tft.quaternion_multiply(vqc, tft.quaternion_multiply(c0qc1, tft.quaternion_conjugate(vqc)))
     dangle, daxis = quaternion_to_angle_axis(v0qv1)
     dtheta = dangle * daxis # axis angle difference of c1-c0
-    
+        
     # detect stationarity
     if tft.vector_norm(v_v) < 1e-1:
         stationary = True
@@ -349,12 +350,23 @@ def visualodom_callback(data):
     v_var = 1e-2 / (t1-t0)
     kf.correct_absolute(meas_fun, v_v, np.diag([v_var*1e-2, v_var, v_var*1e-3]), t1, measurement_name='visualodom_v')
 
+    # log.log("angle: {}".format(tft.euler_from_quaternion(tft.quaternion_about_axis(dangle, daxis))))
+
     # relative rotation correction
+    def meas_fun(ns1, ns0):
+        qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
+        ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
+        return ds_angle * ds_axis
+    kf.correct_relative(meas_fun, dtheta, np.eye(3)*1e-4, t1, t0, measurement_name='visualodom_q')
+
     # def meas_fun(ns1, ns0):
-    #     qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
-    #     ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
-    #     return ds_angle * ds_axis
-    # kf.correct_relative(meas_fun, dtheta, np.eye(3)*1e-4, t1, t0, measurement_name='visualodom_q')
+    #     r1 = tft.quaternion_matrix(ns1.q())[0:3,0:3]
+    #     r0 = tft.quaternion_matrix(ns0.q())[0:3,0:3]
+    #     # dp = np.matmul(r1.T, ns1.p())-np.matmul(r0.T,ns0.p())
+    #     dp = ns1.p() - ns0.p()
+    #     return dp
+    # if stationary:
+    #     kf.correct_relative(meas_fun, np.array((0.1,0,0)), np.eye(3)*1e-4, t1, t0, measurement_name='visualodom_q')
 
 
 def publish_static_transforms(static_broadcaster):
@@ -434,13 +446,16 @@ if __name__ == '__main__':
 
     def combination(ns, es):
         angle, axis = axisangle_to_angle_axis(es.q())
-        return np.concatenate([
-            ns.p() + es.p(),
-            ns.v() + es.v(),
-            tft.quaternion_multiply(tft.quaternion_about_axis(angle, axis), ns.q()),
-            ns.ab() + es.ab(),
-            ns.wb() + es.wb(),
-        ])
+        try:
+            return np.concatenate([
+                ns.p() + es.p(),
+                ns.v() + es.v(),
+                tft.quaternion_multiply(tft.quaternion_about_axis(angle, axis), ns.q()),
+                ns.ab() + es.ab(),
+                ns.wb() + es.wb(),
+            ])
+        except Exception as e:
+            log.log(e, angle, axis, es.q())
 
     def difference(ns1, ns0):
         angle, axis = quaternion_to_angle_axis(tft.quaternion_multiply(ns1.q(), tft.quaternion_conjugate(ns0.q())))

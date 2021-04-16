@@ -378,11 +378,11 @@ class KalmanFilter:
             def meas_fun_dup1(ns1, ns0):
                 ns0 = sarray(self._ns_template, ns0)
                 ns1 = sarray(self._ns_template, ns1)
-                return meas_fun(ns0, ns1)
+                return meas_fun(ns1, ns0)
             def meas_fun_dup0(ns0, ns1):
                 ns0 = sarray(self._ns_template, ns0)
                 ns1 = sarray(self._ns_template, ns1)
-                return meas_fun(ns0, ns1)
+                return meas_fun(ns1, ns0)
             Hx1 = nd.Jacobian(meas_fun_dup1)(so1.ns, so0.ns)
             Hx0 = nd.Jacobian(meas_fun_dup0)(so0.ns, so1.ns)
 
@@ -398,9 +398,11 @@ class KalmanFilter:
         corrected_P1 = so1.es_cov - np.matmul(np.matmul(K1, S), K1.T)
         dx1 = K1.dot(measurement - meas_fun(so1.ns, so0.ns))
         dx0 = K[0:self._es_len].dot(measurement - meas_fun(so1.ns, so0.ns))
-        corrected_ns1 = self._combination(so1.ns, -dx1)
+        corrected_ns1 = self._combination(so1.ns, dx1)
 
         log.log('dx0:{}'.format(dx0))
+        # log.log('dx1:{}'.format(dx1))
+        log.log('H:{}'.format(H))
 
         so_new = StateObject(self._ns_template, self._es_template, self._mmi_template)
         so_new.ns = sarray(self._ns_template, corrected_ns1)
@@ -424,6 +426,9 @@ class KalmanFilter:
                 so_i = self._state_buffer.get_state(i)
                 self.predict(so_i.mm_inputs, so_i.mm_inputs_cov, so_i.timestamp, i - 1,
                              measurement_name + '_correction @ ' + str(timestamp1))
+        if so0_index > 0:
+            for j in range(so1_index, so0_index, -1):
+                    self.backward_smooth(j)
 
 
     def backward_smooth(self, load_index):

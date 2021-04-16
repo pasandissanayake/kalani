@@ -218,7 +218,7 @@ def quaternion_to_angle_axis(q):
         angle = half_angle * 2
         return angle, axis
     else:
-        return 1e-5, np.ones(3)
+        return 0, np.array((0,0,1))
 
 
 def axisangle_to_angle_axis(v):

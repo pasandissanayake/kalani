@@ -149,12 +149,12 @@ ax1.plot(t, out[:, 0] + 3 * np.sqrt(out_cov[:, 0]), '--', label='x upper bound')
 ax1.plot(t, out[:, 0] - 3 * np.sqrt(out_cov[:, 0]), '--', label='x lower bound')
 ax1.legend()
 ax1.grid()
-#
+
 # ax2.plot(t[1:], g[:, 1], label='y ground truth')
 # ax2.plot(t[1:], noisy_g[:, 1], '.', label='y measurement')
 # ax2.plot(t, out[:, 1], label='y estimate')
-# ax2.plot(t, out[:, 1] + 3 * np.sqrt(out_cov[:, 3]), '--', label='y upper bound')
-# ax2.plot(t, out[:, 1] - 3 * np.sqrt(out_cov[:, 3]), '--', label='y lower bound')
+# ax2.plot(t, out[:, 1] + 3 * np.sqrt(out_cov[:, 1]), '--', label='y upper bound')
+# ax2.plot(t, out[:, 1] - 3 * np.sqrt(out_cov[:, 1]), '--', label='y lower bound')
 # ax2.legend()
 # ax2.grid()
 
