@@ -5,5 +5,9 @@ oxts_dir = "/home/entc/kalani-data/kitti/2011_10_03_drive_0027_extract/2011_10_0
 kd = KITTIData()
 kd.load_data(oxts=True)
 
-plt.plot(kd.gnss.x, kd.gnss.y)
-plt.show()
+print kd.gnss.x[0], kd.gnss.y[0]
+print kd.imu.acceleration.x[0], kd.imu.angular_rate.y[1]
+print kd.groundtruth.z[0]
+
+# plt.plot(kd.gnss.x, kd.gnss.y)
+# plt.show()

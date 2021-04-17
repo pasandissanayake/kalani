@@ -113,8 +113,8 @@ def gnss_callback(data):
             if t > 1544583043.23 - 15.0 and t < 1544583043.23 + 15.0:
                 pass
             elif seq_gnss % 10 == 0:
+                kf.correct_absolute(meas_fun, gnss_fix, cov, t, hx_fun=hx_fun, measurement_name='gnss')
                 pass
-                # kf.correct_absolute(meas_fun, gnss_fix, cov, t, hx_fun=hx_fun, measurement_name='gnss')
             publish_gnss(t, gnss_fix)
             
         # ZUPT correction

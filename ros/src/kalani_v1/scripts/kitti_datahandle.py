@@ -62,7 +62,6 @@ class IMU:
         self.time = np.zeros(0)
         self.acceleration = Vector()
         self.angular_rate = Vector()
-        self.magnetic_field = Vector()
 
 
 class Altitude:
@@ -183,30 +182,27 @@ class KITTIData:
         self.VLP_LEFT_CLASS_NAME = self.vlpLeft.__class__.__name__
         self.STEREO_IMAGE_CLASS_NAME = self.stereoImage.__class__.__name__
 
-    def load_groundtruth_from_numpy(self, gt_array, origin):
-        if np.ndim(gt_array) != 2:
-            log.log('Groundtruth array dimension mismatch.')
-            return 
-
-        # groundtruth time from ns to s
-        self.groundtruth.time = gt_array[:,0] / 1e9
+    def load_groundtruth_from_numpy(self, timestamps, gt_array, origin):
+        self.groundtruth.time = timestamps
         # set starting groundtruth point as (0, 0, 0)
-        # groundtruth position is already in ENU frame
-        # So, nothing to convert
-        self.groundtruth.x = gt_array[:, 4] - origin[0]
-        self.groundtruth.y = gt_array[:, 8] - origin[1]
-        self.groundtruth.z = gt_array[:, 12] - origin[2]
+        # groundtruth position is obtained from RTK GPS
+        lat = gt_array[:, 0]
+        lon = gt_array[:, 1]
 
-        # convert rotation matrix to obtain groundtruth euler angles
-        eulers = np.zeros([len(gt_array),3])
-        for i in range(len(gt_array)):
-            r_mat = np.array([gt_array[i,1:4], gt_array[i,5:8], gt_array[i,9:12]])
-            eulers[i] = tft.euler_from_matrix(r_mat, axes='sxyz')
-        # Groundtruth orientation is originally in NWU frame
+        # convert latitudes and longitudes (in degrees) to ENU frame coordinates of the vehicle origin
+        position = get_utm_from_gnss_fix(np.array([lat, lon]).T, origin[0:2], '32U', 'north', fixunit='deg')
+        self.groundtruth.x = position[:, 0] - self.calibrations.VEHICLE_R_GNSS[0, 3]
+        self.groundtruth.y = position[:, 1] - self.calibrations.VEHICLE_R_GNSS[1, 3]
+
+        # obtain altitude from RTK GPS and set initial position to 0
+        self.groundtruth.z = gt_array[:, 2] - origin[2] - self.calibrations.VEHICLE_R_GNSS[2, 3]
+
+        eulers = gt_array[:, 3:6]
+        # Groundtruth orientation is originally in NWU frame, with yaw=0 being the east direction
         # conversions for euler angles
         self.groundtruth.r = -eulers[:, 1]
         self.groundtruth.p = eulers[:, 0]
-        self.groundtruth.h = eulers[:, 2] - np.pi / 2
+        self.groundtruth.h = eulers[:, 2]
 
         self.groundtruth.interp_x = interp1d(self.groundtruth.time, self.groundtruth.x, axis=0, bounds_error=False, fill_value=self.groundtruth.x[0], kind='linear')
         self.groundtruth.interp_y = interp1d(self.groundtruth.time, self.groundtruth.y, axis=0, bounds_error=False, fill_value=self.groundtruth.y[0], kind='linear')
@@ -254,11 +250,6 @@ class KITTIData:
         self.imu.acceleration.x = -imu_array[:, 12]
         self.imu.acceleration.y =  imu_array[:, 11]
         self.imu.acceleration.z =  imu_array[:, 13]
-
-        # imu magnetic field (original units: gauss, converted to Tesla)
-        # self.imu.magnetic_field.x = -imu_array[:, 15] * 1e-4
-        # self.imu.magnetic_field.y =  imu_array[:, 14] * 1e-4
-        # self.imu.magnetic_field.z =  imu_array[:, 16] * 1e-4
 
     def load_altitude_from_numpy(self, timestamps, altitude_array, origin):
         # altitude time conversion (ns to s)
@@ -347,8 +338,9 @@ class KITTIData:
             oxts_array = np.array(oxts_data)            
             self.load_imu_from_numpy(timestamps, oxts_array)
             self._IMU_FLAG = True
-            self.load_gnss_from_numpy(timestamps, oxts_array, np.array([455392.89, 8.390346]))
+            self.load_gnss_from_numpy(timestamps, oxts_array, np.array([455392.88681631343, 5425692.893443901]))
             self._GNSS_FLAG = True
+            self.load_groundtruth_from_numpy(timestamps, oxts_array, np.array([455392.88681631343, 5425692.893443901, 116.43446350098]))
             
 
         if vlp:

@@ -426,9 +426,9 @@ class KalmanFilter:
                 so_i = self._state_buffer.get_state(i)
                 self.predict(so_i.mm_inputs, so_i.mm_inputs_cov, so_i.timestamp, i - 1,
                              measurement_name + '_correction @ ' + str(timestamp1))
-        if so0_index > 0:
-            for j in range(so1_index, so0_index, -1):
-                    self.backward_smooth(j)
+        # if so0_index > 0:
+        #     for j in range(so1_index, so0_index, -1):
+        #             self.backward_smooth(j)
 
 
     def backward_smooth(self, load_index):
