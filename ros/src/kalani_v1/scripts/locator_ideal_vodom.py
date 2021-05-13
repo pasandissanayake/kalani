@@ -112,7 +112,7 @@ def gnss_callback(data):
             # simulate GNSS outage
             if t > 1544583043.23 - 15.0 and t < 1544583043.23 + 15.0:
                 pass
-            elif seq_gnss % 10 == 0:
+            elif seq_gnss % 1 == 0:
                 kf.correct_absolute(meas_fun, gnss_fix, cov, t, hx_fun=hx_fun, measurement_name='gnss')
                 pass
             publish_gnss(t, gnss_fix)
@@ -136,7 +136,7 @@ def gnss_callback(data):
             ['ab', init_imu_linear_acceleration_bias, np.diag(var_imu_linear_acceleration_bias), t],
             ['wb', init_imu_angular_velocity_bias, np.diag(var_imu_angular_velocity_bias), t]
         ])
-
+    
 
 def alt_callback(data):
     global altitude, var_altitude, seq_altimeter
@@ -270,14 +270,16 @@ def laserodom_callback(data):
     v_v = np.matmul(vRc, v_c0) # velocity in vehicle frame
     # ZUPT conditions
     v_v[0] = 0
-    # v_v[2] = 0
+    v_v[2] = 0
 
-    log.log('laserodom v_v:{}'.format(v_v))
+    # log.log('laserodom v_v:{}'.format(v_v))
     
     c0qc1 = tft.quaternion_multiply(tft.quaternion_conjugate(ciqc0), ciqc1)
     v0qv1 = tft.quaternion_multiply(vqc, tft.quaternion_multiply(c0qc1, tft.quaternion_conjugate(vqc)))
     dangle, daxis = quaternion_to_angle_axis(v0qv1)
     dtheta = dangle * daxis # axis angle difference of c1-c0
+
+    # log.log("angle:{}, t0:{}, t1:{}".format(tft.euler_from_quaternion(tft.quaternion_about_axis(dangle, daxis)), t0, t1))
     
     # detect stationarity
     if tft.vector_norm(v_v) < 1e-1:
@@ -293,11 +295,11 @@ def laserodom_callback(data):
     kf.correct_absolute(meas_fun, v_v, np.diag([v_var*1e-0, v_var, v_var*1e-0]), t1, measurement_name='visualodom_v')
 
     # relative rotation correction
-    # def meas_fun(ns1, ns0):
-    #     qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
-    #     ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
-    #     return ds_angle * ds_axis
-    # kf.correct_relative(meas_fun, dtheta, np.diag([v_var*1e-2, v_var, v_var*1e-3]), t1, t0, measurement_name='visualodom_q')
+    def meas_fun(ns1, ns0):
+        qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
+        ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
+        return ds_angle * ds_axis
+    kf.correct_relative(meas_fun, dtheta, np.diag([v_var, v_var, v_var]), t1, t0, measurement_name='visualodom_q')
 
 
 def visualodom_callback(data):
@@ -307,6 +309,11 @@ def visualodom_callback(data):
 
     # check for validity
     if t0 < 0:
+        return
+    
+    log.log('times: {}  {}'.format(t0, t1))
+
+    if not kf.is_initialized:
         return
 
     # delta-position and quaternions in camera-init frame
@@ -332,10 +339,21 @@ def visualodom_callback(data):
     v_v[0] = 0
     v_v[2] = 0
     
+    # obtain relative rotation using visual odometry output
     c0qc1 = tft.quaternion_multiply(tft.quaternion_conjugate(ciqc0), ciqc1)
     v0qv1 = tft.quaternion_multiply(vqc, tft.quaternion_multiply(c0qc1, tft.quaternion_conjugate(vqc)))
     dangle, daxis = quaternion_to_angle_axis(v0qv1)
     dtheta = dangle * daxis # axis angle difference of c1-c0
+
+    # obtain relative rotation using ground truth
+    # r1 = np.array([kd.groundtruth.interp_r(t1), kd.groundtruth.interp_p(t1), kd.groundtruth.interp_h(t1)])
+    # q1 = tft.quaternion_from_euler(r1[0], r1[1], r1[2])
+    # R1 = tft.quaternion_matrix(q1)[0:3,0:3]
+    # r0 = np.array([kd.groundtruth.interp_r(t0), kd.groundtruth.interp_p(t0), kd.groundtruth.interp_h(t0)])
+    # q0 = tft.quaternion_from_euler(r0[0], r0[1], r0[2])
+    # qd = tft.quaternion_multiply(tft.quaternion_conjugate(q0),q1)
+    # dangle, daxis = quaternion_to_angle_axis(qd)
+    # dtheta = dangle * daxis
         
     # detect stationarity
     if tft.vector_norm(v_v) < 1e-1:
@@ -348,9 +366,11 @@ def visualodom_callback(data):
         R = tft.quaternion_matrix(ns.q())[0:3,0:3]
         return np.matmul(R.T, ns.v())
     v_var = 1e-2 / (t1-t0)
-    kf.correct_absolute(meas_fun, v_v, np.diag([v_var*1e-2, v_var, v_var*1e-3]), t1, measurement_name='visualodom_v')
+    kf.correct_absolute(meas_fun, v_v, np.diag([v_var, v_var, v_var]), t1, measurement_name='visualodom_v')
 
-    # log.log("angle: {}".format(tft.euler_from_quaternion(tft.quaternion_about_axis(dangle, daxis))))
+    # log.log("angle:{}, t0:{}, t1:{}".format(tft.euler_from_quaternion(tft.quaternion_about_axis(dangle, daxis)), t0, t1))
+
+    # kf.print_states('before rel')
 
     # relative rotation correction
     def meas_fun(ns1, ns0):
@@ -358,6 +378,8 @@ def visualodom_callback(data):
         ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
         return ds_angle * ds_axis
     kf.correct_relative(meas_fun, dtheta, np.eye(3)*1e-4, t1, t0, measurement_name='visualodom_q')
+
+    # kf.print_states('after rel')
 
     # def meas_fun(ns1, ns0):
     #     r1 = tft.quaternion_matrix(ns1.q())[0:3,0:3]
@@ -367,7 +389,7 @@ def visualodom_callback(data):
     #     return dp
     # if stationary:
     #     kf.correct_relative(meas_fun, np.array((0.1,0,0)), np.eye(3)*1e-4, t1, t0, measurement_name='visualodom_q')
-
+    
 
 def publish_static_transforms(static_broadcaster):
     # world to map static transformation
@@ -408,7 +430,7 @@ if __name__ == '__main__':
 
     rospy.Subscriber(config['processed_gnss_topic'], Odometry, gnss_callback, queue_size=1)
     rospy.Subscriber(config['processed_altitude_topic'], Odometry, alt_callback, queue_size=1)
-    rospy.Subscriber(config['processed_imu_topic'], Imu, imu_callback, queue_size=1)
+    rospy.Subscriber(config['processed_imu_topic'], Imu, imu_callback, queue_size=5)
     rospy.Subscriber(config['processed_magneto_topic'], MagneticField, mag_callback, queue_size=1)
     rospy.Subscriber(config['processed_laserodom_topic'], Odometry, laserodom_callback, queue_size=1)
     rospy.Subscriber(config['processed_visualodom_topic'], Odometry, visualodom_callback, queue_size=1)

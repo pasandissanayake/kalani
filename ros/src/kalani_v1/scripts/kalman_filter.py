@@ -260,6 +260,7 @@ class KalmanFilter:
 
             Fx = np.array(self._Fx_jacob(np.zeros(self._es_len), so.ns, np.zeros(self._pn_len), mmi, dt))
             Fi = np.array(self._Fi_jacob(np.zeros(self._pn_len), np.zeros(self._es_len), so.ns, mmi, dt))
+
             predicted_P = Fx.dot(so.es_cov).dot(Fx.T) + Fi.dot(mmi_cov).dot(Fi.T)
 
             predicted_ns = self._motion_model(so.ns, mmi, dt)
@@ -282,7 +283,7 @@ class KalmanFilter:
                 self._state_buffer.add_state(so_new)
             else:
                 self._state_buffer.update_state(so_new, load_index + 1)
-
+                    
 
     def correct_absolute(self, meas_fun, measurement, meas_cov, timestamp, hx_fun=None, measurement_name='unspecified'):
         with self._lock:
@@ -304,7 +305,7 @@ class KalmanFilter:
 
             so_index = self._state_buffer.get_index_of_closest_state_in_time(timestamp)
             so = self._state_buffer.get_state(so_index)
-
+            
             X = self._true_state_jacob(so.es, so.ns)
             if hx_fun is not None:
                 Hx = hx_fun(so.ns)
@@ -313,6 +314,7 @@ class KalmanFilter:
                     ns = sarray(self._ns_template, ns)
                     return meas_fun(ns)
                 Hx = nd.Jacobian(meas_fun_dup)(so.ns)
+            
             H = np.matmul(Hx, X)
             
             P = so.es_cov
@@ -346,12 +348,34 @@ class KalmanFilter:
                     so_i = self._state_buffer.get_state(i)
                     self.predict(so_i.mm_inputs, so_i.mm_inputs_cov, so_i.timestamp, i - 1,
                                  measurement_name + '_correction @ ' + str(timestamp))
-
+            
+            sw = Stopwatch()
+            sw.start()
             for j in range(so_index, 1, -1):
                 self.backward_smooth(j)
+            log.log("abs reprediction: {} s".format(sw.stop()))
+            
 
-
-    def correct_relative(self, meas_fun, measurement, measurement_cov, timestamp1, timestamp0, hx_fun=None, measurement_name='unspecified'):
+    def correct_relative(self, meas_fun, measurement, measurement_cov, timestamp1, timestamp0, hx_fun=None, measurement_name='unspecified'):    
+        oldest_ts = self._state_buffer.get_state(0).timestamp
+        latest_ts = self._state_buffer.get_state(-1).timestamp
+        if timestamp0 >= timestamp1:
+            log.log('Measurement {} has inverted timestamps. timestamp0: {}, timestamp1: {}'.format(measurement_name, timestamp0, timestamp1))
+            return
+        elif timestamp0 < oldest_ts:
+            log.log(
+                'Measurement "{}" is too old. Measurement time: {}, oldest state time: {}'.format(measurement_name,
+                                                                                                    timestamp0,
+                                                                                                    oldest_ts))
+            return
+        elif timestamp1 > latest_ts + self.STATE_INIT_TIME_THRESHOLD:
+            log.log(
+                'Measurement "{}" is too early. Measurement time: {}, latest state time: {}'.format(
+                    measurement_name,
+                    timestamp1,
+                    latest_ts))
+            return
+        
         so0_index = self._state_buffer.get_index_of_closest_state_in_time(timestamp0)
         so1_index = self._state_buffer.get_index_of_closest_state_in_time(timestamp1)
 
@@ -362,7 +386,7 @@ class KalmanFilter:
         for i in range(so1_index, so0_index, -1):
             Fxi = self._state_buffer.get_state(i).Fx
             Fx_prod = np.matmul(Fx_prod, Fxi)
-
+        
         P = np.eye(self._es_len * 2)
         P[0:self._es_len, 0:self._es_len] = so0.es_cov
         P[self._es_len:self._es_len*2, self._es_len:self._es_len*2] = so1.es_cov
@@ -385,7 +409,7 @@ class KalmanFilter:
                 return meas_fun(ns1, ns0)
             Hx1 = nd.Jacobian(meas_fun_dup1)(so1.ns, so0.ns)
             Hx0 = nd.Jacobian(meas_fun_dup0)(so0.ns, so1.ns)
-
+                
         H0 = np.matmul(Hx0, X0)
         H1 = np.matmul(Hx1, X1)
 
@@ -400,9 +424,16 @@ class KalmanFilter:
         dx0 = K[0:self._es_len].dot(measurement - meas_fun(so1.ns, so0.ns))
         corrected_ns1 = self._combination(so1.ns, dx1)
 
-        log.log('dx0:{}'.format(dx0))
+        so0an, so0ax = quaternion_to_angle_axis(so0.ns.q())
+        so0anax = so0an * so0ax
+        so1an, so1ax = quaternion_to_angle_axis(so1.ns.q())
+        so1anax = so1an * so1ax
+        # log.log('so0_idx:{}, so1_idx:{}'.format(so0_index, so1_index))
+        # log.log('so0:{}, so1:{}'.format(so0anax, so1anax))
+        # log.log('meas:{}, meas_fun:{}, dif:{}'.format(measurement, meas_fun(so1.ns, so0.ns), measurement - meas_fun(so1.ns, so0.ns)))
+        # log.log('dx0:{}'.format(dx0))
         # log.log('dx1:{}'.format(dx1))
-        log.log('H:{}'.format(H))
+        # log.log('H:{}'.format(H))
 
         so_new = StateObject(self._ns_template, self._es_template, self._mmi_template)
         so_new.ns = sarray(self._ns_template, corrected_ns1)
@@ -418,6 +449,12 @@ class KalmanFilter:
         so_new.timestamp = so1.timestamp
         so_new.is_valid = True
 
+        prev_an, prev_ax = quaternion_to_angle_axis(so1.ns.q())
+        prev = prev_an * prev_ax
+        new_an, new_ax = quaternion_to_angle_axis(so_new.ns.q())
+        new = new_an * new_ax
+        # log.log("prev:{}, new:{}".format(prev, new))
+
         self._state_buffer.update_state(so_new, so1_index)
 
         buffer_length = self._state_buffer.get_buffer_length()
@@ -426,10 +463,10 @@ class KalmanFilter:
                 so_i = self._state_buffer.get_state(i)
                 self.predict(so_i.mm_inputs, so_i.mm_inputs_cov, so_i.timestamp, i - 1,
                              measurement_name + '_correction @ ' + str(timestamp1))
-        # if so0_index > 0:
-        #     for j in range(so1_index, so0_index, -1):
-        #             self.backward_smooth(j)
-
+        if so0_index > 0:
+            for j in range(so1_index, so0_index, -1):
+                    self.backward_smooth(j)
+                
 
     def backward_smooth(self, load_index):
         if self._state_buffer.get_buffer_length() <= load_index or load_index <= 0:
@@ -438,6 +475,14 @@ class KalmanFilter:
 
         so_current = self._state_buffer.get_state(load_index)
         so_previous = self._state_buffer.get_state(load_index - 1)
+
+        if not so_current.is_valid:
+            log.log('Backward smooth current state (index: "{}") is invalid'.format(load_index))
+            return
+
+        if not so_previous.is_valid:
+            log.log('Backward smooth previous state (index: "{}") is invalid'.format(load_index-1))
+            return
 
         S = np.matmul(so_previous.es_cov, np.matmul(so_previous.Fx.T, np.linalg.inv(so_current.predicted_es_cov)))
         smoothed_ns = self._combination(so_previous.ns, np.matmul(S, self._difference(so_current.ns, so_current.predicted_ns)))
@@ -475,3 +520,11 @@ class KalmanFilter:
 
     def get_es_length(self):
         return copy(self._es_len)
+
+    def print_states(self, title):
+        log.log("********* {} *********".format(title))
+        for sosi in range(self._state_buffer.get_buffer_length()):
+            sos = self._state_buffer.get_state(sosi)
+            sosan, sosax = quaternion_to_angle_axis(sos.ns.q())
+            sosanax = sosan * sosax
+            log.log('{}: {}'.format(sosi, sosanax))

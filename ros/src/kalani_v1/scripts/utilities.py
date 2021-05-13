@@ -88,8 +88,8 @@ def get_orientation_from_magnetic_field(mm, fm):
         return E
     x, y, z, w = leastsq(eqn, tft.quaternion_from_euler(0,0,np.pi/4,axes='sxyz'))[0]
 
-    quat_array = tft.unit_vector([x, y, z, w])
-    if quat_array[-1] < 0: quat_array = -quat_array
+    quat_array = np.array(tft.unit_vector([x, y, z, w]))
+    if quat_array[-1] < 0: quat_array = -1 * quat_array
 
     return quat_array
 
@@ -129,9 +129,8 @@ def get_utm_from_gnss_fix(fix, origin, zone, hemisphere, fixunit='deg'):
     '''
         convert gnss coordinates to local coordinates in ENU frame
         :param fix: gnss coordinate / coordinate array - [lat, lon]
-        :param origin: gnss coordinate of the origin - [lat, lon]
+        :param origin: utm coordinate of the origin - [easting, northing]
         :param fixunit: units of fix ('deg'-->degrees, 'rad'-->radians)
-        :param originunit: units of origin ('deg'-->degrees, 'rad'-->radians)
         :return: coordinates in local ENU frame
     '''
     if fixunit == 'rad':
@@ -152,6 +151,34 @@ def get_utm_from_gnss_fix(fix, origin, zone, hemisphere, fixunit='deg'):
         ret = utm - origin
 
     return ret
+
+
+def get_gnss_fix_from_utm(utm, origin, zone, hemisphere, fixunit='deg'):
+    '''
+        convert local coordinates in ENU frame to gnss coordinates
+        :param utm: coordinates in local ENU frame
+        :param origin: utm coordinate of the origin - [easting, northing]
+        :param fixunit: units of fix ('deg'-->degrees, 'rad'-->radians)
+        :return: gnss coordinate / coordinate array - [lat, lon]
+    '''
+
+    origin = np.array(origin)
+    utm = utm + origin
+    proj = Proj("+proj=utm +zone={}, +{} +ellps=WGS84 +datum=WGS84 +units=m +no_defs".format(zone, hemisphere))
+
+    if np.ndim(utm) == 2:
+        ret = np.zeros((len(utm), 2))
+        for i in range(len(utm)):
+            fix = np.array(proj(utm[i, 0], utm[i, 1], inverse=True))
+            ret[i, :] = np.array([fix[1], fix[0]])
+    else:
+        fix = np.array(proj(utm[0], utm[1], inverse=True))
+        ret = np.array([fix[1], fix[0]])
+
+    if fixunit == 'rad':
+        return np.deg2rad(ret)
+    else:
+        return ret
 
 
 def quaternion_xyzw2wxyz(q):
@@ -212,8 +239,10 @@ def quaternion_to_angle_axis(q):
     norm = np.linalg.norm(q)
     if norm > 0:
         q = q / norm
+    else:
+        return 0, np.array((0,0,1))
     half_angle = np.arccos(q[3])
-    if half_angle != 0:
+    if half_angle > 1e-4:
         axis = np.array(q[:3]) / half_angle
         angle = half_angle * 2
         return angle, axis
@@ -236,7 +265,7 @@ def axisangle_to_angle_axis(v):
 
 
 def rpy_jacobian_axis_angle(a):
-    """Jacobian of RPY Euler angles with respect to axis-angle vector."""
+    '''Jacobian of RPY Euler angles with respect to axis-angle vector.'''
     if not (type(a) == np.ndarray and len(a) == 3):
         raise ValueError("'a' must be a np.ndarray with length 3.")
     # From three-parameter representation, compute u and theta.

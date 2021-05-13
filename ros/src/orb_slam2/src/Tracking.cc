@@ -199,6 +199,11 @@ cv::Mat Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRe
 
     mCurrentFrame = Frame(mImGray,imGrayRight,timestamp,mpORBextractorLeft,mpORBextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 
+    /******* changed **********************/
+    cv::FileStorage file("/home/entc/Desktop/bllllllllllll.txt", cv::FileStorage::WRITE);
+    file << "aa" << mCurrentFrame.mDescriptors;
+    /**************************************/
+
     Track();
 
     return mCurrentFrame.mTcw.clone();

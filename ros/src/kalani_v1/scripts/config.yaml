@@ -106,7 +106,7 @@ kaist_dataset:
 
   # info of current dataset to use
   data_root: '/home/entc/kalani-data/kaist'
-  sequence: 'urban27'
+  sequence: 'urban28'
 
   # common info
   file_name_imu: 'data/xsens_imu.csv'
@@ -139,7 +139,7 @@ kaist_dataset:
     var_imu_angular_velocity: [2.5e-6, 2.5e-6, 2.5e-6] # in (rad s^(-1))^2
     var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
     var_magnetometer_orientation: [1.0e-0, 1.0e-0, 1.0e+1] # in rad^2
-    var_gnss_position: [5.0e+0, 5.0e+0] # in m^2
+    var_gnss_position: [1.0e+0, 1.0e+0] # in m^2
     var_altitude: [1.0e+1] # in m^2
     # # theoretical values from the datasheets
     # var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2

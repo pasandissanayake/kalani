@@ -11,6 +11,7 @@ from kalani_v1.msg import State
 from kalani_v1.msg import Error
 from geometry_msgs.msg import PoseStamped, TransformStamped
 from nav_msgs.msg import Path, Odometry
+from sensor_msgs.msg import NavSatFix
 from visualization_msgs.msg import Marker
 import visualization_msgs
 
@@ -59,6 +60,17 @@ def publish_path(path, publisher, timestamp, frame_id, trans, rot):
     path.poses.append(pose)
     publisher.publish(path)
 
+
+def publish_navsat_fix(publisher, timestamp, coordinate, origin):
+    msg = NavSatFix()
+    fix_wgs = get_gnss_fix_from_utm(coordinate[0:2], origin[0:2], '52S', 'north', fixunit='deg')
+    altitude = coordinate[2] + origin[2]
+    msg.header.stamp = rospy.Time.from_sec(timestamp)
+    msg.latitude = fix_wgs[0]
+    msg.longitude = fix_wgs[1]
+    msg.altitude = altitude
+    msg.position_covariance_type = msg.COVARIANCE_TYPE_UNKNOWN
+    publisher.publish(msg)
 
 def callback(data):
     timestamp = data.header.stamp.to_sec()
@@ -175,6 +187,11 @@ def callback(data):
     rms_errors[2] = gnss_reading_count
     log.log('RMS errors: Estimate: {} m,   GNSS: {} m'.format(rms_errors[1], rms_errors[3]))
 
+    # publish navsat fixes
+    publish_navsat_fix(navsat_gnss_pub, timestamp, gnss_trans, origin)
+    publish_navsat_fix(navsat_gt_pub, timestamp, gt_trans, origin)
+    publish_navsat_fix(navsat_bl_pub, timestamp, trans, origin)
+
 if __name__ == '__main__':
     general_config = get_config_dict()['general']
     log = Log(general_config['evaluator_node_name'])
@@ -186,6 +203,9 @@ if __name__ == '__main__':
     #####################################################
     ds = KAISTData()
     ds.load_data(groundtruth=True)
+
+    ds_config = get_config_dict()['kaist_dataset']
+    origin = np.array([ds_config[ds_config['sequence']]['map_origin']['easting'], ds_config[ds_config['sequence']]['map_origin']['northing'], ds_config[ds_config['sequence']]['map_origin']['alt']])
     #####################################################
     #####################################################
 
@@ -199,6 +219,12 @@ if __name__ == '__main__':
     gt_path_publisher = rospy.Publisher(general_config['gt_path_topic'], Path, queue_size=1)
     state_path_publisher = rospy.Publisher(general_config['state_path_topic'], Path, queue_size=1)
     cov_ellipsoid_publisher = rospy.Publisher(general_config['cov_ellipsoid_topic'], Marker, queue_size=1)
+
+    # navsat fix publishers
+    navsat_gt_pub = rospy.Publisher('/fix/gt', NavSatFix, queue_size=1)     # ground truth
+    navsat_gnss_pub = rospy.Publisher('/fix/gnss', NavSatFix, queue_size=1) # gnss
+    navsat_bl_pub = rospy.Publisher('/fix/bl', NavSatFix, queue_size=1)     # base link (estimate)
+
     tf_broadcaster = tf2.TransformBroadcaster()
 
     log.log('Node ready.')
