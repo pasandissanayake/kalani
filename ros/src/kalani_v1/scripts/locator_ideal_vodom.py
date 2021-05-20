@@ -33,9 +33,10 @@ seq_gnss = -1
 seq_altimeter = -1
 
 # absolute stationarity condition (detected by odometers)
-stationary = False
+stationary = True
 
 def is_stationary():
+    global stationary
     return stationary
 
 
@@ -97,39 +98,37 @@ def gnss_callback(data):
     seq_gnss = data.header.seq
 
     # prepare pseudo-gnss fix
-    cov = np.reshape(data.pose.covariance, (6,6))[0:2, 0:2] * 4
+    cov = np.reshape(data.pose.covariance, (6,6))[0:2, 0:2]
     gt_fix = np.array([kd.groundtruth.interp_x(t), kd.groundtruth.interp_y(t), kd.groundtruth.interp_z(t)])
-    # gnss_fix = gt_fix[0:2] + np.random.normal(0, np.sqrt(np.max(cov)), (2))
-    gnss_fix = np.array([data.pose.pose.position.x, data.pose.pose.position.y]) # original gnss
+    # gnss_fix = gt_fix[0:2] # exact ground truth as gnss
+    gnss_fix = gt_fix[0:2] + np.random.normal(0, np.sqrt(np.max(cov)), (2)) # pseudo-gnss from ground truth
+    # gnss_fix = np.array([data.pose.pose.position.x, data.pose.pose.position.y]) # original gnss
         
     if kf.is_initialized:
         # gnss correction
-        def meas_fun(ns):
-            return ns.p()[0:2]
-        def hx_fun(ns):
-            return np.concatenate([np.eye(2),np.zeros((2,14))], axis=1)
         if not is_stationary():
             # simulate GNSS outage
-            if t > 1544583043.23 - 15.0 and t < 1544583043.23 + 15.0:
+            if False and (t > 1544590908.4 - 15.0 and t < 1544590908.4 + 15.0): 
+                log.log('no gps!')
                 pass
             elif seq_gnss % 1 == 0:
+                def meas_fun(ns):
+                    return ns.p()[0:2]
+                def hx_fun(ns):
+                    return np.concatenate([np.eye(2),np.zeros((2,14))], axis=1)
                 kf.correct_absolute(meas_fun, gnss_fix, cov, t, hx_fun=hx_fun, measurement_name='gnss')
                 pass
-            publish_gnss(t, gnss_fix)
-            
-        # ZUPT correction
-        # def meas_fun(ns):
-        #     r = tft.quaternion_matrix(ns.q())[0:3, 0:3]
-        #     r = r.T
-        #     v = np.matmul(r, ns.v())
-        #     return np.array([v[0], v[2]])
-        # kf.correct_absolute(meas_fun, np.zeros(2), np.eye(2) * 1e-5, t, measurement_name='zupt')
+        else:
+            log.log('gps discarded - stationary')
+        publish_gnss(t, gnss_fix)
+
     elif altitude is not None:
         # filter initialization
         cov_p = np.eye(3)
         cov_p[0:2, 0:2] = cov
         cov_p[2, 2] = var_altitude
-        p = np.concatenate([gnss_fix, [altitude]])
+        # p = np.concatenate([gnss_fix, [altitude]]) # initialize by gnss
+        p = gt_fix # initialize by ground truth
         kf.initialize([
             ['p', p, cov_p, t],
             ['v', init_velocity, np.diag(init_var_velocity), t],
@@ -160,14 +159,21 @@ def alt_callback(data):
         # kf.correct_absolute(meas_fun, np.array([altitude]), var_altitude.reshape((1,1)), t, hx_fun=hx_fun, measurement_name='altitude')
 
 
+imu_rate_adjust = 1
 def imu_callback(data):
-    global linear_acceleration, angular_velocity, seq_imu
+    global linear_acceleration, angular_velocity, seq_imu, imu_rate_adjust
     t = data.header.stamp.to_sec()
 
     # check for message misses
     if data.header.seq > seq_imu + 1:
         log.log("{} IMU messages lost at {} s!".format(data.header.seq - seq_imu -1, t))
     seq_imu = data.header.seq
+
+    if imu_rate_adjust % 1 == 0:
+        imu_rate_adjust = 1
+    else:
+        imu_rate_adjust = imu_rate_adjust + 1
+        return
 
     linear_acceleration = np.array([data.linear_acceleration.x, data.linear_acceleration.y, data.linear_acceleration.z])
     angular_velocity = np.array([data.angular_velocity.x, data.angular_velocity.y, data.angular_velocity.z])
@@ -178,6 +184,7 @@ def imu_callback(data):
     cov[3:6, 3:6] = var_wm
     cov[6:9, 6:9] = var_imu_linear_acceleration_bias
     cov[9:12, 9:12] = var_imu_angular_velocity_bias
+
     if kf.is_initialized:
         # prediction
         inputs = np.concatenate([linear_acceleration, angular_velocity])
@@ -185,8 +192,16 @@ def imu_callback(data):
         publish_state()
 
 
+mag_rate_adjust = 1
 def mag_callback(data):
-    global magnetic_field, linear_acceleration
+    global magnetic_field, linear_acceleration, mag_rate_adjust
+
+    if mag_rate_adjust % 10 == 0:
+        mag_rate_adjust = 1
+    else:
+        mag_rate_adjust = mag_rate_adjust + 1
+        return
+
     t = data.header.stamp.to_sec()
     magnetic_field = np.array([data.magnetic_field.x, data.magnetic_field.y, data.magnetic_field.z])
     cov = np.reshape(data.magnetic_field_covariance, (3,3))
@@ -234,14 +249,15 @@ def mag_callback(data):
     else:
         kf.initialize([
             ['v', init_velocity, np.diag(init_var_velocity), t],
-            ['q', orientation, cov, t],
+            ['q', orientation_gt, cov, t],
             ['ab', init_imu_linear_acceleration_bias, np.diag(var_imu_linear_acceleration_bias), t],
             ['wb', init_imu_angular_velocity_bias, np.diag(var_imu_angular_velocity_bias), t]
         ])
 
 
+lo_rate_adjust = 1
 def laserodom_callback(data):
-    global stationary
+    global stationary, lo_rate_adjust
     t1 = data.header.stamp.to_sec()
     t0 = data.twist.twist.linear.z
 
@@ -267,12 +283,20 @@ def laserodom_callback(data):
 
     v_ci = dp_ci / (t1-t0) # velocity in camera init frame
     v_c0 = np.matmul(ciRc0.T, v_ci) # velocity in old camera frame
-    v_v = np.matmul(vRc, v_c0) # velocity in vehicle frame
+    v_v = np.matmul(vRc, v_c0) * 1.1 # velocity in vehicle frame
     # ZUPT conditions
     v_v[0] = 0
     v_v[2] = 0
 
-    # log.log('laserodom v_v:{}'.format(v_v))
+    # obtain velocity from ground truth
+    # r1 = np.array([kd.groundtruth.interp_r(t1), kd.groundtruth.interp_p(t1), kd.groundtruth.interp_h(t1)])
+    # q1 = tft.quaternion_from_euler(r1[0], r1[1], r1[2])
+    # p1 = np.array([kd.groundtruth.interp_x(t1), kd.groundtruth.interp_y(t1), kd.groundtruth.interp_z(t1)])
+    # p0 = np.array([kd.groundtruth.interp_x(t0), kd.groundtruth.interp_y(t0), kd.groundtruth.interp_z(t0)])
+    # dp = p1-p0
+    # q_mat = tft.quaternion_matrix(q1)[0:3, 0:3]
+    # dp_v = np.dot(q_mat.T, dp)
+    # v_vgt = dp_v / (t1-t0)
     
     c0qc1 = tft.quaternion_multiply(tft.quaternion_conjugate(ciqc0), ciqc1)
     v0qv1 = tft.quaternion_multiply(vqc, tft.quaternion_multiply(c0qc1, tft.quaternion_conjugate(vqc)))
@@ -284,36 +308,56 @@ def laserodom_callback(data):
     # detect stationarity
     if tft.vector_norm(v_v) < 1e-1:
         stationary = True
+        log.log('lo stationary! @ {}'.format(t0))
     else:
         stationary = False
 
+    if kf.get_no_previous_states() < kf.STATE_BUFFER_LENGTH:
+        log.log('lo frame discarded.')
+        return
+
+    if lo_rate_adjust % 4 == 0:
+        lo_rate_adjust = 1
+    else:
+        lo_rate_adjust = lo_rate_adjust + 1
+        return
+
     # velocity correction
-    def meas_fun(ns):
-        R = tft.quaternion_matrix(ns.q())[0:3,0:3]
-        return np.matmul(R.T, ns.v())
-    v_var = 1e-2 / (t1-t0)
-    kf.correct_absolute(meas_fun, v_v, np.diag([v_var*1e-0, v_var, v_var*1e-0]), t1, measurement_name='visualodom_v')
+    # def meas_fun(ns):
+    #     R = tft.quaternion_matrix(ns.q())[0:3,0:3]
+    #     return np.matmul(R.T, ns.v())
+    # def constraints(dx):
+    #     if not is_stationary() and np.linalg.norm(dx[0:3]) > 0.5:
+    #         dx[0:3] = np.zeros(3)
+    #         dx[6:9] = np.zeros(3)
+    #     return dx
+    # v_var = 1e-2
+    # log.log('lo abs correction')
+    # kf.correct_absolute(meas_fun, v_v, np.diag([v_var, v_var, v_var]), t1, constraints=constraints, measurement_name='visualodom_v')
 
     # relative rotation correction
     def meas_fun(ns1, ns0):
         qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
         ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
         return ds_angle * ds_axis
-    kf.correct_relative(meas_fun, dtheta, np.diag([v_var, v_var, v_var]), t1, t0, measurement_name='visualodom_q')
+    def hx_fun(ns1, ns0):
+        qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
+        du_dq0 = np.dot(np.dot(jacobian_of_axisangle_wrt_q(qd_s), quaternion_right_multmat(ns1.q())), jacobian_of_qinv_wrt_q())
+        du_dq1 = np.dot(jacobian_of_axisangle_wrt_q(qd_s), quaternion_left_multmat(tft.quaternion_conjugate(ns0.q())))
+        Hx0 = np.concatenate([np.zeros((3,6)), du_dq0, np.zeros((3,6))], axis=1)
+        Hx1 = np.concatenate([np.zeros((3,6)), du_dq1, np.zeros((3,6))], axis=1)
+        return Hx1, Hx0
+    kf.correct_relative(meas_fun, dtheta, np.ones(3)*1e-2, t1, t0, hx_fun=hx_fun, measurement_name='visualodom_q')
 
 
+vo_rate_adjust = 1
 def visualodom_callback(data):
-    global stationary
+    global stationary, vo_rate_adjust
     t1 = data.header.stamp.to_sec()
     t0 = data.twist.twist.linear.z
-
+    
     # check for validity
     if t0 < 0:
-        return
-    
-    log.log('times: {}  {}'.format(t0, t1))
-
-    if not kf.is_initialized:
         return
 
     # delta-position and quaternions in camera-init frame
@@ -338,6 +382,17 @@ def visualodom_callback(data):
     # ZUPT conditions
     v_v[0] = 0
     v_v[2] = 0
+
+    # obtain velocity from ground truth
+    # r1 = np.array([kd.groundtruth.interp_r(t1), kd.groundtruth.interp_p(t1), kd.groundtruth.interp_h(t1)])
+    # q1 = tft.quaternion_from_euler(r1[0], r1[1], r1[2])
+    # p1 = np.array([kd.groundtruth.interp_x(t1), kd.groundtruth.interp_y(t1), kd.groundtruth.interp_z(t1)])
+    # p0 = np.array([kd.groundtruth.interp_x(t0), kd.groundtruth.interp_y(t0), kd.groundtruth.interp_z(t0)])
+    # dp = p1-p0
+    # q_mat = tft.quaternion_matrix(q1)[0:3, 0:3]
+    # dp_v = np.dot(q_mat.T, dp)
+    # v_v = dp_v / (t1-t0)
+
     
     # obtain relative rotation using visual odometry output
     c0qc1 = tft.quaternion_multiply(tft.quaternion_conjugate(ciqc0), ciqc1)
@@ -358,26 +413,51 @@ def visualodom_callback(data):
     # detect stationarity
     if tft.vector_norm(v_v) < 1e-1:
         stationary = True
+        log.log('vo stationary! @ {}'.format(t0))
     else:
         stationary = False
 
+    if vo_rate_adjust % 5 == 0:
+        vo_rate_adjust = 1
+    else:
+        vo_rate_adjust = vo_rate_adjust + 1
+        return
+
+    if kf.get_no_previous_states() < kf.STATE_BUFFER_LENGTH:
+        log.log('vo frame discarded.')
+        return
+
     # velocity correction
+    log.log('vo abs correction')
     def meas_fun(ns):
         R = tft.quaternion_matrix(ns.q())[0:3,0:3]
         return np.matmul(R.T, ns.v())
-    v_var = 1e-2 / (t1-t0)
-    kf.correct_absolute(meas_fun, v_v, np.diag([v_var, v_var, v_var]), t1, measurement_name='visualodom_v')
+    def constraints(dx):
+        if not is_stationary() and np.linalg.norm(dx[0:3]) > 0.5:
+            dx[0:3] = np.zeros(3)
+            dx[6:9] = np.zeros(3)
+        return dx
+    v_var = 1e-4
+    kf.correct_absolute(meas_fun, v_v * 0.98, np.diag([v_var, v_var, v_var]), t1, constraints=constraints, measurement_name='visualodom_v')
 
     # log.log("angle:{}, t0:{}, t1:{}".format(tft.euler_from_quaternion(tft.quaternion_about_axis(dangle, daxis)), t0, t1))
 
     # kf.print_states('before rel')
 
     # relative rotation correction
-    def meas_fun(ns1, ns0):
-        qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
-        ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
-        return ds_angle * ds_axis
-    kf.correct_relative(meas_fun, dtheta, np.eye(3)*1e-4, t1, t0, measurement_name='visualodom_q')
+    # if not is_stationary():
+    #     def meas_fun(ns1, ns0):
+    #         qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
+    #         ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
+    #         return ds_angle * ds_axis
+    #     def hx_fun(ns1, ns0):
+    #         qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
+    #         du_dq0 = np.dot(np.dot(jacobian_of_axisangle_wrt_q(qd_s), quaternion_right_multmat(ns1.q())), jacobian_of_qinv_wrt_q())
+    #         du_dq1 = np.dot(jacobian_of_axisangle_wrt_q(qd_s), quaternion_left_multmat(tft.quaternion_conjugate(ns0.q())))
+    #         Hx0 = np.concatenate([np.zeros((3,6)), du_dq0, np.zeros((3,6))], axis=1)
+    #         Hx1 = np.concatenate([np.zeros((3,6)), du_dq1, np.zeros((3,6))], axis=1)
+    #         return Hx1, Hx0
+    #     kf.correct_relative(meas_fun, dtheta, np.eye(3)*1e-3, t1, t0, hx_fun=hx_fun, measurement_name='visualodom_q')
 
     # kf.print_states('after rel')
 
@@ -430,7 +510,7 @@ if __name__ == '__main__':
 
     rospy.Subscriber(config['processed_gnss_topic'], Odometry, gnss_callback, queue_size=1)
     rospy.Subscriber(config['processed_altitude_topic'], Odometry, alt_callback, queue_size=1)
-    rospy.Subscriber(config['processed_imu_topic'], Imu, imu_callback, queue_size=5)
+    rospy.Subscriber(config['processed_imu_topic'], Imu, imu_callback, queue_size=1)
     rospy.Subscriber(config['processed_magneto_topic'], MagneticField, mag_callback, queue_size=1)
     rospy.Subscriber(config['processed_laserodom_topic'], Odometry, laserodom_callback, queue_size=1)
     rospy.Subscriber(config['processed_visualodom_topic'], Odometry, visualodom_callback, queue_size=1)

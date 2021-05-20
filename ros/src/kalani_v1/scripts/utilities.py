@@ -286,3 +286,46 @@ def rpy_jacobian_axis_angle(a):
                    [                a[0]/na,                 a[1]/na,                 a[2]/na]])
 
     return Jr.dot(Ja)
+
+
+def quaternion_right_multmat(q):
+    [x, y, z, w] = q
+    return np.array([
+        [ w,  z, -y,  x],
+        [-z,  w,  x,  y],
+        [ y, -x,  w,  z],
+        [-x, -y, -z,  w],
+    ])
+
+
+def quaternion_left_multmat(q):
+    [x, y, z, w] = q
+    return np.array([
+        [ w, -z,  y,  x],
+        [ z,  w, -x,  y],
+        [-y,  x,  w,  z],
+        [-x, -y, -z,  w],
+    ])
+
+
+def jacobian_of_axisangle_wrt_q(q):
+    [x, y, z, w] = q
+    if abs(1.0-w) < 1e-4:
+        al = 1.0
+        ad = -1.0/3.0
+    else:
+        al = 2 * np.arccos(w) / np.sqrt(1.0 - w**2)
+        ad = (w * np.arccos(w) - np.sqrt(1.0 - w**2)) / (1.0 - w**2)**(1.5)
+    return np.array([
+        [al,  0,  0,  ad*x],
+        [ 0, al,  0,  ad*y],
+        [ 0,  0, al,  ad*z],
+    ])
+
+def jacobian_of_qinv_wrt_q():
+    return np.array([
+        [-1,  0,  0,  0],
+        [ 0, -1,  0,  0],
+        [ 0,  0, -1,  0],
+        [ 0,  0,  0,  1],
+    ])

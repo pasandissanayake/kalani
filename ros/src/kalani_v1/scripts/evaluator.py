@@ -75,9 +75,11 @@ def publish_navsat_fix(publisher, timestamp, coordinate, origin):
 def callback(data):
     timestamp = data.header.stamp.to_sec()
 
+    ts_to_tf = 0
+
     # obtain state transform
     try:
-        state_tf = tf_buffer.lookup_transform(general_config['tf_frame_world'], general_config['tf_frame_state'], rospy.Time(0))
+        state_tf = tf_buffer.lookup_transform(general_config['tf_frame_world'], general_config['tf_frame_state'], rospy.Time(ts_to_tf))
         trans = np.array([state_tf.transform.translation.x, state_tf.transform.translation.y, state_tf.transform.translation.z])
         rot = np.array([state_tf.transform.rotation.x, state_tf.transform.rotation.y, state_tf.transform.rotation.z, state_tf.transform.rotation.w])
     except Exception as e:
@@ -100,7 +102,7 @@ def callback(data):
     # error values
     error_trans = trans - gt_trans
     error_trans_abs = np.abs(error_trans)
-    error_trans_euc = tft.vector_norm(error_trans)
+    error_trans_euc = tft.vector_norm(error_trans[0:2])
     error_rot = np.array(tft.quaternion_multiply(tft.quaternion_conjugate(gt_rot), rot))
     error_rot_euler = np.array(tft.euler_from_quaternion(error_rot))
     error_rot_euler_abs = np.abs(error_rot_euler)
@@ -116,14 +118,14 @@ def callback(data):
 
     # obtain gnss, magnetometer transforms from tf
     try:
-        gnss_tf = tf_buffer.lookup_transform(general_config['tf_frame_world'], general_config['tf_frame_gnss'], rospy.Time(0))
+        gnss_tf = tf_buffer.lookup_transform(general_config['tf_frame_world'], general_config['tf_frame_gnss'], rospy.Time(ts_to_tf))
         gnss_trans = np.array([gnss_tf.transform.translation.x, gnss_tf.transform.translation.y, gnss_tf.transform.translation.z])
     except Exception as e:
         log.log('GNSS transform lookup error. {}'.format(e.message))
         gnss_trans = gt_trans
     try:
         mag_tf = tf_buffer.lookup_transform(general_config['tf_frame_world'], general_config['tf_frame_magneto'],
-                                            rospy.Time(0))
+                                            rospy.Time(ts_to_tf))
         mag_rot = np.array([mag_tf.transform.rotation.x, mag_tf.transform.rotation.y, mag_tf.transform.rotation.z,
                             mag_tf.transform.rotation.w])
         mag_rot_euler = np.array(tft.euler_from_quaternion(mag_rot))

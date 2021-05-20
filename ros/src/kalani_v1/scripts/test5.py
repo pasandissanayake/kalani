@@ -1,26 +1,36 @@
-from kitti_datahandle import KITTIData
-from matplotlib import pyplot as plt
+import numpy as np
 from utilities import *
+import tf.transformations as tft
 
-# oxts_dir = "/home/entc/kalani-data/kitti/2011_10_03_drive_0027_extract/2011_10_03/oxts/data"
-# kd = KITTIData()
-# kd.load_data(oxts=True)
+# qa = np.array((1,0,0,0))
+# qb = np.array((0,1,0,0))
 
-# print kd.gnss.x[0], kd.gnss.y[0]
-# print kd.imu.acceleration.x[0], kd.imu.angular_rate.y[1]
-# print kd.groundtruth.z[0]
 
-# plt.plot(kd.gnss.x, kd.gnss.y)
-# plt.show()
+a = np.array([
+    [ 4,  0,  3],
+    [20, 30, 10],
+    [ 2,  0,  1]
+])
 
-# an, ax =  quaternion_to_angle_axis((0.13558924, -0.02549051, -0.00768248, -0.99040738))
-# print an * ax
-# print tft.quaternion_about_axis(an , ax)
-# -0.03880773975165199, -0.005761202282615559, 0.041751843461783164
+b = np.array([6, 8, 5])
 
-# easting: 316995.2876
-# northing: 4155550.097
-ds_config = get_config_dict()['kaist_dataset']
-origin = np.array([ds_config[ds_config['sequence']]['map_origin']['easting'], ds_config[ds_config['sequence']]['map_origin']['northing'], ds_config[ds_config['sequence']]['map_origin']['alt']])
-print origin
-print get_gnss_fix_from_utm(np.zeros(2), origin[0:2], '52S', 'north', fixunit='deg')
+print np.dot(a, b)
+
+
+qa = np.random.rand(4)
+qb = np.random.rand(4)
+
+qa = qa / np.linalg.norm(qa)
+qb = qb / np.linalg.norm(qb)
+
+qt = tft.quaternion_multiply(qa, qb)
+qm = np.dot(quaternion_left_multmat(qa), qb)
+qn = np.dot(quaternion_right_multmat(qb), qa)
+
+# print qa
+# print qb
+# print qt
+# print qm, np.allclose(qt, qm)
+# print qn, np.allclose(qt, qn)
+
+print jacobian_of_axisangle_wrt_q((0,0,0,1))

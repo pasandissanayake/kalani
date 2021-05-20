@@ -61,7 +61,7 @@ general:
 
 
 kalman_filter:
-  buffer_size: 50 # State buffer length
+  buffer_size: 20 # State buffer length
   state_init_time_threshold: 1 # Allowed maximum gap between any two initial state variables (in seconds)
 
 
@@ -138,8 +138,8 @@ kaist_dataset:
     var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
     var_imu_angular_velocity: [2.5e-6, 2.5e-6, 2.5e-6] # in (rad s^(-1))^2
     var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
-    var_magnetometer_orientation: [1.0e-0, 1.0e-0, 1.0e+1] # in rad^2
-    var_gnss_position: [1.0e+0, 1.0e+0] # in m^2
+    var_magnetometer_orientation: [1.0e-2, 1.0e-2, 1.0e+1] # in rad^2
+    var_gnss_position: [8.0e+0, 8.0e+0] # in m^2
     var_altitude: [1.0e+1] # in m^2
     # # theoretical values from the datasheets
     # var_imu_linear_acceleration: [4.0e-4, 4.0e-4, 4.0e-4] # in (m s^(-2))^2
@@ -179,7 +179,9 @@ kaist_dataset:
     
       
   urban28:
-    time_start_motion: 1544590814.503533610  # in seconds
+    # time_start_motion: 1544590814.503533610  # in seconds
+    # time_start_motion: 1544590854.31 # starts from zero velocity
+    time_start_motion: 1544590943.49 # starts after vo misguide
 
     map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
       # these are used in relocating the origin, only to reduce the coordinate magnitudes
