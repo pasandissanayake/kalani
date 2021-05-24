@@ -138,7 +138,7 @@ kaist_dataset:
     var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
     var_imu_angular_velocity: [2.5e-6, 2.5e-6, 2.5e-6] # in (rad s^(-1))^2
     var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
-    var_magnetometer_orientation: [1.0e-2, 1.0e-2, 1.0e+1] # in rad^2
+    var_magnetometer_orientation: [1.0e-2, 1.0e-2, 1.0e-1] # in rad^2
     var_gnss_position: [8.0e+0, 8.0e+0] # in m^2
     var_altitude: [1.0e+1] # in m^2
     # # theoretical values from the datasheets
@@ -230,11 +230,14 @@ kitti_dataset:
   dir_right_camera: 'image_01/data'
   file_name_camera_timestamps: 'image_00/timestamps.txt'
   
-  sensor_calibrations: # R and T separatelyt
+  sensor_calibrations: # R and T separately
+    vehicle_R_imu:
+      R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+      T: [-0.32, 0, 1.7]
     vehicle_R_gnss:
       R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
       T: [-0.32, 0, 1.7]
-    vehicle_R_leftvlp:
+    vehicle_R_vlp:
       R: [-0.514066, -0.702201, -0.492595, 0.486485, -0.711672, 0.506809, -0.706447, 0.0208933, 0.707457]
       T: [-0.440699, 0.397052, 1.90953]
     vehicle_R_stereo:
@@ -246,7 +249,6 @@ kitti_dataset:
     var_imu_linear_acceleration_bias: [1.0e-6, 1.0e-6, 1.0e-6] # in (m s^(-2))^2
     var_imu_angular_velocity: [2.5e-5, 2.5e-5, 2.5e-5] # in (rad s^(-1))^2
     var_imu_angular_velocity_bias: [2.5e-9, 2.5e-9, 2.5e-9] # in (rad s^(-1))^2
-    var_magnetometer_orientation: [1.0e-0, 1.0e-0, 1.0e+1] # in rad^2
     var_gnss_position: [1.0e+1, 1.0e+1] # in m^2
     var_altitude: [1.0e+1] # in m^2
 
@@ -256,7 +258,7 @@ kitti_dataset:
     init_imu_angular_velocity_bias: [0.0, 0.0, 0.0] # in rad s^(-1)
 
   # sequence specific info
-  2011_10_03_0027:
+  s2011_10_03_0027:
     time_start_motion: 1335704128.61069  # in seconds
 
     map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern

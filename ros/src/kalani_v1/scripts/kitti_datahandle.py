@@ -14,7 +14,7 @@ from sensor_msgs.msg import PointCloud2, PointField
 from utilities import *
 
 log = Log(prefix='kaist_datahandle')
-config = get_config_dict()['kaist_dataset']
+config = get_config_dict()['kitti_dataset']
 
 def extract_timestamps(file_path):
     timestamps  = []
@@ -82,7 +82,7 @@ class LaserScan:
         self._file_list = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
         self._file_list.sort()
         self._timestamp_file = timestamp_file
-        self._time = extract_timestamps(timestamp_file)
+        self.time = extract_timestamps(timestamp_file)
 
     def get_points(self, time, format='XYZI', nearesttimestamp=True):
             if nearesttimestamp:
@@ -91,11 +91,9 @@ class LaserScan:
                 idx = np.where(self.time == time)[1][0]
             pointsfile = '{}/{}'.format(self._directory, self._file_list[idx])
             if os.path.isfile(pointsfile):
-                f = open(pointsfile, "rb")
-                s = f.read()
-                no_of_floats = len(s) / 4
-                no_of_points = no_of_floats / 4
-                w = np.reshape(struct.unpack('f' * no_of_floats, s), (-1,4)).astype(np.float32)
+                scan = np.loadtxt(pointsfile, delimiter=' ', dtype=np.float32)
+                w = scan.reshape((-1, 4))
+                no_of_points = len(w)
                 if format=='XYZI':
                     return no_of_points, w
                 else:
@@ -155,7 +153,7 @@ class Calibrations:
     def __init__(self):
         self.VEHICLE_R_IMU = np.eye(4)
         self.VEHICLE_R_GNSS = np.eye(4)
-        self.VEHICLE_R_LEFTVLP = np.eye(4)
+        self.VEHICLE_R_VLP = np.eye(4)
         self.VEHICLE_R_STEREO = np.eye(4)
 
 
@@ -166,20 +164,20 @@ class KITTIData:
         self.gnss = GNSS()
         self.imu = IMU()
         self.altitude = Altitude()
-        self.vlpLeft = LaserScan()
+        self.vlp = LaserScan()
         self.stereoImage = StereoImage()
         self.calibrations = Calibrations()
 
         self._GNSS_FLAG = False
         self._IMU_FLAG = False
         self._ALTITUDE_FLAG = False
-        self._VLP_LEFT_FLAG = False
+        self._VLP_FLAG = False
         self._STEREO_IMAGE_FLAG = False
 
         self.GNSS_CLASS_NAME = self.gnss.__class__.__name__
         self.IMU_CLASS_NAME = self.imu.__class__.__name__
         self.ALTITUDE_CLASS_NAME = self.altitude.__class__.__name__
-        self.VLP_LEFT_CLASS_NAME = self.vlpLeft.__class__.__name__
+        self.VLP_CLASS_NAME = self.vlp.__class__.__name__
         self.STEREO_IMAGE_CLASS_NAME = self.stereoImage.__class__.__name__
 
     def load_groundtruth_from_numpy(self, timestamps, gt_array, origin):
@@ -295,18 +293,18 @@ class KITTIData:
         self.calibrations.VEHICLE_R_IMU = ov_R_imu
 
         tv_R_gnss = np.zeros((4, 4))
-        tv_R_gnss[0:3, 0:3] = np.reshape(sensor_calibrations['vehicle_R_imu']['R'], (3, 3))
-        tv_R_gnss[0:3, 3] = np.array(sensor_calibrations['vehicle_R_imu']['T'])
+        tv_R_gnss[0:3, 0:3] = np.reshape(sensor_calibrations['vehicle_R_gnss']['R'], (3, 3))
+        tv_R_gnss[0:3, 3] = np.array(sensor_calibrations['vehicle_R_gnss']['T'])
         tv_R_gnss[3, 3] = 1
         ov_R_gnss = np.matmul(ov_R_tv, tv_R_gnss)
         self.calibrations.VEHICLE_R_GNSS = ov_R_gnss
 
-        tv_R_leftvlp = np.zeros((4, 4))
-        tv_R_leftvlp[0:3, 0:3] = np.reshape(sensor_calibrations['vehicle_R_vlp']['R'], (3, 3))
-        tv_R_leftvlp[0:3, 3] = np.array(sensor_calibrations['vehicle_R_vlp']['T'])
-        tv_R_leftvlp[3, 3] = 1
-        ov_R_leftvlp = np.matmul(ov_R_tv, tv_R_leftvlp)
-        self.calibrations.VEHICLE_R_LEFTVLP = ov_R_leftvlp
+        tv_R_vlp = np.zeros((4, 4))
+        tv_R_vlp[0:3, 0:3] = np.reshape(sensor_calibrations['vehicle_R_vlp']['R'], (3, 3))
+        tv_R_vlp[0:3, 3] = np.array(sensor_calibrations['vehicle_R_vlp']['T'])
+        tv_R_vlp[3, 3] = 1
+        ov_R_vlp = np.matmul(ov_R_tv, tv_R_vlp)
+        self.calibrations.VEHICLE_R_VLP = ov_R_vlp
 
         tv_R_stereo = np.zeros((4, 4))
         tv_R_stereo[0:3, 0:3] = np.reshape(sensor_calibrations['vehicle_R_stereo']['R'], (3, 3))
@@ -317,14 +315,16 @@ class KITTIData:
 
     def load_data(self, dataroot=None, date=None, drive=None, oxts=False, vlp=False, stereoimage=False, calibrations=False):
         kitti_config = get_config_dict()['kitti_dataset']
-
+        
         if dataroot is None:
             dataroot = kitti_config['data_root']
         if date is None:
             date = kitti_config['date']
         if drive is None:
             drive = kitti_config['drive']
-       
+
+        sequence = 's{}_{}'.format(date, drive)
+
         if oxts:
             oxts_dir = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['dir_oxts_data'])
             timestamp_file = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['file_name_oxts_timestamps'])
@@ -335,26 +335,28 @@ class KITTIData:
             for oxts_file in oxts_files:
                 o = np.loadtxt('{}/{}'.format(oxts_dir, oxts_file), delimiter=' ')
                 oxts_data.append(o)
-            oxts_array = np.array(oxts_data)            
+            oxts_array = np.array(oxts_data)
+            origin = np.array([kitti_config[sequence]['map_origin']['easting'], kitti_config[sequence]['map_origin']['northing'], kitti_config[sequence]['map_origin']['alt']])        
             self.load_imu_from_numpy(timestamps, oxts_array)
             self._IMU_FLAG = True
-            self.load_gnss_from_numpy(timestamps, oxts_array, np.array([455392.88681631343, 5425692.893443901]))
+            self.load_gnss_from_numpy(timestamps, oxts_array, origin[0:2])
             self._GNSS_FLAG = True
-            self.load_groundtruth_from_numpy(timestamps, oxts_array, np.array([455392.88681631343, 5425692.893443901, 116.43446350098]))
-            
-
+            self.load_altitude_from_numpy(timestamps, oxts_array, origin)
+            self._ALTITUDE_FLAG = True
+            self.load_groundtruth_from_numpy(timestamps, oxts_array, origin)
         if vlp:
-            directory = '{}/{}/{}'.format(dataroot, sequence, kitti_config['dir_lidar'])
-            self.vlpLeft.set_directory(directory)
-            self._VLP_LEFT_FLAG = True
+            directory = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['dir_lidar'])
+            vlp_timestamp_file = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['file_name_lidar_timestamps'])
+            self.vlp.set_directory(directory, vlp_timestamp_file)
+            self._VLP_FLAG = True
         if stereoimage:
-            l_dir = '{}/{}/{}'.format(dataroot, sequence, kaist_config['dir_left_camera'])
-            r_dir = '{}/{}/{}'.format(dataroot, sequence, kaist_config['dir_right_camera'])
-            t_file = '{}/{}/{}'.format(dataroot, sequence, kaist_config['file_name_camera_timestamps'])
-            self.stereoImage.set_directories(l_dir, r_dir, t_file)
+            l_dir = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['dir_left_camera'])
+            r_dir = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['dir_right_camera'])
+            stereo_timestamp_file = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['file_name_camera_timestamps'])
+            self.stereoImage.set_directories(l_dir, r_dir, stereo_timestamp_file)
             self._STEREO_IMAGE_FLAG = True
         if calibrations:
-            self.load_calibrations_from_config(sequence)
+            self.load_calibrations_from_config(date)
 
     class Player:
         def __init__(self, data_objects, starttime=None):
@@ -397,8 +399,8 @@ class KITTIData:
             data_objects.append(self.imu)
         if self._ALTITUDE_FLAG:
             data_objects.append(self.altitude)
-        if self._VLP_LEFT_FLAG:
-            data_objects.append(self.vlpLeft)
+        if self._VLP_FLAG:
+            data_objects.append(self.vlp)
         if self._STEREO_IMAGE_FLAG:
             data_objects.append(self.stereoImage)
         return self.Player(data_objects, starttime=starttime)

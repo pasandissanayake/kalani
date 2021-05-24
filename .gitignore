@@ -2,3 +2,9 @@ ros/build/
 ros/devel/
 ros/src/center_track/models/
 ros/src/orb_slam2/Vocabulary/
+ros/src/center_track/scripts/.vscode/
+ros/src/center_track/scripts/__pycache__/extraction_utils.cpython-36.pyc
+ros/src/center_track/scripts/__pycache__/extraction_utils.cpython-39.pyc
+ros/src/center_track/scripts/__pycache__/object_extraction.cpython-36.pyc
+ros/src/center_track/scripts/__pycache__/point_cloud_utils.cpython-36.pyc
+

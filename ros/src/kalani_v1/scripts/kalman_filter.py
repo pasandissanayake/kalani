@@ -449,10 +449,10 @@ class KalmanFilter:
         dx0 = K[0:self._es_len].dot(measurement - meas_fun(so1.ns, so0.ns))
         corrected_ns1 = self._combination(so1.ns, dx1)
 
-        so0an, so0ax = quaternion_to_angle_axis(so0.ns.q())
-        so0anax = so0an * so0ax
-        so1an, so1ax = quaternion_to_angle_axis(so1.ns.q())
-        so1anax = so1an * so1ax
+        # so0an, so0ax = quaternion_to_angle_axis(so0.ns.q())
+        # so0anax = so0an * so0ax
+        # so1an, so1ax = quaternion_to_angle_axis(so1.ns.q())
+        # so1anax = so1an * so1ax
         # log.log('so0_idx:{}, so1_idx:{}'.format(so0_index, so1_index))
         # log.log('so0:{}, so1:{}'.format(so0anax, so1anax))
         # log.log('meas:{}, meas_fun:{}, dif:{}'.format(measurement, meas_fun(so1.ns, so0.ns), measurement - meas_fun(so1.ns, so0.ns)))
@@ -474,10 +474,10 @@ class KalmanFilter:
         so_new.timestamp = so1.timestamp
         so_new.is_valid = True
 
-        prev_an, prev_ax = quaternion_to_angle_axis(so1.ns.q())
-        prev = prev_an * prev_ax
-        new_an, new_ax = quaternion_to_angle_axis(so_new.ns.q())
-        new = new_an * new_ax
+        # prev_an, prev_ax = quaternion_to_angle_axis(so1.ns.q())
+        # prev = prev_an * prev_ax
+        # new_an, new_ax = quaternion_to_angle_axis(so_new.ns.q())
+        # new = new_an * new_ax
         # log.log("prev:{}, new:{}".format(prev, new))
 
         self._state_buffer.update_state(so_new, so1_index)

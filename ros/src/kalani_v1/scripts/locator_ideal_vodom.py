@@ -108,7 +108,8 @@ def gnss_callback(data):
         # gnss correction
         if not is_stationary():
             # simulate GNSS outage
-            if False and (t > 1544590908.4 - 15.0 and t < 1544590908.4 + 15.0): 
+            # if True and (t > 1544590908.4 - 15.0 and t < 1544590908.4 + 15.0): # urban28
+            if False and (t > 1544590943.49 + 5.0 and t < 1544590943.49 + 25.0): 
                 log.log('no gps!')
                 pass
             elif seq_gnss % 1 == 0:
@@ -116,7 +117,7 @@ def gnss_callback(data):
                     return ns.p()[0:2]
                 def hx_fun(ns):
                     return np.concatenate([np.eye(2),np.zeros((2,14))], axis=1)
-                kf.correct_absolute(meas_fun, gnss_fix, cov, t, hx_fun=hx_fun, measurement_name='gnss')
+                kf.correct_absolute(meas_fun, gnss_fix, cov*2, t, hx_fun=hx_fun, measurement_name='gnss')
                 pass
         else:
             log.log('gps discarded - stationary')
@@ -205,8 +206,9 @@ def mag_callback(data):
     t = data.header.stamp.to_sec()
     magnetic_field = np.array([data.magnetic_field.x, data.magnetic_field.y, data.magnetic_field.z])
     cov = np.reshape(data.magnetic_field_covariance, (3,3))
-    orientation = get_orientation_from_magnetic_field(magnetic_field, linear_acceleration)
+    # orientation = get_orientation_from_magnetic_field(magnetic_field, linear_acceleration)
     orientation_gt = tft.quaternion_from_euler(kd.groundtruth.interp_r(t), kd.groundtruth.interp_p(t), kd.groundtruth.interp_h(t)) # for initialization
+    orientation = orientation_gt
 
     angle, axis = quaternion_to_angle_axis(orientation)
     meas_axisangle = angle * axis
@@ -316,7 +318,7 @@ def laserodom_callback(data):
         log.log('lo frame discarded.')
         return
 
-    if lo_rate_adjust % 4 == 0:
+    if lo_rate_adjust % 8 == 0:
         lo_rate_adjust = 1
     else:
         lo_rate_adjust = lo_rate_adjust + 1
@@ -437,7 +439,7 @@ def visualodom_callback(data):
             dx[0:3] = np.zeros(3)
             dx[6:9] = np.zeros(3)
         return dx
-    v_var = 1e-4
+    v_var = 1e-6
     kf.correct_absolute(meas_fun, v_v * 0.98, np.diag([v_var, v_var, v_var]), t1, constraints=constraints, measurement_name='visualodom_v')
 
     # log.log("angle:{}, t0:{}, t1:{}".format(tft.euler_from_quaternion(tft.quaternion_about_axis(dangle, daxis)), t0, t1))
