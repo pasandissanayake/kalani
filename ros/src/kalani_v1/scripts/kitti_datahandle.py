@@ -141,9 +141,10 @@ class StereoImage:
         leftfile = '{}/{}'.format(self._left_dir, self._left_file_list[idx])
         rightfile = '{}/{}'.format(self._right_dir, self._right_file_list[idx])
         if os.path.isfile(leftfile) and os.path.isfile(rightfile) :
-            left_image = cv2.imread(leftfile, 0)
-            right_image = cv2.imread(rightfile, 0)
-            return left_image, right_image
+            left_image = cv2.imread(leftfile, cv2.IMREAD_GRAYSCALE)
+            right_image = cv2.imread(rightfile, cv2.IMREAD_GRAYSCALE)
+            colour_image = cv2.imread(leftfile, cv2.IMREAD_COLOR)
+            return left_image, right_image, colour_image
         else:
             log.log('StereoImage get_stereo_images() files not found. File names: {}, {}'.format(leftfile, rightfile))
             return None, None

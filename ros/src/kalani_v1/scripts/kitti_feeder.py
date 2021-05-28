@@ -13,6 +13,7 @@ from rosgraph_msgs.msg import Clock
 from sensor_msgs.msg import Imu, MagneticField, PointCloud2, Image
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
+from cv_bridge import CvBridge
 
 from utilities import *
 from kitti_datahandle import *
@@ -87,7 +88,7 @@ def publish_data():
                 pointcloud_pub.publish(kd.vlp.get_point_cloud2(msg.header))
 
             elif name == kd.STEREO_IMAGE_CLASS_NAME:
-                limage, rimage = kd.stereoImage.get_stereo_images(next_data[2])
+                limage, rimage, cimage = kd.stereoImage.get_stereo_images(next_data[2])
                 height = np.shape(limage)[0]
                 width = np.shape(limage)[1]
                 lmsg = Image()
@@ -108,7 +109,8 @@ def publish_data():
                 rmsg.data = rimage.flatten().tolist()
                 stereo_left_pub.publish(lmsg)
                 stereo_right_pub.publish(rmsg)
-
+                stereo_colour_pub.publish(bridge.cv2_to_imgmsg(cimage, "bgr8"))
+                
             next_data = pl.next()
 
 
@@ -134,11 +136,14 @@ if __name__ == '__main__':
     imu_pub = rospy.Publisher(general_config['processed_imu_topic'], Imu, queue_size=1)
     stereo_left_pub = rospy.Publisher(general_config['raw_stereo_image_left'], Image, queue_size=1)
     stereo_right_pub = rospy.Publisher(general_config['raw_stereo_image_right'], Image, queue_size=1)
+    stereo_colour_pub = rospy.Publisher(general_config['raw_colour_image'], Image, queue_size=1)
 
     # TODO: change pointcloud topic
     pointcloud_pub = rospy.Publisher('/os1_points', PointCloud2, queue_size=1)
 
     clock_pub = rospy.Publisher('/clock', Clock, queue_size=1)
+
+    bridge = CvBridge()
 
     sw = Stopwatch()
     sw.start()

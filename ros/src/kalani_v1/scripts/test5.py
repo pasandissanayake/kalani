@@ -7,5 +7,6 @@ import rospy
 import pcl
 
 kd = KITTIData()
-kd.load_data(oxts=True)
+kd.load_data(calibrations=True)
 
+print kd.calibrations.VEHICLE_R_STEREO

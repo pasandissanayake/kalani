@@ -125,6 +125,9 @@ def gnss_callback(data):
 
     elif altitude is not None:
         # filter initialization
+        # orientation_gt = tft.quaternion_from_euler(kd.groundtruth.interp_r(t), kd.groundtruth.interp_p(t), kd.groundtruth.interp_h(t)) 
+        # cov_q = np.eye(3)*1e-3
+
         cov_p = np.eye(3)
         cov_p[0:2, 0:2] = cov
         cov_p[2, 2] = var_altitude
@@ -133,6 +136,7 @@ def gnss_callback(data):
         kf.initialize([
             ['p', p, cov_p, t],
             ['v', init_velocity, np.diag(init_var_velocity), t],
+            # ['q', orientation_gt, cov_q, t],
             ['ab', init_imu_linear_acceleration_bias, np.diag(var_imu_linear_acceleration_bias), t],
             ['wb', init_imu_angular_velocity_bias, np.diag(var_imu_angular_velocity_bias), t]
         ])
