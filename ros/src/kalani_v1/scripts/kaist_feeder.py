@@ -131,7 +131,7 @@ if __name__ == '__main__':
     log.log('Node initialized.')
 
     current_time = -1
-    rate = 0.5
+    rate = 0.7
     pause = True
     step = False
 
@@ -141,9 +141,7 @@ if __name__ == '__main__':
     magneto_pub = rospy.Publisher(general_config['processed_magneto_topic'], MagneticField, queue_size=1)
     stereo_left_pub = rospy.Publisher(general_config['raw_stereo_image_left'], Image, queue_size=1)
     stereo_right_pub = rospy.Publisher(general_config['raw_stereo_image_right'], Image, queue_size=1)
-
-    # TODO: change pointcloud topic
-    pointcloud_pub = rospy.Publisher('/os1_points', PointCloud2, queue_size=1)
+    pointcloud_pub = rospy.Publisher(general_config['raw_pointcloud'], PointCloud2, queue_size=1)
 
     clock_pub = rospy.Publisher('/clock', Clock, queue_size=1)
 

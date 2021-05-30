@@ -33,6 +33,7 @@ general:
   raw_stereo_image_left:  '/camera/left/image_raw'
   raw_stereo_image_right: '/camera/right/image_raw'
   raw_colour_image: '/camera/colour/image_raw'
+  raw_pointcloud: '/os1_points'
 
   # processed data topics (before feeding to the locator)
   processed_gnss_topic: '/kalani/processed_data/gnss' # type: nav_msgs/Odometry
@@ -264,11 +265,14 @@ kitti_dataset:
 
   # sequence specific info
   s2011_10_03_0027:
-    time_start_motion: 1335704128.61069  # in seconds
+    time_start_motion: 2011-10-03 12:55:36.397971133
 
-    map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
+    map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 32U, Northern
       # these are used in relocating the origin, only to reduce the coordinate magnitudes
-      easting: 316001.6098
-      northing: 4155469.996
-      alt: 16.88669620379847
+      easting: 455392.82
+      northing: 5425692.90
+      alt: 116.43446350098
+      # easting: 0
+      # northing: 0
+      # alt: 0
       

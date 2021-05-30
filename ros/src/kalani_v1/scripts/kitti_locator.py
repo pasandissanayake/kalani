@@ -16,7 +16,7 @@ from nav_msgs.msg import Odometry
 
 from kalman_filter import KalmanFilter
 from utilities import *
-from kaist_datahandle import KAISTData
+from kitti_datahandle import KITTIData
 
 
 # placeholders for most recent measurement values
@@ -33,7 +33,7 @@ seq_gnss = -1
 seq_altimeter = -1
 
 # absolute stationarity condition (detected by odometers)
-stationary = True
+stationary = False
 
 def is_stationary():
     global stationary
@@ -125,8 +125,8 @@ def gnss_callback(data):
 
     elif altitude is not None:
         # filter initialization
-        # orientation_gt = tft.quaternion_from_euler(kd.groundtruth.interp_r(t), kd.groundtruth.interp_p(t), kd.groundtruth.interp_h(t)) 
-        # cov_q = np.eye(3)*1e-3
+        orientation_gt = tft.quaternion_from_euler(kd.groundtruth.interp_r(t), kd.groundtruth.interp_p(t), kd.groundtruth.interp_h(t)) 
+        cov_q = np.eye(3)*1e-3
 
         cov_p = np.eye(3)
         cov_p[0:2, 0:2] = cov
@@ -136,7 +136,7 @@ def gnss_callback(data):
         kf.initialize([
             ['p', p, cov_p, t],
             ['v', init_velocity, np.diag(init_var_velocity), t],
-            # ['q', orientation_gt, cov_q, t],
+            ['q', orientation_gt, cov_q, t],
             ['ab', init_imu_linear_acceleration_bias, np.diag(var_imu_linear_acceleration_bias), t],
             ['wb', init_imu_angular_velocity_bias, np.diag(var_imu_angular_velocity_bias), t]
         ])
@@ -161,7 +161,7 @@ def alt_callback(data):
             return np.array([ns.p()[2]])
         def hx_fun(ns):
             return np.concatenate([[0,0,1], np.zeros(13)]).reshape((1, 16))
-        # kf.correct_absolute(meas_fun, np.array([altitude]), var_altitude.reshape((1,1)), t, hx_fun=hx_fun, measurement_name='altitude')
+        kf.correct_absolute(meas_fun, np.array([altitude]), var_altitude.reshape((1,1)), t, hx_fun=hx_fun, measurement_name='altitude')
 
 
 imu_rate_adjust = 1
@@ -289,7 +289,7 @@ def laserodom_callback(data):
 
     v_ci = dp_ci / (t1-t0) # velocity in camera init frame
     v_c0 = np.matmul(ciRc0.T, v_ci) # velocity in old camera frame
-    v_v = np.matmul(vRc, v_c0) * 1.1 # velocity in vehicle frame
+    v_v = np.matmul(vRc, v_c0)# velocity in vehicle frame
     # ZUPT conditions
     v_v[0] = 0
     v_v[2] = 0
@@ -329,31 +329,31 @@ def laserodom_callback(data):
         return
 
     # velocity correction
-    # def meas_fun(ns):
-    #     R = tft.quaternion_matrix(ns.q())[0:3,0:3]
-    #     return np.matmul(R.T, ns.v())
-    # def constraints(dx):
-    #     if not is_stationary() and np.linalg.norm(dx[0:3]) > 0.5:
-    #         dx[0:3] = np.zeros(3)
-    #         dx[6:9] = np.zeros(3)
-    #     return dx
-    # v_var = 1e-2
-    # log.log('lo abs correction')
-    # kf.correct_absolute(meas_fun, v_v, np.diag([v_var, v_var, v_var]), t1, constraints=constraints, measurement_name='visualodom_v')
+    def meas_fun(ns):
+        R = tft.quaternion_matrix(ns.q())[0:3,0:3]
+        return np.matmul(R.T, ns.v())
+    def constraints(dx):
+        if not is_stationary() and np.linalg.norm(dx[0:3]) > 0.5:
+            dx[0:3] = np.zeros(3)
+            dx[6:9] = np.zeros(3)
+        return dx
+    v_var = 1e-2
+    log.log('lo abs correction')
+    kf.correct_absolute(meas_fun, v_v, np.diag([v_var, v_var, v_var]), t1, constraints=constraints, measurement_name='visualodom_v')
 
     # relative rotation correction
-    def meas_fun(ns1, ns0):
-        qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
-        ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
-        return ds_angle * ds_axis
-    def hx_fun(ns1, ns0):
-        qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
-        du_dq0 = np.dot(np.dot(jacobian_of_axisangle_wrt_q(qd_s), quaternion_right_multmat(ns1.q())), jacobian_of_qinv_wrt_q())
-        du_dq1 = np.dot(jacobian_of_axisangle_wrt_q(qd_s), quaternion_left_multmat(tft.quaternion_conjugate(ns0.q())))
-        Hx0 = np.concatenate([np.zeros((3,6)), du_dq0, np.zeros((3,6))], axis=1)
-        Hx1 = np.concatenate([np.zeros((3,6)), du_dq1, np.zeros((3,6))], axis=1)
-        return Hx1, Hx0
-    kf.correct_relative(meas_fun, dtheta, np.ones(3)*1e-2, t1, t0, hx_fun=hx_fun, measurement_name='visualodom_q')
+    # def meas_fun(ns1, ns0):
+    #     qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
+    #     ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
+    #     return ds_angle * ds_axis
+    # def hx_fun(ns1, ns0):
+    #     qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
+    #     du_dq0 = np.dot(np.dot(jacobian_of_axisangle_wrt_q(qd_s), quaternion_right_multmat(ns1.q())), jacobian_of_qinv_wrt_q())
+    #     du_dq1 = np.dot(jacobian_of_axisangle_wrt_q(qd_s), quaternion_left_multmat(tft.quaternion_conjugate(ns0.q())))
+    #     Hx0 = np.concatenate([np.zeros((3,6)), du_dq0, np.zeros((3,6))], axis=1)
+    #     Hx1 = np.concatenate([np.zeros((3,6)), du_dq1, np.zeros((3,6))], axis=1)
+    #     return Hx1, Hx0
+    # kf.correct_relative(meas_fun, dtheta, np.ones(3)*1e-2, t1, t0, hx_fun=hx_fun, measurement_name='visualodom_q')
 
 
 vo_rate_adjust = 1
@@ -643,8 +643,8 @@ if __name__ == '__main__':
         fi_fun=fi
     )
 
-    kd = KAISTData()
-    kd.load_data(groundtruth=True)
+    kd = KITTIData()
+    kd.load_data(oxts=True)
 
     log.log('Node ready.')
 

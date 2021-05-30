@@ -20,7 +20,7 @@ from utilities import *
 ###########################################
 ######### import datahandle ###############
 ###########################################
-from kaist_datahandle import *
+from kitti_datahandle import *
 ###########################################
 ###########################################
 
@@ -63,7 +63,7 @@ def publish_path(path, publisher, timestamp, frame_id, trans, rot):
 
 def publish_navsat_fix(publisher, timestamp, coordinate, origin):
     msg = NavSatFix()
-    fix_wgs = get_gnss_fix_from_utm(coordinate[0:2], origin[0:2], '52S', 'north', fixunit='deg')
+    fix_wgs = get_gnss_fix_from_utm(coordinate[0:2], origin[0:2], '32U', 'north', fixunit='deg')
     altitude = coordinate[2] + origin[2]
     msg.header.stamp = rospy.Time.from_sec(timestamp)
     msg.latitude = fix_wgs[0]
@@ -123,16 +123,17 @@ def callback(data):
     except Exception as e:
         log.log('GNSS transform lookup error. {}'.format(e.message))
         gnss_trans = gt_trans
-    try:
-        mag_tf = tf_buffer.lookup_transform(general_config['tf_frame_world'], general_config['tf_frame_magneto'],
-                                            rospy.Time(ts_to_tf))
-        mag_rot = np.array([mag_tf.transform.rotation.x, mag_tf.transform.rotation.y, mag_tf.transform.rotation.z,
-                            mag_tf.transform.rotation.w])
-        mag_rot_euler = np.array(tft.euler_from_quaternion(mag_rot))
-    except Exception as e:
-        log.log('Magnetometer transform lookup error. {}'.format(e.message))
-        mag_rot = gt_rot
-        mag_rot_euler = gt_rot_euler
+    # try:
+    #     mag_tf = tf_buffer.lookup_transform(general_config['tf_frame_world'], general_config['tf_frame_magneto'],
+    #                                         rospy.Time(ts_to_tf))
+    #     mag_rot = np.array([mag_tf.transform.rotation.x, mag_tf.transform.rotation.y, mag_tf.transform.rotation.z,
+    #                         mag_tf.transform.rotation.w])
+    #     mag_rot_euler = np.array(tft.euler_from_quaternion(mag_rot))
+    # except Exception as e:
+    #     log.log('Magnetometer transform lookup error. {}'.format(e.message))
+    #     mag_rot = gt_rot
+    mag_rot = gt_rot
+    mag_rot_euler = np.array(tft.euler_from_quaternion(mag_rot))
 
     # obtain gnss, magnetometer errors
     gnss_error = gnss_trans - gt_trans
@@ -203,11 +204,14 @@ if __name__ == '__main__':
     #####################################################
     ################# load ground truth #################
     #####################################################
-    ds = KAISTData()
-    ds.load_data(groundtruth=True)
+    ds = KITTIData()
+    ds.load_data(oxts=True)
 
-    ds_config = get_config_dict()['kaist_dataset']
-    origin = np.array([ds_config[ds_config['sequence']]['map_origin']['easting'], ds_config[ds_config['sequence']]['map_origin']['northing'], ds_config[ds_config['sequence']]['map_origin']['alt']])
+    ds_config = get_config_dict()['kitti_dataset']
+    date = ds_config['date']
+    drive = ds_config['drive']
+    sequence = 's{}_{}'.format(date, drive)
+    origin = np.array([ds_config[sequence]['map_origin']['easting'], ds_config[sequence]['map_origin']['northing'], ds_config[sequence]['map_origin']['alt']])
     #####################################################
     #####################################################
 

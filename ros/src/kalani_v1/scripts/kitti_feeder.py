@@ -47,6 +47,7 @@ def publish_data():
     log.log('Publisher started. Starting time: {} s'.format(current_time))
     while next_data is not None:
         if current_time > next_data[2]:
+            log.log('current time:{}, timestamp:{}, name:{}'.format(current_time, next_data[2],next_data[0]))
             name = next_data[0]
 
             if name == kd.GNSS_CLASS_NAME:
@@ -137,9 +138,7 @@ if __name__ == '__main__':
     stereo_left_pub = rospy.Publisher(general_config['raw_stereo_image_left'], Image, queue_size=1)
     stereo_right_pub = rospy.Publisher(general_config['raw_stereo_image_right'], Image, queue_size=1)
     stereo_colour_pub = rospy.Publisher(general_config['raw_colour_image'], Image, queue_size=1)
-
-    # TODO: change pointcloud topic
-    pointcloud_pub = rospy.Publisher('/os1_points', PointCloud2, queue_size=1)
+    pointcloud_pub = rospy.Publisher(general_config['raw_pointcloud'], PointCloud2, queue_size=1)
 
     clock_pub = rospy.Publisher('/clock', Clock, queue_size=1)
 
@@ -191,11 +190,13 @@ if __name__ == '__main__':
     rospy.set_param('/kalani/init/init_imu_angular_velocity_bias', sensor_config['init_imu_angular_velocity_bias'])
 
     # start data player
-    pl = kd.get_player(starttime=sequence_config['time_start_motion'])
+    starttime = timestamp_from_kitti_string(str(sequence_config['time_start_motion']))
+    pl = kd.get_player(starttime=starttime)
 
     try:
         thread.start_new_thread(publish_data, ())
         log.log('Node ready.')
+        log.log('Start time: {}, rate: {}'.format(starttime, rate))
     except Exception as e:
         log.log('Publisher thread error: {}'.format(e.message))
 

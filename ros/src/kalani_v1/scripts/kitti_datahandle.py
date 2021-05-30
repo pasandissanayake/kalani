@@ -13,16 +13,19 @@ from sensor_msgs.msg import PointCloud2, PointField
 
 from utilities import *
 
-log = Log(prefix='kaist_datahandle')
+log = Log(prefix='kitti_datahandle')
 config = get_config_dict()['kitti_dataset']
+
+def timestamp_from_kitti_string(string):
+    t = dt.datetime.strptime(string[:-4], '%Y-%m-%d %H:%M:%S.%f')
+    cal = time.mktime(t.timetuple()) + t.microsecond * 1e-6
+    return cal
 
 def extract_timestamps(file_path):
     timestamps  = []
     with open(file_path, 'r') as f:
         for line in f.readlines():
-            t = dt.datetime.strptime(line[:-4], '%Y-%m-%d %H:%M:%S.%f')
-            cal = time.mktime(t.timetuple()) + t.microsecond * 1e-6
-            timestamps.append(cal)
+            timestamps.append(timestamp_from_kitti_string(line))
     return np.array(timestamps)
 
 class Vector:
@@ -201,7 +204,7 @@ class KITTIData:
         # conversions for euler angles
         self.groundtruth.r = -eulers[:, 1]
         self.groundtruth.p = eulers[:, 0]
-        self.groundtruth.h = eulers[:, 2]
+        self.groundtruth.h = eulers[:, 2] - np.pi/2
 
         self.groundtruth.interp_x = interp1d(self.groundtruth.time, self.groundtruth.x, axis=0, bounds_error=False, fill_value=self.groundtruth.x[0], kind='linear')
         self.groundtruth.interp_y = interp1d(self.groundtruth.time, self.groundtruth.y, axis=0, bounds_error=False, fill_value=self.groundtruth.y[0], kind='linear')
