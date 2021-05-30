@@ -51,9 +51,9 @@ def talker():
 	pub2 = rospy.Publisher('point_clouds', PointCloud2, queue_size=1)
 	#pub3 = rospy.Publisher('point_clouds_numpy',Float32MultiArray,queue_size=1)
 	rospy.init_node('Perception_Publisher', anonymous=True)
-	rate = rospy.Rate(10) #10fps
+	rate = rospy.Rate(2) #10fps
 	
-	#data_velo = []
+	data_velo = []
 	#file = open('velo2_pkl', 'rb')
 	#velo_data = pickle.load(file)
 	#file.close()
@@ -67,22 +67,23 @@ def talker():
 			image_message.header.stamp = ts
 			print(image_message.header.stamp)
 			#rospy.loginfo(image_message)
-			'''scan = (np.fromfile(velodynes[i], dtype=np.float32)).reshape(-1,4)
+			scan = (np.fromfile(velodynes[i], dtype=np.float32)).reshape(-1,4)
 			header = Header()
 			header.frame_id = 'my_frame'
 			fields = [PointField('x', 0, PointField.FLOAT32, 1),
 				  PointField('y', 4, PointField.FLOAT32, 1),
 				  PointField('z', 8, PointField.FLOAT32, 1),
 				  PointField('i', 12, PointField.FLOAT32, 1)]
-			pcl_msg = point_cloud2.create_cloud(header, fields, scan)'''
-			#data_velo.append(pcl_msg)
+			pcl_msg = point_cloud2.create_cloud(header, fields, scan)
+
+			data_velo.append(pcl_msg)
 			#scoresmsg = Float32MultiArray()
 			#scoresmsg.data = scan
 			#scoresmsg.stamp = ts
 			#pcl_msg = velo_data[i]
-			#pcl_msg.header.stamp = ts
+			pcl_msg.header.stamp = ts
 			pub.publish(image_message)
-			#pub2.publish(pcl_msg)
+			pub2.publish(pcl_msg)
 			#pub3.publish(scoresmsg)
 			print(rospy.get_time())
 			print('')
