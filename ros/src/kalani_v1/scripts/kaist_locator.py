@@ -108,11 +108,10 @@ def gnss_callback(data):
         # gnss correction
         if not is_stationary():
             # simulate GNSS outage
-            # if True and (t > 1544590908.4 - 15.0 and t < 1544590908.4 + 15.0): # urban28
-            if False and (t > 1544590943.49 + 5.0 and t < 1544590943.49 + 25.0): 
+            if False and (t > 1544591045.74 - 15.0 and t < 1544591045.74 + 15.0): 
                 log.log('no gps!')
                 pass
-            elif seq_gnss % 1 == 0:
+            elif seq_gnss % 2 == 0:
                 def meas_fun(ns):
                     return ns.p()[0:2]
                 def hx_fun(ns):
@@ -342,18 +341,18 @@ def laserodom_callback(data):
     # kf.correct_absolute(meas_fun, v_v, np.diag([v_var, v_var, v_var]), t1, constraints=constraints, measurement_name='visualodom_v')
 
     # relative rotation correction
-    def meas_fun(ns1, ns0):
-        qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
-        ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
-        return ds_angle * ds_axis
-    def hx_fun(ns1, ns0):
-        qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
-        du_dq0 = np.dot(np.dot(jacobian_of_axisangle_wrt_q(qd_s), quaternion_right_multmat(ns1.q())), jacobian_of_qinv_wrt_q())
-        du_dq1 = np.dot(jacobian_of_axisangle_wrt_q(qd_s), quaternion_left_multmat(tft.quaternion_conjugate(ns0.q())))
-        Hx0 = np.concatenate([np.zeros((3,6)), du_dq0, np.zeros((3,6))], axis=1)
-        Hx1 = np.concatenate([np.zeros((3,6)), du_dq1, np.zeros((3,6))], axis=1)
-        return Hx1, Hx0
-    kf.correct_relative(meas_fun, dtheta, np.ones(3)*1e-2, t1, t0, hx_fun=hx_fun, measurement_name='visualodom_q')
+    # def meas_fun(ns1, ns0):
+    #     qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
+    #     ds_angle, ds_axis = quaternion_to_angle_axis(qd_s)
+    #     return ds_angle * ds_axis
+    # def hx_fun(ns1, ns0):
+    #     qd_s = tft.quaternion_multiply(tft.quaternion_conjugate(ns0.q()),ns1.q())
+    #     du_dq0 = np.dot(np.dot(jacobian_of_axisangle_wrt_q(qd_s), quaternion_right_multmat(ns1.q())), jacobian_of_qinv_wrt_q())
+    #     du_dq1 = np.dot(jacobian_of_axisangle_wrt_q(qd_s), quaternion_left_multmat(tft.quaternion_conjugate(ns0.q())))
+    #     Hx0 = np.concatenate([np.zeros((3,6)), du_dq0, np.zeros((3,6))], axis=1)
+    #     Hx1 = np.concatenate([np.zeros((3,6)), du_dq1, np.zeros((3,6))], axis=1)
+    #     return Hx1, Hx0
+    # kf.correct_relative(meas_fun, dtheta, np.ones(3)*1e-2, t1, t0, hx_fun=hx_fun, measurement_name='visualodom_q')
 
 
 vo_rate_adjust = 1
@@ -444,7 +443,7 @@ def visualodom_callback(data):
             dx[6:9] = np.zeros(3)
         return dx
     v_var = 1e-6
-    kf.correct_absolute(meas_fun, v_v * 0.98, np.diag([v_var, v_var, v_var]), t1, constraints=constraints, measurement_name='visualodom_v')
+    kf.correct_absolute(meas_fun, v_v*0.98, np.diag([v_var, v_var, v_var]), t1, constraints=constraints, measurement_name='visualodom_v')
 
     # log.log("angle:{}, t0:{}, t1:{}".format(tft.euler_from_quaternion(tft.quaternion_about_axis(dangle, daxis)), t0, t1))
 
@@ -463,7 +462,7 @@ def visualodom_callback(data):
     #         Hx0 = np.concatenate([np.zeros((3,6)), du_dq0, np.zeros((3,6))], axis=1)
     #         Hx1 = np.concatenate([np.zeros((3,6)), du_dq1, np.zeros((3,6))], axis=1)
     #         return Hx1, Hx0
-    #     kf.correct_relative(meas_fun, dtheta, np.eye(3)*1e-3, t1, t0, hx_fun=hx_fun, measurement_name='visualodom_q')
+    #     kf.correct_relative(meas_fun, dtheta, np.eye(3)*1e-2, t1, t0, hx_fun=hx_fun, measurement_name='visualodom_q')
 
     # kf.print_states('after rel')
 

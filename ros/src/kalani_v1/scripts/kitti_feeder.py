@@ -13,10 +13,16 @@ from rosgraph_msgs.msg import Clock
 from sensor_msgs.msg import Imu, MagneticField, PointCloud2, Image
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
+from std_msgs.msg import (Float32MultiArray, Float64MultiArray,
+                          Int8MultiArray, Int16MultiArray,
+                          Int32MultiArray, Int64MultiArray,
+                          UInt8MultiArray, UInt16MultiArray,
+                          UInt32MultiArray, UInt64MultiArray)
 from cv_bridge import CvBridge
 
 from utilities import *
 from kitti_datahandle import *
+import ros_np_multiarray as rnm
 
 
 def timer():
@@ -25,12 +31,13 @@ def timer():
     prev_time = time.time()
     while True:
         duration = time.time() - prev_time
-        if duration > 0.0001:
+        if duration > 0.001:
             global current_time
             current_time += duration * rate
             prev_time += duration
             clock_pub.publish(rospy.Time.from_sec(current_time))
-        time.sleep(0.00001)
+            log.log('time: ', current_time)
+        time.sleep(0.001)
         while pause:
             prev_time = time.time() - 0.001
             if step:
@@ -47,7 +54,7 @@ def publish_data():
     log.log('Publisher started. Starting time: {} s'.format(current_time))
     while next_data is not None:
         if current_time > next_data[2]:
-            log.log('current time:{}, timestamp:{}, name:{}'.format(current_time, next_data[2],next_data[0]))
+            # log.log('current time:{}, timestamp:{}, name:{}'.format(current_time, next_data[2],next_data[0]))
             name = next_data[0]
 
             if name == kd.GNSS_CLASS_NAME:
@@ -89,7 +96,7 @@ def publish_data():
                 pointcloud_pub.publish(kd.vlp.get_point_cloud2(msg.header))
 
             elif name == kd.STEREO_IMAGE_CLASS_NAME:
-                limage, rimage, cimage = kd.stereoImage.get_stereo_images(next_data[2])
+                limage, rimage, cimage, tracklet = kd.stereoImage.get_stereo_images(next_data[2])
                 height = np.shape(limage)[0]
                 width = np.shape(limage)[1]
                 lmsg = Image()
@@ -111,8 +118,11 @@ def publish_data():
                 stereo_left_pub.publish(lmsg)
                 stereo_right_pub.publish(rmsg)
                 stereo_colour_pub.publish(bridge.cv2_to_imgmsg(cimage, "bgr8"))
+                tracklet_pub.publish(rnm.to_multiarray_f32(np.array( tracklet , dtype=np.float32)))
                 
             next_data = pl.next()
+            time.sleep(0.001)
+            # log.log('current time:{}, timestamp:{}, name:{}, time:{}'.format(current_time, next_data[2],next_data[0],sw.stop()))
 
 
 if __name__ == '__main__':
@@ -139,6 +149,7 @@ if __name__ == '__main__':
     stereo_right_pub = rospy.Publisher(general_config['raw_stereo_image_right'], Image, queue_size=1)
     stereo_colour_pub = rospy.Publisher(general_config['raw_colour_image'], Image, queue_size=1)
     pointcloud_pub = rospy.Publisher(general_config['raw_pointcloud'], PointCloud2, queue_size=1)
+    tracklet_pub = rospy.Publisher('tracklets', Float32MultiArray , queue_size=0)
 
     clock_pub = rospy.Publisher('/clock', Clock, queue_size=1)
 

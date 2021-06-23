@@ -54,7 +54,7 @@ def draw_boxes( calib , fig , objects ):
     
     return fig
 
-def lidar_extraction(pts_velo, calib, img_width, img_height , objects ):
+def lidar_extraction(pts_velo, calib, img_width, img_height , tracklets , depth_box ):
 
     start_time = time.time()
 
@@ -87,11 +87,13 @@ def lidar_extraction(pts_velo, calib, img_width, img_height , objects ):
 
     global param_list
     param_list = []
-    for idx , obj in enumerate( objects):
-        if obj.type == 8 :
-            continue
-        bbox  , box_depth = map_box_to_image(obj, P_rect2cam2)
-        bbox = bbox.transpose()
+    for idx , (bbox , box_depth) in enumerate( zip( tracklets , depth_box  ) ):
+    
+        #for idx , obj in enumerate( objects):
+        #    if obj.type == 'DontCare' :
+        #        continue
+        #    bbox  , box_depth = map_box_to_image(obj, P_rect2cam2)
+        #    bbox = bbox.transpose()
 
         f1_l , f1_r = left_right( [ bbox[5] , bbox[6] , bbox[2] , bbox[1] ]   )
         f2_l , f2_r = left_right( [ bbox[7] , bbox[6] , bbox[2] , bbox[3] ]   )
@@ -147,10 +149,10 @@ def lidar_extraction(pts_velo, calib, img_width, img_height , objects ):
 
         #return lidar_cloud
         #return index array
-        return A
+        return pts_velo[ A , :][:,:3] , A
 
     else :
 
-        return pts_velo[:,:][:,:3]
+        return pts_velo[:,:][:,:3] , np.arange(len(pts_velo))
 
 

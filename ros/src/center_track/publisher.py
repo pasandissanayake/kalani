@@ -18,8 +18,11 @@ import pickle
 
 bridge = CvBridge()
 
-image_file_path = "/home/entc/kalani-data/kitti/Kitti/object/training"
-velodyne_file_path = "/home/entc/kalani-data/kitti/Kitti/object/training"
+image_file_path = "/media/entc/New Volume/DATASETS/Detection-KITTI/data_object_image_2/training"
+velodyne_file_path = "/media/entc/New Volume/DATASETS/Detection-KITTI/data_object_velodyne/training"
+label_file_path = "/media/entc/New Volume/DATASETS/Detection-KITTI/data_object_label_2/training"
+
+
 
 def GetImageFilesFromDir(dir):
 	'''Generates a list of files from the directory'''
@@ -51,7 +54,7 @@ def talker():
 	pub2 = rospy.Publisher('point_clouds', PointCloud2, queue_size=1)
 	#pub3 = rospy.Publisher('point_clouds_numpy',Float32MultiArray,queue_size=1)
 	rospy.init_node('Perception_Publisher', anonymous=True)
-	rate = rospy.Rate(2) #10fps
+	rate = rospy.Rate(1) #10fps
 	
 	data_velo = []
 	#file = open('velo2_pkl', 'rb')

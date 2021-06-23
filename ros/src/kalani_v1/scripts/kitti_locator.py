@@ -434,17 +434,17 @@ def visualodom_callback(data):
         return
 
     # velocity correction
-    log.log('vo abs correction')
-    def meas_fun(ns):
-        R = tft.quaternion_matrix(ns.q())[0:3,0:3]
-        return np.matmul(R.T, ns.v())
-    def constraints(dx):
-        if not is_stationary() and np.linalg.norm(dx[0:3]) > 0.5:
-            dx[0:3] = np.zeros(3)
-            dx[6:9] = np.zeros(3)
-        return dx
-    v_var = 1e-6
-    kf.correct_absolute(meas_fun, v_v * 0.98, np.diag([v_var, v_var, v_var]), t1, constraints=constraints, measurement_name='visualodom_v')
+    # log.log('vo abs correction')
+    # def meas_fun(ns):
+    #     R = tft.quaternion_matrix(ns.q())[0:3,0:3]
+    #     return np.matmul(R.T, ns.v())
+    # def constraints(dx):
+    #     if not is_stationary() and np.linalg.norm(dx[0:3]) > 0.5:
+    #         dx[0:3] = np.zeros(3)
+    #         dx[6:9] = np.zeros(3)
+    #     return dx
+    # v_var = 1e-6
+    # kf.correct_absolute(meas_fun, v_v * 0.98, np.diag([v_var, v_var, v_var]), t1, constraints=constraints, measurement_name='visualodom_v')
 
     # log.log("angle:{}, t0:{}, t1:{}".format(tft.euler_from_quaternion(tft.quaternion_about_axis(dangle, daxis)), t0, t1))
 

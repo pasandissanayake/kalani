@@ -116,7 +116,7 @@ def array_to_pointcloud2(cloud_arr, stamp=None, frame_id=None):
      cloud_msg.data = cloud_arr.tostring()
      return cloud_msg
  
-def get_xyz_points(cloud_array, remove_nans=True, dtype=np.float):
+def get_xyz_points(cloud_array, remove_nans=True, dtype=np.float32):
      '''Pulls out x, y, and z columns from the cloud recordarray, and returns
          a 3xN matrix.
      '''
@@ -137,45 +137,12 @@ def pointcloud2_to_xyz_array(cloud_msg, remove_nans=True):
      return get_xyz_points(pointcloud2_to_array(cloud_msg), remove_nans=remove_nans)
 
 
-def point_cloud(points, parent_frame):
-    """ Creates a point cloud message.
-    Args:
-        points: Nx7 array of xyz positions (m) and rgba colors (0..1)
-        parent_frame: frame in which the point cloud is defined
-    Returns:
-        sensor_msgs/PointCloud2 message
-    """
-    ros_dtype = sensor_msgs.PointField.FLOAT32
-    dtype = np.float32
-    itemsize = np.dtype(dtype).itemsize
-
-    data = points.astype(dtype).tobytes()
-
-    fields = [sensor_msgs.PointField(
-        name=n, offset=i*itemsize, datatype=ros_dtype, count=1)
-        for i, n in enumerate('xyz')]
-
-    header = std_msgs.Header(frame_id=parent_frame, stamp=rospy.Time.now())
-
-    return sensor_msgs.PointCloud2(
-        header=header,
-        height=1,
-        width=points.shape[0],
-        is_dense=False,
-        is_bigendian=False,
-        fields=fields,
-        point_step=(itemsize * 7),
-        row_step=(itemsize * 7 * points.shape[0]),
-        data=data
-    )
-
-def xyzrgb_array_to_pointcloud2(points, colors, stamp=None, frame_id=None, seq=None):
+def xyzi_array_to_pointcloud2( points , intensity , stamp=None, frame_id=None, seq=None):
     '''
     Create a sensor_msgs.PointCloud2 from an array
     of points.
     '''
     msg = PointCloud2()
-    assert(points.shape == colors.shape)
 
     buf = []
 
@@ -185,27 +152,29 @@ def xyzrgb_array_to_pointcloud2(points, colors, stamp=None, frame_id=None, seq=N
         msg.header.frame_id = frame_id
     if seq:
         msg.header.seq = seq
+        
     if len(points.shape) == 3:
         msg.height = points.shape[1]
         msg.width = points.shape[0]
     else:
+
         N = len(points)
-        xyzrgb = np.array(np.hstack([points, colors]), dtype=np.float32)
+        #xyzi = np.array(np.hstack([points, intensity.reshape(-1,1) ]), dtype=np.float32)
+        xyz = np.array( points , dtype=np.float32 )
         msg.height = 1
         msg.width = N
 
     msg.fields = [
         PointField('x', 0, PointField.FLOAT32, 1),
         PointField('y', 4, PointField.FLOAT32, 1),
-        PointField('z', 8, PointField.FLOAT32, 1),
-        PointField('r', 12, PointField.FLOAT32, 1),
-        PointField('g', 16, PointField.FLOAT32, 1),
-        PointField('b', 20, PointField.FLOAT32, 1)
-    ]
+        PointField('z', 8, PointField.FLOAT32, 1)
+
+    ] # PointField('i', 12, PointField.FLOAT32, 1)
     msg.is_bigendian = False
-    msg.point_step = 24
+    #msg.point_step = 16
+    msg.point_step = 12
     msg.row_step = msg.point_step * N
     msg.is_dense = True;
-    msg.data = xyzrgb.tostring()
+    msg.data = xyz.tostring()
 
     return msg 

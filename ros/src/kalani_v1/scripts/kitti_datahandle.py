@@ -12,6 +12,7 @@ import sensor_msgs.point_cloud2 as pc2
 from sensor_msgs.msg import PointCloud2, PointField
 
 from utilities import *
+from label_utils import *
 
 log = Log(prefix='kitti_datahandle')
 config = get_config_dict()['kitti_dataset']
@@ -123,9 +124,10 @@ class StereoImage:
         self._timestamp_file = ''
         self._left_file_list=[]
         self._right_file_list=[]
+        self._tracklets = ''
         self.time = np.zeros(0)
 
-    def set_directories(self, left_dir, right_dir, timestamps):
+    def set_directories(self, left_dir, right_dir, trackletfilename, timestamps):
         self._left_dir = left_dir
         self._right_dir = right_dir
         self._timestamp_file = timestamps
@@ -135,6 +137,10 @@ class StereoImage:
         self._right_file_list.sort()
         log.log("l:{}, r:{}".format(len(self._left_file_list), len(self._right_file_list)))
         self.time = extract_timestamps(timestamps)
+        self.load_tracklets(trackletfilename)
+
+    def load_tracklets(self, filename):
+        self._tracklets, type_ = load_tracklet(filename , num_frames=len(self.time) )
 
     def get_stereo_images(self, time, nearesttimestamp=True):
         if nearesttimestamp:
@@ -147,10 +153,11 @@ class StereoImage:
             left_image = cv2.imread(leftfile, cv2.IMREAD_GRAYSCALE)
             right_image = cv2.imread(rightfile, cv2.IMREAD_GRAYSCALE)
             colour_image = cv2.imread(leftfile, cv2.IMREAD_COLOR)
-            return left_image, right_image, colour_image
+            return left_image, right_image, colour_image, self._tracklets[idx]
         else:
             log.log('StereoImage get_stereo_images() files not found. File names: {}, {}'.format(leftfile, rightfile))
             return None, None
+      
     
 
 class Calibrations:
@@ -259,6 +266,7 @@ class KITTIData:
         self.altitude.time = timestamps
         self.altitude.z = altitude_array[:, 2] - origin[2]
 
+
     @staticmethod
     def vector_nwu_to_enu(vector):
         if np.ndim(vector) == 1:
@@ -357,7 +365,8 @@ class KITTIData:
             l_dir = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['dir_left_camera'])
             r_dir = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['dir_right_camera'])
             stereo_timestamp_file = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['file_name_camera_timestamps'])
-            self.stereoImage.set_directories(l_dir, r_dir, stereo_timestamp_file)
+            trackletfilename = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['file_name_tracklets'])
+            self.stereoImage.set_directories(l_dir, r_dir, trackletfilename, stereo_timestamp_file)
             self._STEREO_IMAGE_FLAG = True
         if calibrations:
             self.load_calibrations_from_config(date)
