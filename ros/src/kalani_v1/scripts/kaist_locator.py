@@ -35,15 +35,22 @@ seq_altimeter = -1
 # absolute stationarity condition (detected by odometers)
 stationary = True
 
+
+# function to check whether the vehicle is stationary
+# value updated by the LiDAR/visual odometry algorithms
 def is_stationary():
     global stationary
     return stationary
 
 
+# function to publish the latest state update
+# publishes in both forms; as a State message (if transform_only=False) as well as a tf frame update
 def publish_state(transform_only=False):
+    # obtain the latest state
     state, timestamp, is_valid = kf.get_current_state()
 
     if not transform_only:
+        # create a state message and publish
         msg = State()
         msg.header.stamp = rospy.Time.from_sec(timestamp)
         msg.header.frame_id = config['tf_frame_odom']
@@ -56,7 +63,7 @@ def publish_state(transform_only=False):
         msg.covariance = kf.get_current_cov()
         msg.is_initialized = is_valid
         state_pub.publish(msg)
-
+    # publish the tf frame update
     transform = TransformStamped()
     transform.header.stamp = rospy.Time.from_sec(timestamp)
     transform.header.frame_id = config['tf_frame_odom']
@@ -66,6 +73,7 @@ def publish_state(transform_only=False):
     tf2_broadcaster.sendTransform(transform)
 
 
+# function to publish the GNSS measurement as a tf frame update
 def publish_gnss(timestamp, fix):
     transform = TransformStamped()
     transform.header.stamp = rospy.Time.from_sec(timestamp)
@@ -77,6 +85,7 @@ def publish_gnss(timestamp, fix):
     tf2_broadcaster.sendTransform(transform)
 
 
+# function to publish the orientation estimated by the magnetometer as a tf function
 def publish_magnetic(timestamp, ori):
     transform = TransformStamped()
     transform.header.stamp = rospy.Time.from_sec(timestamp)
@@ -88,6 +97,7 @@ def publish_magnetic(timestamp, ori):
     tf2_broadcaster.sendTransform(transform)
 
 
+# GNSS callback - executed upon receiving GNSS measurement
 def gnss_callback(data):
     global gnss_fix, altitude, var_altitude, seq_gnss
     t = data.header.stamp.to_sec()
@@ -107,11 +117,11 @@ def gnss_callback(data):
     if kf.is_initialized:
         # gnss correction
         if not is_stationary():
-            # simulate GNSS outage
+            # simulate GNSS outage (if False, ignore)
             if False and (t > 1544591045.74 - 15.0 and t < 1544591045.74 + 15.0): 
                 log.log('no gps!')
                 pass
-            elif seq_gnss % 2 == 0:
+            elif seq_gnss % 2 == 0: # using only a fraction of the updates for corrections
                 def meas_fun(ns):
                     return ns.p()[0:2]
                 def hx_fun(ns):
@@ -126,7 +136,6 @@ def gnss_callback(data):
         # filter initialization
         # orientation_gt = tft.quaternion_from_euler(kd.groundtruth.interp_r(t), kd.groundtruth.interp_p(t), kd.groundtruth.interp_h(t)) 
         # cov_q = np.eye(3)*1e-3
-
         cov_p = np.eye(3)
         cov_p[0:2, 0:2] = cov
         cov_p[2, 2] = var_altitude
@@ -141,6 +150,7 @@ def gnss_callback(data):
         ])
     
 
+# callback for Altimeter data
 def alt_callback(data):
     global altitude, var_altitude, seq_altimeter
     t = data.header.stamp.to_sec()
@@ -163,7 +173,8 @@ def alt_callback(data):
         # kf.correct_absolute(meas_fun, np.array([altitude]), var_altitude.reshape((1,1)), t, hx_fun=hx_fun, measurement_name='altitude')
 
 
-imu_rate_adjust = 1
+# callback for IMU data
+imu_rate_adjust = 1 # counter for adujusting the data rate by dropping some messages
 def imu_callback(data):
     global linear_acceleration, angular_velocity, seq_imu, imu_rate_adjust
     t = data.header.stamp.to_sec()
@@ -173,6 +184,7 @@ def imu_callback(data):
         log.log("{} IMU messages lost at {} s!".format(data.header.seq - seq_imu -1, t))
     seq_imu = data.header.seq
 
+    # adjust rate by neglecting some messages
     if imu_rate_adjust % 1 == 0:
         imu_rate_adjust = 1
     else:
@@ -196,10 +208,12 @@ def imu_callback(data):
         publish_state()
 
 
-mag_rate_adjust = 1
+# callback for Magnetometer data
+mag_rate_adjust = 1 # counter for adujusting the data rate by dropping some messages
 def mag_callback(data):
     global magnetic_field, linear_acceleration, mag_rate_adjust
-
+    
+    # adjust rate by neglecting some messages
     if mag_rate_adjust % 10 == 0:
         mag_rate_adjust = 1
     else:
@@ -215,6 +229,7 @@ def mag_callback(data):
 
     angle, axis = quaternion_to_angle_axis(orientation)
     meas_axisangle = angle * axis
+    # if the filter is initialized, apply correction
     if kf.is_initialized:
         # magnetometer correction
         def meas_fun(ns):
@@ -251,6 +266,7 @@ def mag_callback(data):
             # kf.correct_absolute(meas_fun, meas_axisangle, cov, t, hx_fun=hx_fun, measurement_name='magnetometer')
             pass
         publish_magnetic(t, orientation)
+    # if the filter is not initialized, initialize the orientation
     else:
         kf.initialize([
             ['v', init_velocity, np.diag(init_var_velocity), t],
@@ -260,7 +276,8 @@ def mag_callback(data):
         ])
 
 
-lo_rate_adjust = 1
+# callback for LiDAR odometry data
+lo_rate_adjust = 1 # counter for adujusting the data rate by dropping some messages
 def laserodom_callback(data):
     global stationary, lo_rate_adjust
     t1 = data.header.stamp.to_sec()
@@ -289,6 +306,7 @@ def laserodom_callback(data):
     v_ci = dp_ci / (t1-t0) # velocity in camera init frame
     v_c0 = np.matmul(ciRc0.T, v_ci) # velocity in old camera frame
     v_v = np.matmul(vRc, v_c0) * 1.1 # velocity in vehicle frame
+    
     # ZUPT conditions
     v_v[0] = 0
     v_v[2] = 0
@@ -308,8 +326,6 @@ def laserodom_callback(data):
     dangle, daxis = quaternion_to_angle_axis(v0qv1)
     dtheta = dangle * daxis # axis angle difference of c1-c0
 
-    # log.log("angle:{}, t0:{}, t1:{}".format(tft.euler_from_quaternion(tft.quaternion_about_axis(dangle, daxis)), t0, t1))
-    
     # detect stationarity
     if tft.vector_norm(v_v) < 1e-1:
         stationary = True
@@ -355,7 +371,8 @@ def laserodom_callback(data):
     # kf.correct_relative(meas_fun, dtheta, np.ones(3)*1e-2, t1, t0, hx_fun=hx_fun, measurement_name='visualodom_q')
 
 
-vo_rate_adjust = 1
+# callback for LiDAR odometry data
+vo_rate_adjust = 1 # counter for adujusting the data rate by dropping some messages
 def visualodom_callback(data):
     global stationary, vo_rate_adjust
     t1 = data.header.stamp.to_sec()
@@ -384,6 +401,7 @@ def visualodom_callback(data):
     v_ci = dp_ci / (t1-t0) # velocity in camera init frame
     v_c0 = np.matmul(ciRc0.T, v_ci) # velocity in old camera frame
     v_v = np.matmul(vRc, v_c0) # velocity in vehicle frame
+    
     # ZUPT conditions
     v_v[0] = 0
     v_v[2] = 0
@@ -433,7 +451,6 @@ def visualodom_callback(data):
         return
 
     # velocity correction
-    log.log('vo abs correction')
     def meas_fun(ns):
         R = tft.quaternion_matrix(ns.q())[0:3,0:3]
         return np.matmul(R.T, ns.v())
@@ -444,10 +461,6 @@ def visualodom_callback(data):
         return dx
     v_var = 1e-6
     kf.correct_absolute(meas_fun, v_v*0.98, np.diag([v_var, v_var, v_var]), t1, constraints=constraints, measurement_name='visualodom_v')
-
-    # log.log("angle:{}, t0:{}, t1:{}".format(tft.euler_from_quaternion(tft.quaternion_about_axis(dangle, daxis)), t0, t1))
-
-    # kf.print_states('before rel')
 
     # relative rotation correction
     # if not is_stationary():
@@ -464,16 +477,6 @@ def visualodom_callback(data):
     #         return Hx1, Hx0
     #     kf.correct_relative(meas_fun, dtheta, np.eye(3)*1e-2, t1, t0, hx_fun=hx_fun, measurement_name='visualodom_q')
 
-    # kf.print_states('after rel')
-
-    # def meas_fun(ns1, ns0):
-    #     r1 = tft.quaternion_matrix(ns1.q())[0:3,0:3]
-    #     r0 = tft.quaternion_matrix(ns0.q())[0:3,0:3]
-    #     # dp = np.matmul(r1.T, ns1.p())-np.matmul(r0.T,ns0.p())
-    #     dp = ns1.p() - ns0.p()
-    #     return dp
-    # if stationary:
-    #     kf.correct_relative(meas_fun, np.array((0.1,0,0)), np.eye(3)*1e-4, t1, t0, measurement_name='visualodom_q')
     
 
 def publish_static_transforms(static_broadcaster):
@@ -507,12 +510,13 @@ def publish_static_transforms(static_broadcaster):
 
 
 if __name__ == '__main__':
-    config = get_config_dict()['general']
-    log = Log(config['locator_node_name'])
+    config = get_config_dict()['general'] # load configuration data dictionary
+    log = Log(config['locator_node_name']) # setup logging
 
     rospy.init_node(config['locator_node_name'], anonymous=True)
     log.log('Node initialized.')
 
+    # subscribers for different sensor data topics
     rospy.Subscriber(config['processed_gnss_topic'], Odometry, gnss_callback, queue_size=1)
     rospy.Subscriber(config['processed_altitude_topic'], Odometry, alt_callback, queue_size=1)
     rospy.Subscriber(config['processed_imu_topic'], Imu, imu_callback, queue_size=1)
@@ -520,6 +524,7 @@ if __name__ == '__main__':
     rospy.Subscriber(config['processed_laserodom_topic'], Odometry, laserodom_callback, queue_size=1)
     rospy.Subscriber(config['processed_visualodom_topic'], Odometry, visualodom_callback, queue_size=1)
 
+    # publisher for publishing the state estimate
     state_pub = rospy.Publisher(config['state_topic'], State, queue_size=1)
 
     tf2_broadcaster = tf2.TransformBroadcaster()
@@ -603,8 +608,6 @@ if __name__ == '__main__':
         X[10:16, 9:15] = np.eye(6)
         return X
 
-    # ns_template, es_template, pn_template, mmi_template, motion_model(ts, mmi, pn, dt),
-    # combination(ns, es), difference(ns1, ns0)
     kf = KalmanFilter(
         # nominal state template
         [
@@ -642,6 +645,7 @@ if __name__ == '__main__':
         fi_fun=fi
     )
 
+    # load ground truth data to create pseudo-gnss measurements
     kd = KAISTData()
     kd.load_data(groundtruth=True)
 

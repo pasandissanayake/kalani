@@ -93,7 +93,9 @@ def publish_data():
                 msg.header.stamp = rospy.Time.from_sec(next_data[2])
                 msg.header.frame_id = general_config['tf_frame_lidar']
                 msg.is_dense = True
-                pointcloud_pub.publish(kd.vlp.get_point_cloud2(msg.header))
+                pointcloud , tracklet = kd.vlp.get_point_cloud2(msg.header)
+                pointcloud_pub.publish(pointcloud)
+                tracklet_pub.publish(rnm.to_multiarray_f32(np.array( tracklet , dtype=np.float32)))
 
             elif name == kd.STEREO_IMAGE_CLASS_NAME:
                 limage, rimage, cimage, tracklet = kd.stereoImage.get_stereo_images(next_data[2])
@@ -118,7 +120,7 @@ def publish_data():
                 stereo_left_pub.publish(lmsg)
                 stereo_right_pub.publish(rmsg)
                 stereo_colour_pub.publish(bridge.cv2_to_imgmsg(cimage, "bgr8"))
-                tracklet_pub.publish(rnm.to_multiarray_f32(np.array( tracklet , dtype=np.float32)))
+                #tracklet_pub.publish(rnm.to_multiarray_f32(np.array( tracklet , dtype=np.float32)))
                 
             next_data = pl.next()
             time.sleep(0.001)

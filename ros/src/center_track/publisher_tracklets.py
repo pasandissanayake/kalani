@@ -72,6 +72,7 @@ def talker():
 	labels = GetLabelFilesFromDir( label_file_path  )
 	print(len(velodynes))
 	tracklets , type = load_tracklet( xml_path , len(velodynes) )
+	print("Number of tracklets ",len(tracklets))
 	#left_imgs2 = left_imgs[2:7]
 	pub = rospy.Publisher('left_camera_images', Image, queue_size=0)
 	pub2 = rospy.Publisher('point_clouds', PointCloud2, queue_size=0)

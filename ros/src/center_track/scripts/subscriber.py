@@ -101,7 +101,7 @@ def callback(data):
 	print(img_height , img_width , crop_img.shape)    # 375 1242  --> 512 1392
 	start_time = time.time()
 
-	#ret = detectorr.run(crop_img)
+	ret = detectorr.run(crop_img)
 
 	end_time = time.time()
 
@@ -121,7 +121,7 @@ def callback(data):
 	1.485504475882495
 	"""
 
-	#res_img = ret['generic']
+	res_img = ret['generic']
 	global objects ;
 
 	objects =[]
@@ -183,12 +183,12 @@ def callback(data):
 
 	pub_lidar.publish( cloud_msg )
 	"""
-	out_img = render_image_with_boxes( crop_img , objects , calib)
+	#out_img = render_image_with_boxes( crop_img , objects , calib)
 
 	print(rospy.get_time())
 	print('')
 
-	image_message = bridge.cv2_to_imgmsg( out_img , "bgr8")
+	image_message = bridge.cv2_to_imgmsg( res_img , "bgr8")
 	pub_img.publish(image_message)
 
 ##############################################################################################################

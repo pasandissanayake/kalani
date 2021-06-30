@@ -80,13 +80,19 @@ class LaserScan:
         self._timestamp_file = ''
         self._file_list = []
         self.time = np.zeros(0)
+        self._tracklets = ''
 
-    def set_directory(self, directory, timestamp_file):
+    def set_directory(self, directory, timestamp_file , trackletfilename):
         self._directory = directory
         self._file_list = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
         self._file_list.sort()
         self._timestamp_file = timestamp_file
         self.time = extract_timestamps(timestamp_file)
+        self.load_tracklets(trackletfilename)
+
+    def load_tracklets(self, filename):
+        self._tracklets, type_ = load_tracklet(filename , num_frames=len(self.time) )
+        print( "Number of tracklets :",len(self._tracklets) )
 
     def get_points(self, time, format='XYZI', nearesttimestamp=True):
             if nearesttimestamp:
@@ -99,22 +105,22 @@ class LaserScan:
                 w = scan.reshape((-1, 4))
                 no_of_points = len(w)
                 if format=='XYZI':
-                    return no_of_points, w
+                    return no_of_points, w , self._tracklets[idx]
                 else:
-                    return no_of_points, w[:, :3]
+                    return no_of_points, w[:, :3] , self._tracklets[idx]
             else:
                 log.log('LaserScan get_points() file not found. File name: {}'.format(pointsfile))
                 return None
 
     def get_point_cloud2(self, header, format='XYZI', nearesttimestamp=True):
-        c, p = self.get_points(header.stamp.to_sec(), format, nearesttimestamp)
+        c, p , tracklet = self.get_points(header.stamp.to_sec(), format, nearesttimestamp)
         fields = [
             PointField('x', 0, PointField.FLOAT32, 1),
             PointField('y', 4, PointField.FLOAT32, 1),
             PointField('z', 8, PointField.FLOAT32, 1),
             PointField('intensity', 12, PointField.FLOAT32, 1),
         ]
-        return pc2.create_cloud(header, fields, p)
+        return pc2.create_cloud(header, fields, p) , tracklet
 
 
 class StereoImage:
@@ -141,6 +147,7 @@ class StereoImage:
 
     def load_tracklets(self, filename):
         self._tracklets, type_ = load_tracklet(filename , num_frames=len(self.time) )
+        print( "Number of tracklets :",len(self._tracklets) )
 
     def get_stereo_images(self, time, nearesttimestamp=True):
         if nearesttimestamp:
@@ -153,6 +160,7 @@ class StereoImage:
             left_image = cv2.imread(leftfile, cv2.IMREAD_GRAYSCALE)
             right_image = cv2.imread(rightfile, cv2.IMREAD_GRAYSCALE)
             colour_image = cv2.imread(leftfile, cv2.IMREAD_COLOR)
+            print(idx)
             return left_image, right_image, colour_image, self._tracklets[idx]
         else:
             log.log('StereoImage get_stereo_images() files not found. File names: {}, {}'.format(leftfile, rightfile))
@@ -359,7 +367,8 @@ class KITTIData:
         if vlp:
             directory = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['dir_lidar'])
             vlp_timestamp_file = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['file_name_lidar_timestamps'])
-            self.vlp.set_directory(directory, vlp_timestamp_file)
+            trackletfilename = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['file_name_tracklets'])
+            self.vlp.set_directory(directory, vlp_timestamp_file , trackletfilename)
             self._VLP_FLAG = True
         if stereoimage:
             l_dir = '{}/{}_drive_{}_extract/{}/{}'.format(dataroot, date, drive, date, kitti_config['dir_left_camera'])

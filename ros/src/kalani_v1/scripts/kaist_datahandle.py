@@ -11,9 +11,10 @@ from sensor_msgs.msg import PointCloud2, PointField
 
 from utilities import *
 
-log = Log(prefix='kaist_datahandle')
-config = get_config_dict()['kaist_dataset']
+log = Log(prefix='kaist_datahandle') # initialize logging
+config = get_config_dict()['kaist_dataset'] # fetch configuration data dictionary
 
+# a class to hold 3-dimensional general vector
 class Vector:
     def __init__(self):
         self.x = np.zeros(0)
@@ -21,23 +22,25 @@ class Vector:
         self.z = np.zeros(0)
 
 
+# class for ground truth
 class GroundTruth:
     def __init__(self):
         self.time = np.zeros(2)
-        self.x = np.zeros(2)
-        self.y = np.zeros(2)
-        self.z = np.zeros(2)
-        self.r = np.zeros(2)
-        self.p = np.zeros(2)
-        self.h = np.zeros(2)
-        self.interp_x = interp1d(self.time, self.x)
-        self.interp_y = interp1d(self.time, self.y)
-        self.interp_z = interp1d(self.time, self.z)
-        self.interp_r = interp1d(self.time, self.r)
-        self.interp_p = interp1d(self.time, self.p)
-        self.interp_h = interp1d(self.time, self.h)
+        self.x = np.zeros(2)    # x coordinate
+        self.y = np.zeros(2)    # y coordinate
+        self.z = np.zeros(2)    # z coordinate
+        self.r = np.zeros(2)    # roll
+        self.p = np.zeros(2)    # pitch
+        self.h = np.zeros(2)    # yaw
+        self.interp_x = interp1d(self.time, self.x) # interpolated x (along time axis)
+        self.interp_y = interp1d(self.time, self.y) # interpolated y (along time axis)
+        self.interp_z = interp1d(self.time, self.z) # interpolated z (along time axis)
+        self.interp_r = interp1d(self.time, self.r) # interpolated roll (along time axis)
+        self.interp_p = interp1d(self.time, self.p) # interpolated pitch (along time axis)
+        self.interp_h = interp1d(self.time, self.h) # interpolated yaw (along time axis)
 
 
+# class to hold GNSS data
 class GNSS:
     def __init__(self):
         self.time = np.zeros(0)
@@ -46,6 +49,7 @@ class GNSS:
         self.covariance = np.zeros([4, 4])
 
 
+# class to hold IMU data
 class IMU:
     def __init__(self):
         self.time = np.zeros(0)
@@ -54,37 +58,44 @@ class IMU:
         self.magnetic_field = Vector()
 
 
+# class to hold Altimeter data
 class Altitude:
     def __init__(self):
         self.time = np.zeros(0)
         self.z = np.zeros(0)
 
 
+# class to manipulate LiDAR data
 class LaserScan:
     def __init__(self):
-        self._directory = ''
-        self._file_list = []
-        self.time = np.zeros(0)
+        self._directory = ''    # directory where the pointcloud files are
+        self._file_list = []    # list of the names of the pointcloud files
+        self.time = np.zeros(0) # list of timestamps
 
+    # method to populate _directory, _file_list and time
     def set_directory(self, directory):
         self._directory = directory
         self._file_list = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
-        self._file_list.sort()
+        self._file_list.sort() # sort file list alphabetically
         self.time = np.array([int(t[:-4]) / 1e9 for t in self._file_list])
 
-    def get_points(self, time, format='XYZI', nearesttimestamp=True):
+    # method to read a pointcloud corresponding to a given timestamp
+    # pcformat --> XYZI: (x, y, z, intensity) format, otherwise: (x, y, z) only
+    # nearesttimestamp --> true: fetch the closest pointcloud file in time
+    #                      false: fetch the pointcloud with the exact timestamp. If cannot be found, return None.     
+    def get_points(self, time, pcformat='XYZI', nearesttimestamp=True):
             if nearesttimestamp:
-                idx = np.argmin(np.abs(self.time - time))
+                idx = np.argmin(np.abs(self.time - time)) # obtain the index of the nearest timestamp from self.time array
             else:
                 idx = np.where(self.time == time)[1][0]
-            pointsfile = '{}/{}'.format(self._directory, self._file_list[idx])
+            pointsfile = '{}/{}'.format(self._directory, self._file_list[idx]) # generate file name based on timestamp
             if os.path.isfile(pointsfile):
-                f = open(pointsfile, "rb")
-                s = f.read()
-                no_of_floats = len(s) / 4
-                no_of_points = no_of_floats / 4
+                f = open(pointsfile, "rb") # open pointcloud file
+                s = f.read() # read file completely into memory
+                no_of_floats = len(s) / 4 # number of floats - 4 bytes per each float
+                no_of_points = no_of_floats / 4 # number of points in the cloud - 4 floats for each point (x,y,z,intensity)
                 w = np.reshape(struct.unpack('f' * no_of_floats, s), (-1,4)).astype(np.float32)
-                if format=='XYZI':
+                if pcformat=='XYZI':
                     return no_of_points, w
                 else:
                     return no_of_points, w[:, :3]
@@ -92,8 +103,9 @@ class LaserScan:
                 log.log('LaserScan get_points() file not found. File name: {}'.format(pointsfile))
                 return None
 
-    def get_point_cloud2(self, header, format='XYZI', nearesttimestamp=True):
-        c, p = self.get_points(header.stamp.to_sec(), format, nearesttimestamp)
+    # method to obtain a pointcloud message corresponding to a given timestamp
+    def get_point_cloud2(self, header, pcformat='XYZI', nearesttimestamp=True):
+        c, p = self.get_points(header.stamp.to_sec(), pcformat, nearesttimestamp)
         fields = [
             PointField('x', 0, PointField.FLOAT32, 1),
             PointField('y', 4, PointField.FLOAT32, 1),
@@ -103,14 +115,15 @@ class LaserScan:
         return pc2.create_cloud(header, fields, p)
 
 
+# class to manipulate stereo camera images
 class StereoImage:
     def __init__(self):
-        self._left_dir = ''
-        self._right_dir = ''
-        self._timestamp_file = ''
-        self._left_file_list=[]
-        self._right_file_list=[]
-        self.time = np.zeros(0)
+        self._left_dir = '' # directory path for left images
+        self._right_dir = ''    # directory path for right images
+        self._timestamp_file = ''   # path for the file containing timestamps
+        self._left_file_list=[] # list of left images file names
+        self._right_file_list=[] # list of right image file names
+        self.time = np.zeros(0) # array to hold timestamps
 
     def set_directories(self, left_dir, right_dir, timestamps):
         self._left_dir = left_dir
