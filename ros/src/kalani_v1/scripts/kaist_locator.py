@@ -459,7 +459,7 @@ def visualodom_callback(data):
             dx[0:3] = np.zeros(3)
             dx[6:9] = np.zeros(3)
         return dx
-    v_var = 1e-6
+    v_var = 1e-4
     kf.correct_absolute(meas_fun, v_v*0.98, np.diag([v_var, v_var, v_var]), t1, constraints=constraints, measurement_name='visualodom_v')
 
     # relative rotation correction

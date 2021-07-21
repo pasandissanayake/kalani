@@ -192,7 +192,7 @@ if __name__ == '__main__':
 
     # start data player
     pl = kd.get_player(starttime=sequence_config['time_start_motion'])
-
+    current_time = sequence_config['time_start_motion'];
     try:
         thread.start_new_thread(publish_data, ())
         log.log('Node ready.')

@@ -61,7 +61,6 @@ general:
 ########## KALMAN FILTER ########################
 #################################################
 
-
 kalman_filter:
   buffer_size: 20 # State buffer length
   state_init_time_threshold: 1 # Allowed maximum gap between any two initial state variables (in seconds)
@@ -166,7 +165,8 @@ kaist_dataset:
 
 
   urban27:
-    time_start_motion: 1335704128.61069  # in seconds
+    # time_start_motion: 1335704128.61069  # in seconds
+    time_start_motion: 1335714128.61069  # test 1
 
     map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
       # these are used in relocating the origin, only to reduce the coordinate magnitudes
@@ -178,13 +178,15 @@ kaist_dataset:
       
   urban28:
     # time_start_motion: 1544590814.503533610  # in seconds
-    time_start_motion: 1544590854.31 # starts from zero velocity
+    # time_start_motion: 1544590854.31 # starts from zero velocity
     # time_start_motion: 1544590943.49 # vo misguide
     # time_start_motion: 1544590950.49 # after vo misguide
     # time_start_motion: 1544590898.101531432 # bend 1
     # time_start_motion: 1544591134.205520870 # bend-2
     # time_start_motion: 1544591305.608574044 # stop and lane change
     # time_start_motion: 1544591010.74 # gnss outage 1
+    # time_start_motion: 1544591410.74 # test 1
+    time_start_motion: 1544591800.74 # test 2
     
     map_origin: # in utm coordinates in meters(easting, northing) and meters (alt), UTM zone: 52S, Northern
       # these are used in relocating the origin, only to reduce the coordinate magnitudes
